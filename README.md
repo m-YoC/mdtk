@@ -1,7 +1,7 @@
 
 # mdtk: Markdown CodeBlock Task Runner 
 
-mdtk is a markdown task-runner using codeblock.
+mdtk is a task runner using code block of Markdown.
 
 ## [mdtk command help] --help, -h
 
