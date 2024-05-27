@@ -1,0 +1,15 @@
+
+services:
+  golang:
+    build:
+      context: .
+      dockerfile: golang.dockerfile
+      # dockerfile: gcc.dockerfile
+      args:
+        WORKDIR: $WORKDIR
+    image: mdtk
+    # container_name: $CONTAINER_NAME
+    hostname: container-$COMPOSE_PROJECT_NAME
+    volumes:
+      - "./sources:/$WORKDIR/sources"
+    tty: true

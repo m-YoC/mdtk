@@ -1,0 +1,125 @@
+package read
+
+import (
+	"fmt"
+	"strings"
+	"regexp"
+	"mdtk/base"
+	"mdtk/group"
+	"mdtk/task"
+	"mdtk/code"
+	"mdtk/taskset"
+	"mdtk/path"
+)
+
+const block_reg = "(?P<block>`{3,}|~{3,})"
+const code_reg = "(?P<code>.*?)"
+var task_head_rex = regexp.MustCompile("(?m)^" + block_reg + getTaskHeadRegExp() + "$")
+
+func getTaskHeadRegExp() string {
+	greg := "(?P<group>(?:" + base.NameReg + ")?)"
+	treg := "(?P<task>" + base.NameReg + ")"
+	dreg := "(?P<description>[^\n]*)"
+
+	return "task:" + greg + ":" + treg + "(?:[ \t]+" + dreg + ")?"
+	// return "task:" + greg + ":" + treg
+}
+
+type Markdown string
+
+func (md Markdown) SimplifyNewline() Markdown {
+	return Markdown(strings.Replace(string(md), "\r\n", "\n", -1))
+}
+
+func (md Markdown) ExtractCode(begin int, end_block string) (code.Code, error) {
+// 見つからなかった場合を考慮する
+	idx := strings.Index(string(md[begin:]), end_block)
+	if idx == -1 {
+		return code.Code(""), fmt.Errorf("Code block not closed.\n")
+	}
+
+	return code.Code(strings.Trim(string(md[begin : begin + idx]), "\n")), nil
+}
+
+func (md Markdown) GetTaskBlock() ([]taskset.TaskData, error) {
+	heads := task_head_rex.FindAllStringSubmatch(string(md), -1)
+	indices := task_head_rex.FindAllStringIndex(string(md), -1)
+
+	res := []taskset.TaskData{}
+	for i, head := range heads {
+		block := head[task_head_rex.SubexpIndex("block")]
+		c, err := md.ExtractCode(indices[i][1], block)
+		if err != nil {
+			return []taskset.TaskData{}, err
+		}
+
+		var task_data taskset.TaskData
+		gbuf := head[task_head_rex.SubexpIndex("group")]
+		if gbuf == "" { gbuf = "_" }
+		task_data.Group = group.Group(gbuf)
+		task_data.Task = task.Task(head[task_head_rex.SubexpIndex("task")])
+		task_data.Description = head[task_head_rex.SubexpIndex("description")]
+		task_data.Code = c
+
+		res = append(res, task_data)
+	}
+
+	return res, nil
+}
+
+
+func ReadTask(filename path.Path) (taskset.TaskDataSet, error) {
+	readTaskImpl := func(filename path.Path) (taskset.TaskDataSet, error) {
+		tds := taskset.TaskDataSet{}
+		base_abs_path := filename.GetFileAbsPath()
+		base_dir := base_abs_path.Dir()
+
+		md := ReadFile(filename).SimplifyNewline()
+		tdarr, err1 := md.GetTaskBlock()
+		tfp, err2 := md.GetTaskfileBlockPath()
+		if err1 != nil {
+			return taskset.TaskDataSet{}, fmt.Errorf("%w%s\n", err1, base_abs_path)
+		}
+		if err2 != nil {
+			return taskset.TaskDataSet{}, fmt.Errorf("%w%s\n", err2, base_abs_path)
+		}
+
+		tds.Data = tdarr
+
+		tds.FilePath = map[path.Path]bool{base_abs_path: true}
+		for _, path := range tfp {
+			if f := base_dir.GetSubFilePath(path); f != base_abs_path {
+				tds.FilePath[f] = false
+			}
+		}
+
+		for i, _ := range tds.Data {
+			tds.Data[i].FilePath = base_abs_path
+		}
+
+		return tds, nil
+	}
+
+	tds, err := readTaskImpl(filename)
+	if err != nil {
+		return taskset.TaskDataSet{}, err
+	}
+
+	// Add Taskfile
+	for !tds.HasOnlyFilePathsAlreadyRead() {
+		for k, v := range tds.FilePath {
+			if !v {
+				sub_tds, errr := readTaskImpl(k)
+				if errr != nil {
+					return taskset.TaskDataSet{}, errr
+				}
+
+				tds.Merge(&sub_tds)
+				tds.FilePath[k] = true
+			}
+		}
+	}
+
+	return tds, nil
+}
+
