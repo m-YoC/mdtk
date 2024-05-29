@@ -50,6 +50,7 @@ echo hello mdtk!
 echo "- arg test -"
 #args> a1:string a2:string
 echo a1=$a1 a2=$a2
+#embed> embed:embed_args_test
 ```
 
 ```task:args:task_arg_test   mdtk task arg test

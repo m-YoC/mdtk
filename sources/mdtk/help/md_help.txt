@@ -45,3 +45,13 @@ There must be no duplicate group/task combinations throughout all loaded files.
 | # Write sub taskfile path...
 |
 | ```
+
+
+* Task Cache
+You can make a taskdata cache by specifying --make-cache option.
+The cache 'may' speed up task reading.
+If the cache already exists, it will be read automatically with no option.
+However, note that if taskfiles have some updates at this time, the cache will be remake, 
+ which is slower than if there was no cache.
+Good to use for taskfiles that are being updated less frequently.
+To disable the cache, simply delete the relevant cache.

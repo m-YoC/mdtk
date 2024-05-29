@@ -1,7 +1,6 @@
 package help
 
 import (
-	"fmt"
 	_ "embed"
 )
 
@@ -9,6 +8,7 @@ import (
 var mdhelp string
 
 func ShowMarkdownHelp() {
-	fmt.Println(mdhelp)
+	// fmt.Println(mdhelp)
+	PagerOutput(mdhelp)
 	return
 }

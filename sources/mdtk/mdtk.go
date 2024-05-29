@@ -8,7 +8,9 @@ import (
 	"mdtk/path"
 	"mdtk/read"
 	"mdtk/grtask"
+	"mdtk/taskset"
 	"mdtk/args"
+	"mdtk/cache"
 	"os"
 	_ "embed"
 )
@@ -25,6 +27,7 @@ func GetFlag () parse.Flag {
 	flags := parse.Flag{}
 	flags.Set("--file", []string{"-f"}).SetHasValue("").SetDescription("Specify a task file.")
 	flags.Set("--nest", []string{"-n"}).SetHasValue("20").SetDescription("Set the nest maximum times of embedded comment (embed/task).\nDefault is 20.")
+	flags.Set("--make-cache", []string{"-c"}).SetDescription("Make taskdata cache.")
 	flags.Set("--debug", []string{}).SetDescription("Show run-script.")
 	flags.Set("--version", []string{"-v"}).SetDescription("Show version.")
 	flags.Set("--help", []string{"-h"}).SetDescription("Show command help.")
@@ -74,15 +77,43 @@ func main() {
 	}
 
 	// read Taskfile
-	tds, err := read.ReadTask(filename)
-	if err != nil {
-		fmt.Print(err)
-		os.Exit(1)
+	var tds taskset.TaskDataSet 
+	if cache.ExistCacheFile(filename) {
+		var err error
+		tds, err = cache.ReadCache(filename)
+		// fmt.Println("from cache")
+		if err != nil {
+			fmt.Print(err)
+			os.Exit(1)
+		}
+		if !cache.IsLatestCache(tds, filename) {
+			var err error
+			tds, err = read.ReadTask(filename)
+			if err != nil {
+				fmt.Print(err)
+				os.Exit(1)
+			}
+			fmt.Println("update cache")
+			cache.WriteCache(tds, filename)
+		}
+
+	} else {
+		var err error
+		tds, err = read.ReadTask(filename)
+		if err != nil {
+			fmt.Print(err)
+			os.Exit(1)
+		}
+
+		if flags.GetData("--make-cache").Exist {
+			cache.WriteCache(tds, filename)
+		}
 	}
 
+	
 	// show task help
 	if help.ShouldShowHelp(gtname, tds) {
-		help.ShowHelp(filename, tds, flags.GetData("--task-help-all").Exist)
+		// help.ShowHelp(filename, tds, flags.GetData("--task-help-all").Exist)
 		return
 	}
 

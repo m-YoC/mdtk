@@ -68,6 +68,7 @@ Some comments written as '#xxxx> comment' have a special behavior.
 #args>   comments               : Show comments as arguments in task help.
 ~~~
 
+
 ### * Filename
 mdtk uses Taskfile.md in the current directory unless you specify a file path with --file/-f flag.  
 Instead of Taskfile.md, you can use *.taskrun.md.  
@@ -87,3 +88,13 @@ There must be no duplicate group/task combinations throughout all loaded files.
 
 ```
 ~~~
+
+
+### * Task Cache
+You can make a taskdata cache by specifying --make-cache option.  
+The cache 'may' speed up task reading.  
+If the cache already exists, it will be read automatically with no option.  
+However, note that if taskfiles have some updates at this time, the cache will be remake, 
+ which is slower than if there was no cache.
+Good to use for taskfiles that are being updated less frequently.  
+To disable the cache, simply delete the relevant cache.  

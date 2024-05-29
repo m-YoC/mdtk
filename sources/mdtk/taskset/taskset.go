@@ -43,6 +43,15 @@ func (tds *TaskDataSet) Merge(tds2 *TaskDataSet) {
 	}
 }
 
+func (tds TaskDataSet) RemovePathData(set_str string) TaskDataSet {
+	tds.FilePath = map[path.Path]bool{}
+	
+	for i, _ := range tds.Data {
+		tds.Data[i].FilePath = path.Path(set_str)
+	}
+	return tds
+}
+
 
 func (tds TaskDataSet) GetCode(gname group.Group, tname task.Task) (code.Code, error) {
 	found := []TaskData{}
