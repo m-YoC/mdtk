@@ -1,0 +1,18 @@
+[mdtk command help]
+
+mdtk is a markdown task-runner using codeblock.
+
+  command:  mdtk group-task
+            mdtk group-task [--options] -- args...
+
+  How to write each command
+    group-task -> group task, group:task, task
+                    Can write without group.
+                    In this case, all groups will be searched.
+                    Special group-task names are as follows.
+                    - '_' group : Searchs only empty-name group.
+                    - 'help'    : Show task help.
+                    - empty     : If 'default' task is defined, run it.
+                                  Otherwise, run 'help'.
+    args       -> arg_name=arg_value
+                    Write after 2 underbars.

@@ -10,13 +10,23 @@ import (
 	"mdtk/grtask"
 	"mdtk/args"
 	"os"
+	_ "embed"
 )
+
+//go:embed version.txt
+var version string
+
+func getVersion() string {
+	_, v, _ := args.Arg(version).GetData()
+	return v
+}
 
 func GetFlag () parse.Flag {
 	flags := parse.Flag{}
 	flags.Set("--file", []string{"-f"}).SetHasValue("").SetDescription("Specify a task file.")
 	flags.Set("--nest", []string{"-n"}).SetHasValue("20").SetDescription("Set the nest maximum times of embedded comment (embed/task).\nDefault is 20.")
 	flags.Set("--debug", []string{}).SetDescription("Show run-script.")
+	flags.Set("--version", []string{"-v"}).SetDescription("Show version.")
 	flags.Set("--help", []string{"-h"}).SetDescription("Show command help.")
 	flags.Set("--md-help", []string{}).SetDescription("Show Markdown taskfile help.")
 	flags.Set("--task-help-all", []string{}).SetDescription("Show all tasks that include private groups at task help.")
@@ -36,6 +46,12 @@ func main() {
 
 	if flags.GetData("--md-help").Exist {
 		help.ShowMarkdownHelp()
+		return
+	}
+
+	// show command/md help
+	if flags.GetData("--version").Exist {
+		fmt.Println("mdtk version", getVersion())
 		return
 	}
 

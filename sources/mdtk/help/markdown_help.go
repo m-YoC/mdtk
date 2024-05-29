@@ -2,55 +2,13 @@ package help
 
 import (
 	"fmt"
+	_ "embed"
 )
 
+//go:embed md_help.txt
+var mdhelp string
+
 func ShowMarkdownHelp() {
-	fmt.Println("[Markdown taskfile help]")
-	fmt.Println("")
-	fmt.Println("The definition of a task is written in the following code block.")
-	fmt.Println("Scripts in a code block act as a series of multi-line ShellScript.")
-	fmt.Println("")
-	fmt.Println("| ```task:<group>:<task>  <description>")
-	fmt.Println("|")
-	fmt.Println("| # Write your script...")
-	fmt.Println("|")
-	fmt.Println("| ```")
-	fmt.Println("")
-	fmt.Println("The letters that can be used in <group> and <task> are as follows.")
-	fmt.Println("- Lower Alphabets, Upper Alphabets, Numbers, '_', '-' and '.'")
-	fmt.Println("- First letter is only Lower Alphabets, Upper Alphabets and '_'")
-	fmt.Println("")
-	fmt.Println("<group> and <description> can be empty. (ex: ```task::<task> ~)")
-	fmt.Println("'_' group is as same as empty.")
-	fmt.Println("Group that first is '_' and the length is over 2 is a private group. \nPrivate groups cannot run from command directly.")
-	fmt.Println("")
-	fmt.Println("")
-	fmt.Println("* Embedded Comments")
-	fmt.Println("Some comments written as '#xxxx> comment' have a special behavior.")
-	fmt.Println("")
-	fmt.Println("  #embed>  <group>:<task>         : The specified task is directly embedded.")
-	fmt.Println("  #task>   <group>:<task> -- args : The specified task is embedded as a subshell.")
-	fmt.Println("  #task> @ <group>:<task> -- args : The config once flag is temporarily reset.")
-	fmt.Println("                                    The rest is the same as without @.")
-	fmt.Println("  #config> once                   : When called multiple times, it is called only the first time.")
-	fmt.Println("  #args>   comments               : Show comments as arguments in task help.")
-	fmt.Println("")
-	fmt.Println("")
-	fmt.Println("* Filename")
-	fmt.Println("mdtk uses Taskfile.md in the current directory unless you specify a file path with --file/-f flag.")
-	fmt.Println("Instead of Taskfile.md, you can use *.taskrun.md.")
-	fmt.Println("In this case, however, only one *.taskrun.md file should be placed in the same directory.")
-	fmt.Println("Search Order: --file path -> Taskfile.md -> *.taskrun.md")
-	fmt.Println("")
-	fmt.Println("")
-	fmt.Println("* Sub Taskfile")
-	fmt.Println("You can load sub taskfile in the following code block.")
-	fmt.Println("There must be no duplicate group/task combinations throughout all loaded files.")
-	fmt.Println("")
-	fmt.Println("| ```taskfile")
-	fmt.Println("|")
-	fmt.Println("| # Write sub taskfile path...")
-	fmt.Println("|")
-	fmt.Println("| ```")
-	fmt.Println("")
+	fmt.Println(mdhelp)
+	return
 }
