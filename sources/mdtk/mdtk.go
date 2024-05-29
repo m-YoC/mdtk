@@ -113,7 +113,7 @@ func main() {
 	
 	// show task help
 	if help.ShouldShowHelp(gtname, tds) {
-		// help.ShowHelp(filename, tds, flags.GetData("--task-help-all").Exist)
+		help.ShowHelp(filename, tds, flags.GetData("--task-help-all").Exist)
 		return
 	}
 

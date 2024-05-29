@@ -10,10 +10,12 @@ import (
 var cmdhelp string
 
 func ShowCommandHelp(f parse.Flag, descline int) {
-	fmt.Println(cmdhelp)
+	s := fmt.Sprintln(cmdhelp)
 
-	fmt.Println("  options")
-	fmt.Printf("%s\n", f.GetHelpStr(4, descline))
+	s += fmt.Sprintln("  options")
+	s += fmt.Sprintf("%s\n", f.GetHelpStr(4, descline))
+
+	PagerOutput(s, 40)
 }
 
 

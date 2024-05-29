@@ -51,37 +51,37 @@ func ShowHelp(filename path.Path, tds taskset.TaskDataSet, show_private bool) {
 
 	// ------ Print -------------------------------------
 
-	fmt.Printf(bgray + "[%s help]" + clear + "\n", filename)
+	s := fmt.Sprintf(bgray + "[%s help]" + clear + "\n", filename)
 
 	for _, k := range group_arr {
 		if k == "_" {
 			for _, t := range group_map["_"] {
 				if counts[k + ":" + string(t.Task)] > 1 {
-					fmt.Printf(plane_task_format_str2, t.Task, t.FilePath)
+					s += fmt.Sprintf(plane_task_format_str2, t.Task, t.FilePath)
 					continue
 				}
 
-				fmt.Printf(plane_task_format_str, t.Task, t.Description)
+				s += fmt.Sprintf(plane_task_format_str, t.Task, t.Description)
 
 				for _, a := range t.ArgsTexts {
-					fmt.Printf(args_format_str[0], "", a)
+					s += fmt.Sprintf(args_format_str[0], "", a)
 				}
 			}
 
 		} else {
-			fmt.Printf(group_format_str, k)
+			s += fmt.Sprintf(group_format_str, k)
 
 			for i, t := range group_map[k] {
 				if counts[k + ":" + string(t.Task)] > 1 {
-					fmt.Printf(group_task_format_str2, t.Task, t.FilePath)
+					s += fmt.Sprintf(group_task_format_str2, t.Task, t.FilePath)
 					continue
 				}
 
-				fmt.Printf(group_task_format_str, t.Task, t.Description)
+				s += fmt.Sprintf(group_task_format_str, t.Task, t.Description)
 
 				idx := -(i + 1) / len(group_map[k]) + 1
 				for _, a := range t.ArgsTexts {
-					fmt.Printf(args_format_str[idx], "", a)
+					s += fmt.Sprintf(args_format_str[idx], "", a)
 				}
 				
 			}
@@ -89,7 +89,9 @@ func ShowHelp(filename path.Path, tds taskset.TaskDataSet, show_private bool) {
 		}
 		
 		if len(group_map[k][len(group_map[k])-1].ArgsTexts) == 0 {
-			fmt.Println("")
+			s += fmt.Sprintln("")
 		} 
 	}
+
+	PagerOutput(s, 40)
 }

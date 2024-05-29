@@ -9,6 +9,5 @@ var mdhelp string
 
 func ShowMarkdownHelp() {
 	// fmt.Println(mdhelp)
-	PagerOutput(mdhelp)
-	return
+	PagerOutput(mdhelp, 40)
 }
