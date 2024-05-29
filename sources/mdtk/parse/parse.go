@@ -29,7 +29,8 @@ func Parse(args []string, flags Flag) (string, Flag, []string) {
 
 		for j, fd := range flags {
 			if !fd.MatchName(commands[i]) {
-				continue
+				fmt.Printf("Parsing error: option %s does not exist.\n", fd.Name)
+				os.Exit(1)
 			}
 
 			if fd.HasValue {
