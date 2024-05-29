@@ -29,8 +29,11 @@ func Parse(args []string, flags Flag) (string, Flag, []string) {
 
 		for j, fd := range flags {
 			if !fd.MatchName(commands[i]) {
-				fmt.Printf("Parsing error: option %s does not exist.\n", fd.Name)
-				os.Exit(1)
+				if j+1 == len(flags) {
+					fmt.Printf("Parsing error: option %s does not exist.\n", commands[i])
+					os.Exit(1)
+				}
+				continue
 			}
 
 			if fd.HasValue {
@@ -48,7 +51,6 @@ func Parse(args []string, flags Flag) (string, Flag, []string) {
 
 			break
 		}
-
 	}
 
 	res_taskname := ""
