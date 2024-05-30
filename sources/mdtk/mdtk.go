@@ -31,7 +31,7 @@ func GetFlag () parse.Flag {
 	flags.Set("--debug", []string{}).SetDescription("Show run-script.")
 	flags.Set("--version", []string{"-v"}).SetDescription("Show version.")
 	flags.Set("--help", []string{"-h"}).SetDescription("Show command help.")
-	flags.Set("--md-help", []string{}).SetDescription("Show Markdown taskfile help.")
+	flags.Set("--manual", []string{"-m"}).SetDescription("Show mdtk manual.")
 	flags.Set("--task-help-all", []string{}).SetDescription("Show all tasks that include private groups at task help.")
 	return flags
 }
@@ -47,8 +47,8 @@ func main() {
 		return
 	}
 
-	if flags.GetData("--md-help").Exist {
-		help.ShowMarkdownHelp()
+	if flags.GetData("--manual").Exist {
+		help.ShowManual()
 		return
 	}
 

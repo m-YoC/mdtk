@@ -1,7 +1,9 @@
-[Markdown taskfile help]
+[mdtk manual]
 
+* Basics of Task Definition
 The definition of a task is written in the following code block.
-Scripts in a code block act as a series of multi-line ShellScript.
+Commands in the code block are not independent and run as a single script (run in your SHELL environment).
+In other words, you are merely writing a shell, bash, or other script within the code block.
 
 | ```task:<group>:<task>  <description>
 |
@@ -9,13 +11,26 @@ Scripts in a code block act as a series of multi-line ShellScript.
 |
 | ```
 
-The letters that can be used in <group> and <task> are as follows.
+The characters that can be used in <group> and <task> are as follows.
 - Lower Alphabets, Upper Alphabets, Numbers, '_', '-' and '.'
-- First letter is only Lower Alphabets, Upper Alphabets and '_'
+- First character is only Lower Alphabets, Upper Alphabets and '_'
 
 <group> and <description> can be empty. (ex: ```task::<task> ~)
 '_' group is as same as empty.
-Group that first is '_' and the length is over 2 is a private group. \nPrivate groups cannot run from command directly.
+Group that first is '_' and the length is over 2 is a private group. 
+Private groups cannot run from command directly.
+
+
+* Variables
+No special configuration is required to use task variables.
+The variables given in the command are expanded at the beginning of the script as just variable definitions.
+You simply use the variable in your script.
+
+In the command, as follows, write the variables and its values after '--'.
+- mdtk ... -- ARG1=value1 ARG2=value2 ARG3=value3 ...
+
+mdtk does not check for the existence of variables during script generation.
+It leaves this to the SHELL environment at runtime.
 
 
 * Embedded Comments

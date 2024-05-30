@@ -7,7 +7,10 @@ mdtk is a task runner using code block of Markdown.
 
 Download the appropriate binary for your environment and move it to $PATH directory such as `/usr/local/bin/`.
 
-## [mdtk command help] --help, -h
+
+
+
+## [mdtk command help]
 
 - command:  
     - mdtk group-task
@@ -21,22 +24,27 @@ Download the appropriate binary for your environment and move it to $PATH direct
         - 'help'    : Show task help.
         - empty     : If 'default' task is defined, run it. Otherwise, run 'help'.
 - args       -> arg_name=arg_value
-    - Write after 2 underbars.
+    - Write after 2 hyphens.
 
 ### * options
-
     --file, -f  [+value]      Specify a task file.
     --nest, -n  [+value]      Set the nest maximum times of embedded comment (embed/task).
                               Default is 20.
+    --make-cache, -c          Make taskdata cache.
     --debug                   Show run-script.
+    --version, -v             Show version.
     --help, -h                Show command help.
-    --md-help                 Show Markdown taskfile help.
+    --manual, -m              Show mdtk manual.
     --task-help-all           Show all tasks that include private groups at task help.
 
-## [Markdown taskfile help] --md-help
 
+
+## [mdtk manual]
+
+### * Basics of Task Definition
 The definition of a task is written in the following code block.  
-Scripts in a code block act as a series of multi-line ShellScript.
+Commands in the code block are not independent and run as a single script (run in your SHELL environment).  
+In other words, you are merely writing a shell, bash, or other script within the code block.  
 
 ~~~markdown
 ```task:<group>:<task>  <description>
@@ -46,14 +54,36 @@ Scripts in a code block act as a series of multi-line ShellScript.
 ```
 ~~~
 
-The letters that can be used in \<group> and \<task> are as follows.
+The characters that can be used in \<group> and \<task> are as follows.
 - Lower Alphabets, Upper Alphabets, Numbers, '_', '-' and '.'
-- First letter is only Lower Alphabets, Upper Alphabets and '_'
+- First character is only Lower Alphabets, Upper Alphabets and '_'
 
 \<group> and \<description> can be empty. (ex: ```task::\<task> ~)  
 '\_' group is as same as empty.  
 Group that first is '_' and the length is over 2 is a private group.   
 Private groups cannot run from command directly.
+
+
+#### example
+~~~markdown
+```task::hello_world
+THIS=mdtk
+echo "Hello $THIS World!"
+```
+
+# -> Hello mdtk World!
+~~~
+
+### * Variables
+No special configuration is required to use task variables.  
+The variables given in the command are expanded at the beginning of the script as just variable definitions.  
+You simply use the variable in your script.  
+
+In the command, as follows, write the variables and its values after '--'.
+- mdtk ... -- ARG1=value1 ARG2=value2 ARG3=value3 ...
+
+mdtk does not check for the existence of variables during script generation.  
+It leaves this to the SHELL environment at runtime.
 
 
 ### * Embedded Comments

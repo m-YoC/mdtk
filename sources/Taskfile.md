@@ -3,6 +3,11 @@
 
 ## Base Test
 
+```task::hello_world
+THIS=mdtk
+echo "Hello $THIS World!"
+```
+
 ```task::test   mdtk first test 日本語のテキストサンプルです
 echo hello mdtk! pwd:`pwd`
 ```
