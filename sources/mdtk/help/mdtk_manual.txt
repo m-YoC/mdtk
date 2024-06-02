@@ -32,6 +32,9 @@ In the command, as follows, write the variables and its values after '--'.
 mdtk does not check for the existence of variables during script generation.
 It leaves this to the SHELL environment at runtime.
 
+{$} is a special variable for --script option, replaced by positional parameter $1...$9.
+It cannot be used in normal task run.
+
 
 * Embedded Comments
 Some comments written as '#xxxx> comment' have a special behavior.

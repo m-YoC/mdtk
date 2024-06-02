@@ -9,10 +9,13 @@ import (
 )
 
 func ShouldShowHelp(gtname grtask.GroupTask, tds taskset.TaskDataSet) bool {
-	return string(gtname) == "help" || (string(gtname) == "default" && doNotExistExplicitDefaultTask(tds))
+	_, t, _ := gtname.Split()
+	return string(t) == "help" || (string(gtname) == "default" && doNotExistExplicitDefaultTask(tds))
 }
 
-func ShowHelp(filename path.Path, tds taskset.TaskDataSet, show_private bool) {
+func ShowHelp(filename path.Path, gtname grtask.GroupTask, tds taskset.TaskDataSet, show_private bool, pager_min_row uint) {
+	g, _, _ := gtname.Split()
+
 	tds = getEmbedArgsTexts(tds)
 	tds = getTaskNameMaxLength(tds)
 
@@ -54,6 +57,10 @@ func ShowHelp(filename path.Path, tds taskset.TaskDataSet, show_private bool) {
 	s := fmt.Sprintf(bgray + "[%s help]" + clear + "\n", filename)
 
 	for _, k := range group_arr {
+		if g != "" && string(g) != k {
+			continue
+		}
+
 		if k == "_" {
 			for _, t := range group_map["_"] {
 				if counts[k + ":" + string(t.Task)] > 1 {
@@ -93,5 +100,5 @@ func ShowHelp(filename path.Path, tds taskset.TaskDataSet, show_private bool) {
 		} 
 	}
 
-	PagerOutput(s, 40)
+	PagerOutput(s, pager_min_row)
 }

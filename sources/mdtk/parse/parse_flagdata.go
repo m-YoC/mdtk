@@ -56,8 +56,8 @@ func (fd FlagData) ValueUint() uint64 {
 	return v
 }
 
-func (fd FlagData) GetHelpStr(head_space_num int, descline int) string {
-	h := strings.Repeat(" ", head_space_num)
+func (fd FlagData) GetHelpStr(head_space_num uint, descline uint) string {
+	h := strings.Repeat(" ", int(head_space_num))
 	ss := fmt.Sprintf("%s", fd.Name)
 	for _, v := range fd.Alias {
 		ss += fmt.Sprintf(", %s", v)
@@ -69,7 +69,7 @@ func (fd FlagData) GetHelpStr(head_space_num int, descline int) string {
 	s := ""
 	descs := strings.Split(fd.Description, "\n")
 	for i, v := range descs {
-		s += fmt.Sprintf("%s%-" + strconv.Itoa(descline) + "s%s", h, ss, v)
+		s += fmt.Sprintf("%s%-" + strconv.Itoa(int(descline)) + "s%s", h, ss, v)
 		if i != len(descs)-1 { s += "\n" }
 		ss = ""
 	}
@@ -101,19 +101,28 @@ func (fd *FlagData) SetDescription(desc string) *FlagData {
 	return fd
 }
 
-func (f Flag) GetData(flagname string) FlagData {
-	for _, fd := range f {
+func (f Flag) GetIndex(flagname string) int {
+	for i, fd := range f {
 		if fd.MatchName(flagname) {
-			return fd
+			return i
 		}
 	}
+	return -1
+}
 
-	fmt.Printf("Flag.GetData(\"%s\") cannot find data.\n", flagname)
-	return FlagData{Name: "", Alias: []string{}, HasValue: false, Value: "", Exist: false}
+func (f Flag) GetData(flagname string) FlagData {
+	i := f.GetIndex(flagname)
+
+	if i < 0 {
+		fmt.Printf("Flag.GetData(\"%s\") cannot find data.\n", flagname)
+		return FlagData{Alias: []string{}}
+	}
+
+	return f[i]
 }
 
 
-func (f Flag) GetHelpStr(head_space_num int, descline int) string {
+func (f Flag) GetHelpStr(head_space_num uint, descline uint) string {
 	s := ""
 	for _, v := range f {
 		s += v.GetHelpStr(head_space_num, descline) + "\n"

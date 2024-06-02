@@ -46,7 +46,7 @@ func SearchTaskfile() path.Path {
 	fmt.Println("  2. Name the file 'Taskfile.md'.")
 	fmt.Println("  3. Name the file '*.taskrun.md'.")
 	fmt.Println("Do one of the above. Younger number has priority.")
-	fmt.Println("However, if 'Taskfile.md' does not exist, do not create more than \n one '*.taskrun.md' file (because it cannot determine which file to read).")
+	fmt.Println("Note, if 'Taskfile.md' does not exist, can create only \n 1 '*.taskrun.md' file (because it cannot determine which file to read).")
 	os.Exit(1)
 
 	return ""

@@ -10,9 +10,12 @@ mdtk is a markdown task-runner using codeblock.
                     Can write without group.
                     In this case, all groups will be searched.
                     Special group-task names are as follows.
-                    - '_' group : Searchs only empty-name group.
-                    - 'help'    : Show task help.
-                    - empty     : If 'default' task is defined, run it.
-                                  Otherwise, run 'help'.
+                    - '_' group   : Searchs only empty-name group.
+                    - 'help' task : Show task help.
+                                    If write group, show only written group's tasks.
+                    - empty       : If 'default' task is defined, run it.
+                                    Otherwise, run 'help'.
     args       -> arg_name=arg_value
                     Write after 2 hyphens.
+                    {$} is a special variable for --script option, 
+                    replaced by positional parameter $1...$9.

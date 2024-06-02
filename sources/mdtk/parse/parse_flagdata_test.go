@@ -62,6 +62,18 @@ func Test_Flag(t *testing.T) {
 		assert.Equal(t, "", f[0].Description)
 	})
 
+	t.Run("GetIndex", func(t *testing.T) {
+		f := Flag{}
+		f.Set("--flag1", []string{"-f1"}).SetHasValue("default1")
+		f.Set("--flag2", []string{"-f2"})
+		f.Set("--flag3", []string{"-f3"}).SetHasValue("default3")
+
+		assert.Equal(t, 0, f.GetIndex("-f1"))
+		assert.Equal(t, 1, f.GetIndex("--flag2"))
+		assert.Equal(t, 2, f.GetIndex("-f3"))
+		assert.Equal(t, -1, f.GetIndex("-f4"))
+	})
+
 	t.Run("GetData", func(t *testing.T) {
 		f := Flag{}
 		f.Set("--flag1", []string{"-f1"}).SetHasValue("default1")

@@ -9,12 +9,67 @@ import (
 func SplitArgs(strs []string) ([]string, []string) {
 	for i := 0; i < len(strs); i++ {
 		if strs[i] == "--" {
-			return strs[:i], strs[i+1:]
+			if i+1 < len(strs) {
+				return strs[:i], strs[i+1:]
+			} else {
+				return strs[:i], []string{}
+			}
+			
 		}
 	}
 
 	return strs, []string{}
 }
+
+const (
+	notOp = iota
+	singleOp
+	multiOps
+)
+
+func GetOpType(cmd string) int {
+	cmdrunes := []rune(cmd)
+
+	if cmdrunes[0] != '-' {
+		return notOp
+	}
+
+	if len(cmdrunes) > 2 && cmdrunes[1] != '-' {
+		return multiOps
+	}
+
+	return singleOp
+}
+
+func MatchOp(cmd string, flags Flag) ([]int, error) {
+	cmdrunes := []rune(cmd)
+
+	switch GetOpType(cmd) {
+	case notOp:
+		return nil, fmt.Errorf("[%s] is not option type.\n", cmd)
+
+	case singleOp:
+		idx := flags.GetIndex(cmd)
+		if idx < 0 {
+			return nil, fmt.Errorf("[%s] is invalid option.\n", cmd)
+		}
+		return []int{idx}, nil
+
+	case multiOps:
+		res := []int{}
+		for _, v := range cmdrunes[1:] {
+			idx := flags.GetIndex("-" + string(v))
+			if idx < 0 {
+				return nil, fmt.Errorf("[%s] is invalid option.\n", "-" + string(v))
+			}
+			res = append(res, idx)
+		}
+		return res, nil
+	}
+
+	return nil, fmt.Errorf("Do not come here.\n")
+}
+
 
 func Parse(args []string, flags Flag) (string, Flag, []string) {
 	commands, task_args := SplitArgs(args)
@@ -27,29 +82,32 @@ func Parse(args []string, flags Flag) (string, Flag, []string) {
 			continue
 		}
 
-		for j, fd := range flags {
-			if !fd.MatchName(commands[i]) {
-				if j+1 == len(flags) {
-					fmt.Printf("Parsing error: option %s does not exist.\n", commands[i])
+		fis, err := MatchOp(commands[i], flags)
+		if err != nil {
+			fmt.Printf("Parsing error: %v", err)
+			os.Exit(1)
+		}
+
+		c := 0
+		for _, j := range fis {
+			if flags[j].HasValue {
+				if c > 1 {
+					fmt.Printf("Parsing error: %s includes 2 or more options with a value\n", commands[i])
 					os.Exit(1)
 				}
-				continue
-			}
 
-			if fd.HasValue {
-				if i+1 >= len(commands) {
-					fmt.Printf("Parsing error: option %s is not set correctly.\n", fd.Name)
+				if i+1 >= len(commands) || GetOpType(commands[i+1]) != notOp {
+					fmt.Printf("Parsing error: option %s is not set correctly.\n", flags[j].Name)
 					os.Exit(1)
 				}
 
 				flags[j].Exist = true
 				flags[j].Value = commands[i+1]
 				i++
+				c++
 			} else {
 				flags[j].Exist = true
 			}
-
-			break
 		}
 	}
 

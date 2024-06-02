@@ -1,7 +1,9 @@
 package code
 
 import (
+	"fmt"
 	"strings"
+	"strconv"
 	"mdtk/args"
 )
 
@@ -20,12 +22,23 @@ func (code Code) ApplyArgs(args args.Args, enclose_with_quotes bool) (Code, erro
 		q = "'"
 	}
 
+	count := 1
+
 	for _, arg := range args {
 		name, value, err := arg.GetData()
 		if err != nil {
 			return "", err
 		}
-		argstr += name + "=" + escapeQuoteAndEnclose(value, q) + "; "
+		if enclose_with_quotes && value == "{$}" {
+			if count > 9 {
+				return "", fmt.Errorf("you set too many special variable {$} ( > 9).")
+			}
+			argstr += name + "=$" + strconv.Itoa(count) + "; "
+			count++
+		} else {
+			argstr += name + "=" + escapeQuoteAndEnclose(value, q) + "; "
+		}
+		
 	}
 
 	return Code(argstr + "\n" + string(code)), nil

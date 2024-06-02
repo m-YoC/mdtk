@@ -7,7 +7,7 @@ import (
 //go:embed mdtk_manual.txt
 var mdtkman string
 
-func ShowManual() {
+func ShowManual(pager_min_row uint) {
 	// fmt.Println(mdhelp)
-	PagerOutput(mdtkman, 40)
+	PagerOutput(mdtkman, pager_min_row)
 }

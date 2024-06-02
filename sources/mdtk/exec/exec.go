@@ -26,23 +26,29 @@ func getShell() string {
 	return sh
 }
 
-func ToExecCode(code string, eos string) string {
-	shhead := "set -euo pipefail\n"
-	return "cat - << '" + eos + "' | " + shname + "\n" + shhead + code + "\n" + eos
+func GetShHead() string {
+	return "set -euo pipefail"
 }
 
-func Run(code string) {
+func ToExecCode(code string, eos string) string {
+	return "cat - << '" + eos + "' | " + shname + "\n" + GetShHead() + "\n" + code + "\n" + eos
+}
+
+func Run(code string, quiet_mode bool) {
 	execcode := ToExecCode(code, "EOS")
 	// fmt.Println(execcode)
 
 	out, err := exec.Command(Shname(), "-c", execcode).CombinedOutput()
-	if err != nil {
+	if quiet_mode {
+		out = nil	
+	}
+	if err != nil {	
 		PrintExecError(out)
 		os.Exit(1)
 	}
 
 	// 実行したコマンドの結果を出力
-	fmt.Printf("%s", string(out))
+	fmt.Print(string(out))
 }
 
 func PrintExecError(out []byte) {

@@ -21,21 +21,27 @@ Download the appropriate binary for your environment and move it to $PATH direct
     - Can write without group. In this case, all groups will be searched.
     - Special group-task names are as follows.
         - '_' group : Searchs only empty-name group.
-        - 'help'    : Show task help.
+        - 'help' task : Show task help. If write group, show only written group's tasks.
         - empty     : If 'default' task is defined, run it. Otherwise, run 'help'.
 - args       -> arg_name=arg_value
     - Write after 2 hyphens.
+    - {$} is a special variable for --script option, replaced by positional parameter $1...$9.
 
 ### * options
     --file, -f  [+value]      Specify a task file.
     --nest, -n  [+value]      Set the nest maximum times of embedded comment (embed/task).
                               Default is 20.
+    --quiet, -q               Task output is not sent to standard output.
     --make-cache, -c          Make taskdata cache.
-    --debug                   Show run-script.
+    --script, -s              Display run-script.
+                              (= shebang + 'set -euo pipefail' + expanded-script)
+                              If --debug option is not present, do not run.
+    --debug, -d               Display expanded-script and run.
+                              If --script option is present, display run-script.
     --version, -v             Show version.
     --help, -h                Show command help.
     --manual, -m              Show mdtk manual.
-    --task-help-all           Show all tasks that include private groups at task help.
+    --task-help-all, -a       Show all tasks that include private groups at task help.
 
 
 
@@ -84,6 +90,9 @@ In the command, as follows, write the variables and its values after '--'.
 
 mdtk does not check for the existence of variables during script generation.  
 It leaves this to the SHELL environment at runtime.
+
+{$} is a special variable for --script option, replaced by positional parameter $1...$9.  
+It cannot be used in normal task run.
 
 
 ### * Embedded Comments

@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-func PagerOutput(s string, active_num uint) {
+func PagerOutput(s string, pager_min_row uint) {
 	s = strings.TrimRight(s, "\n") + "\n\n"
 	count := strings.Count(s, "\n")
-	if count < int(active_num) {
+	if count < int(pager_min_row) {
 		fmt.Print(s)
 		return
 	}
