@@ -5,24 +5,24 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"mdtk/config"
 )
 
 func PagerOutput(s string, pager_min_row uint) {
 	s = strings.TrimRight(s, "\n") + "\n\n"
 	count := strings.Count(s, "\n")
-	if count < int(pager_min_row) {
+	pager := config.Config.Pager
+
+	if count < int(pager_min_row) || len(pager) == 0 {
 		fmt.Print(s)
 		return
 	}
 
-	pager := os.Getenv("PAGER")
 	var cmd *exec.Cmd
-	if pager == "" { 
-		cmd = exec.Command("less", "-R")
-	} else if strings.HasSuffix(pager, "less") {
-		cmd = exec.Command(pager, "-R")
+	if strings.HasSuffix(pager[0], "less") && len(pager) == 1 {
+		cmd = exec.Command(pager[0], "-R")
 	} else {
-		cmd = exec.Command(pager)
+		cmd = exec.Command(pager[0], pager[1:]...)
 	}
     
     cmd.Stdin = strings.NewReader(s)

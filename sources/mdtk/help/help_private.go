@@ -3,6 +3,7 @@ package help
 import (
 	"sort"
 	"mdtk/group"
+	"mdtk/grtask"
 	"mdtk/taskset"
 )
 
@@ -58,11 +59,16 @@ func getTaskNameMaxLength(tds taskset.TaskDataSet) taskset.TaskDataSet {
 	return tds
 }
 
-func getGroupMap(tds taskset.TaskDataSet, show_private bool) map[string][]taskset.TaskData {
+func getGroupMap(tds taskset.TaskDataSet, gtname grtask.GroupTask, show_private bool) map[string][]taskset.TaskData {
 	group_map := map[string][]taskset.TaskData{}
+	g, _, _ := gtname.Split()
 	
 	for _, t := range tds.Data {
 		if !show_private && t.Group.IsPrivate() {
+			continue
+		}
+
+		if g != "" && g != t.Group {
 			continue
 		}
 

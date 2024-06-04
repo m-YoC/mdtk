@@ -1,0 +1,2 @@
+pager=less -R
+pager_min_limit=30

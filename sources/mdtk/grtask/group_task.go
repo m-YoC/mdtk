@@ -43,3 +43,12 @@ func (gt GroupTask) Split() (group.Group, task.Task, error) {
 
 	return group.Group(g), task.Task(t), nil
 }
+
+func Create(g group.Group, t task.Task) GroupTask {
+	gt := GroupTask(t)
+	if g != "" {
+		gt = GroupTask(string(g) + ":" + string(t))
+	}
+	return gt
+}
+

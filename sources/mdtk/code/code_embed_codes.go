@@ -21,7 +21,7 @@ func (code Code) ApplyEmbedCodes(tf TaskDataSetInterface, nestsize int) (Code, e
 		if err != nil {
 			return "", err
 		}
-		// subcode = subcode.RemoveEmbedArgsComment()
+		subcode = subcode.RemoveEmbedArgsComment()
 		res = strings.Replace(res, embed[0], string(subcode), 1)
 	}
 

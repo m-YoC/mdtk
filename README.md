@@ -28,20 +28,27 @@ Download the appropriate binary for your environment and move it to $PATH direct
     - {$} is a special variable for --script option, replaced by positional parameter $1...$9.
 
 ### * options
-    --file, -f  [+value]      Specify a task file.
+    --file, -f  [+value]      Select a task file.
     --nest, -n  [+value]      Set the nest maximum times of embedded comment (embed/task).
                               Default is 20.
     --quiet, -q               Task output is not sent to standard output.
-    --make-cache, -c          Make taskdata cache.
+    --all-task, -a            Can select private groups at the command.
+                              Or show all tasks that include private groups at task help.
     --script, -s              Display run-script.
                               (= shebang + 'set -euo pipefail' + expanded-script)
-                              If --debug option is not present, do not run.
+                              If --debug option is not set, do not run.
     --debug, -d               Display expanded-script and run.
-                              If --script option is present, display run-script.
+                              If --script option is set, display run-script.
+    --make-cache, -c          Make taskdata cache.
+    --lib, -l  [+value]       Select a library file.
+                              This is a special version of --file option.
+                              No need to add an extension '.mdtklib'.
+    --make-library  [+value]  Make taskdata library.
+                              Value is library name.
     --version, -v             Show version.
     --help, -h                Show command help.
     --manual, -m              Show mdtk manual.
-    --task-help-all, -a       Show all tasks that include private groups at task help.
+    --write-configbase        Write config base file to current directory.
 
 
 
@@ -99,8 +106,8 @@ It cannot be used in normal task run.
 Some comments written as '#xxxx> comment' have a special behavior.
 
 ~~~
-#embed>  <group>:<task>         : The specified task is directly embedded.
-#task>   <group>:<task> -- args : The specified task is embedded as a subshell.
+#embed>  <group>:<task>         : The selected task is directly embedded.
+#task>   <group>:<task> -- args : The selected task is embedded as a subshell.
 #task> @ <group>:<task> -- args : The config once flag is temporarily reset.
                                   The rest is the same as without @.
 #config> once                   : When called multiple times, it is called only the first time.
@@ -109,7 +116,7 @@ Some comments written as '#xxxx> comment' have a special behavior.
 
 
 ### * Filename
-mdtk uses Taskfile.md in the current directory unless you specify a file path with --file/-f flag.  
+mdtk uses Taskfile.md in the current directory unless you select a file path with --file/-f flag.  
 Instead of Taskfile.md, you can use *.taskrun.md.  
 In this case, however, only one *.taskrun.md file should be placed in the same directory. 
 
@@ -117,8 +124,8 @@ Search Order: --file path -> Taskfile.md -> *.taskrun.md
 
 
 ### * Sub Taskfile
-You can load sub taskfile in the following code block.  
-There must be no duplicate group/task combinations throughout all loaded files.
+You can read sub taskfile in the following code block.  
+There must be no duplicate group/task combinations throughout all read files.
 
 ~~~markdown
 ```taskfile
@@ -130,10 +137,22 @@ There must be no duplicate group/task combinations throughout all loaded files.
 
 
 ### * Task Cache
-You can make a taskdata cache by specifying --make-cache option.  
+You can make a taskdata cache by setting --make-cache option.  
 The cache 'may' speed up task reading.  
 If the cache already exists, it will be read automatically with no option.  
-However, note that if taskfiles have some updates at this time, the cache will be remake, 
- which is slower than if there was no cache.
+However, note that if taskfiles have some updates at this time, the cache will be remade
+ and run-speed is slower than it without cache.  
 Good to use for taskfiles that are being updated less frequently.  
 To disable the cache, simply delete the relevant cache.  
+
+You can also make a taskdata library. It is similar to cache and use --make-library option.  
+Differences of the library and the cache are as follows.  
+- The library is not read automatically and not remade automataically.  
+- Select library file directly using --file/-f or --lib/-l option.  
+- Therefore, can use it alone. Not need to hold '.md' taskfiles at the same place.  
+- Embedded comments of all public tasks will be expanded.  
+- All private tasks will be removed.  
+- All file-path data of tasks will be removed.  
+
+In 'taskfile' code block, you cannot read the cache/library.  
+Please use mdtk command in task when you use them at outside.  

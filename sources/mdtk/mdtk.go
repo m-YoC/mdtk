@@ -12,34 +12,55 @@ import (
 	"mdtk/code"
 	"mdtk/args"
 	"mdtk/cache"
+	"mdtk/config"
 	"os"
 	_ "embed"
 )
 
 func GetFlag () parse.Flag {
 	flags := parse.Flag{}
-	flags.Set("--file", []string{"-f"}).SetHasValue("").SetDescription("Specify a task file.")
+	flags.Set("--file", []string{"-f"}).SetHasValue("").SetDescription("Select a task file.")
 	flags.Set("--nest", []string{"-n"}).SetHasValue("20").SetDescription("Set the nest maximum times of embedded comment (embed/task).\nDefault is 20.")
 	flags.Set("--quiet", []string{"-q"}).SetDescription("Task output is not sent to standard output.")
+	flags.Set("--all-task", []string{"-a"}).SetDescription("Can select private groups at the command.\nOr show all tasks that include private groups at task help.")
+	flags.Set("--script", []string{"-s"}).SetDescription("Display run-script.\n(= shebang + '" + exec.GetShHead() + "' + expanded-script)\nIf --debug option is not set, do not run.")
+	flags.Set("--debug", []string{"-d"}).SetDescription("Display expanded-script and run.\nIf --script option is set, display run-script.")
+	
 	flags.Set("--make-cache", []string{"-c"}).SetDescription("Make taskdata cache.")
-	flags.Set("--script", []string{"-s"}).SetDescription("Display run-script.\n(= shebang + '" + exec.GetShHead() + "' + expanded-script)\nIf --debug option is not present, do not run.")
-	flags.Set("--debug", []string{"-d"}).SetDescription("Display expanded-script and run.\nIf --script option is present, display run-script.")
+	flags.Set("--lib", []string{"-l"}).SetHasValue("").SetDescription("Select a library file.\nThis is a special version of --file option.\nNo need to add an extension '.mdtklib'.")
+	flags.Set("--make-library", []string{}).SetHasValue("").SetDescription("Make taskdata library.\nValue is library name.")
+
 	flags.Set("--version", []string{"-v"}).SetDescription("Show version.")
 	flags.Set("--help", []string{"-h"}).SetDescription("Show command help.")
 	flags.Set("--manual", []string{"-m"}).SetDescription("Show mdtk manual.")
-	flags.Set("--task-help-all", []string{"-a"}).SetDescription("Show all tasks that include private groups at task help.")
+	flags.Set("--write-configbase", []string{}).SetDescription("Write config base file to current directory.")
+	return flags
+}
+
+func LibToFile(flags parse.Flag) parse.Flag {
+	fi := flags.GetIndex("--file")
+	li := flags.GetIndex("--lib")
+	if !flags[fi].Exist && flags[li].Exist {
+		flags[fi].Exist = true
+		flags[fi].Value = flags[li].Value + ".mdtklib"
+	}
 	return flags
 }
 
 func main() {
 	gtname_str, flags, task_args_strarr := parse.Parse(os.Args, GetFlag())
+	flags = LibToFile(flags)
 	gtname := grtask.GroupTask(gtname_str)
 	task_args := args.ToArgs(task_args_strarr...)
 
-	const pager_min_row uint = 30
+	if fd := flags.GetData("--file"); fd.Exist {
+		config.ReadConfig(string(path.Path(fd.Value).Dir()))
+	} else {
+		config.ReadConfig("")
+	}
 
 	// show command/md help
-	if checkOptionsThatDoNotRequireTaskFile(flags, pager_min_row) {
+	if checkOptionsThatDoNotRequireTaskFile(flags) {
 		return
 	}
 
@@ -63,15 +84,21 @@ func main() {
 
 	// read Taskfile
 	tds := readTaskDataSet(filename, flags)
+
+	// make lib
+	if fd := flags.GetData("--make-library"); fd.Exist {
+		cache.WriteLib(tds, filename.Dir(), fd.Value, int(flags.GetData("--nest").ValueUint()))		
+		return
+	}
 	
 	// show task help
 	if help.ShouldShowHelp(gtname, tds) {
-		help.ShowHelp(filename, gtname, tds, flags.GetData("--task-help-all").Exist, pager_min_row)
+		help.ShowHelp(filename, gtname, tds, flags.GetData("--all-task").Exist)
 		return
 	}
 
 	// check PrivateGroup
-	if err := gtname.ValidatePublic(); err != nil {
+	if err := gtname.ValidatePublic(); err != nil && !flags.GetData("--all-task").Exist {
 		fmt.Print(err)
 		os.Exit(1)
 	}
@@ -97,7 +124,7 @@ func getVersion() string {
 	return v
 }
 
-func checkOptionsThatDoNotRequireTaskFile(flags parse.Flag, pager_min_row uint) bool {
+func checkOptionsThatDoNotRequireTaskFile(flags parse.Flag) bool {
 	// show command/md help
 	if flags.GetData("--version").Exist {
 		fmt.Println("mdtk version", getVersion())
@@ -106,19 +133,41 @@ func checkOptionsThatDoNotRequireTaskFile(flags parse.Flag, pager_min_row uint) 
 
 	// show command/md help
 	if flags.GetData("--help").Exist {
-		help.ShowCommandHelp(flags, 26, pager_min_row)
+		help.ShowCommandHelp(flags, 26)
 		return true
 	}
 
 	if flags.GetData("--manual").Exist {
-		help.ShowManual(pager_min_row)
+		help.ShowManual()
 		return true
 	}
+
+	if flags.GetData("--write-configbase").Exist {
+		config.WriteDefaultConfig()
+		return true
+	}
+	
 
 	return false
 }
 
 func readTaskDataSet(filename path.Path, flags parse.Flag) taskset.TaskDataSet {
+	// check filename -> *.md / *.mdtklib
+	ext := filename.Ext()
+	switch ext {
+	case ".md":
+		return readTaskDataSetMd(filename, flags)
+	case ".mdtklib":
+		return readTaskDataSetLib(filename)
+	default:
+		fmt.Printf("Extension of [%s] is not '.md' or '.mdtklib'.\n", filename)
+		os.Exit(1)
+	}
+
+	return taskset.TaskDataSet{}
+}
+
+func readTaskDataSetMd(filename path.Path, flags parse.Flag) taskset.TaskDataSet {
 	make_cache_flag := flags.GetData("--make-cache").Exist
 
 	if cache.ExistCacheFile(filename) {
@@ -149,6 +198,19 @@ func readTaskDataSet(filename path.Path, flags parse.Flag) taskset.TaskDataSet {
 
 	return tds
 }
+
+func readTaskDataSetLib(filename path.Path) taskset.TaskDataSet {
+	tds, err := cache.ReadLib(filename)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	return tds
+}
+
+
 
 func checkOptionsAndWriteScriptToStdout(codedata code.Code, flags parse.Flag) bool {
 	sb := flags.GetData("--script").Exist

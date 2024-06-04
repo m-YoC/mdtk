@@ -1,13 +1,14 @@
 package help
 
 import (
+	"mdtk/config"
 	_ "embed"
 )
 
 //go:embed mdtk_manual.txt
 var mdtkman string
 
-func ShowManual(pager_min_row uint) {
+func ShowManual() {
 	// fmt.Println(mdhelp)
-	PagerOutput(mdtkman, pager_min_row)
+	PagerOutput(mdtkman, config.Config.PagerMinLimit)
 }

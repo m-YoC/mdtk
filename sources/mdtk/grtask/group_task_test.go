@@ -2,6 +2,8 @@ package grtask
 
 import (
 	"fmt"
+	"mdtk/group"
+	"mdtk/task"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
@@ -90,6 +92,26 @@ func Test_GroupTask(t *testing.T) {
 				} else {
 					assert.Error(t, err)
 				}
+			})
+		}
+	})
+
+	t.Run("Create", func(t *testing.T) {
+		tests := []struct {
+			gname string
+			tname string
+			gt_expected string
+		} {
+			{"group", "task", "group:task"},
+			{"", "task", "task"},
+			{"_", "task", "_:task"},
+		}
+
+		for _, tt := range tests {
+			t.Run(fmt.Sprintf("group '%s' and task '%s' are to '%s'", tt.gname, tt.tname, tt.gt_expected), func(t *testing.T) {
+				gt := Create(group.Group(tt.gname), task.Task(tt.tname))
+				
+				assert.Equal(t, tt.gt_expected, string(gt))
 			})
 		}
 	})

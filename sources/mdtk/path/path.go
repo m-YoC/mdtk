@@ -33,3 +33,8 @@ func (base_dir Path) GetSubFilePath(path Path) Path {
     x, _ := filepath.Abs(filepath.Clean(filepath.Join(string(base_dir), string(path))))
     return Path(x)
 }
+
+
+func (path Path) Ext() string {
+    return filepath.Ext(string(path))
+}

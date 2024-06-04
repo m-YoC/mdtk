@@ -4,12 +4,11 @@ import (
     "fmt"
     "os"
 	"path/filepath"
-    "io/ioutil"
 	"mdtk/path"
 )
 
 func ReadFile(path path.Path) Markdown {
-    b, err := ioutil.ReadFile(string(path))
+    b, err := os.ReadFile(string(path))
     if err != nil {
         fmt.Println("File could not be read.")
         fmt.Println(path)

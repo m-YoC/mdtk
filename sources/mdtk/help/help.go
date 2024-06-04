@@ -6,6 +6,7 @@ import (
 	"mdtk/grtask"
 	"mdtk/taskset"
 	"mdtk/path"
+	"mdtk/config"
 )
 
 func ShouldShowHelp(gtname grtask.GroupTask, tds taskset.TaskDataSet) bool {
@@ -13,13 +14,11 @@ func ShouldShowHelp(gtname grtask.GroupTask, tds taskset.TaskDataSet) bool {
 	return string(t) == "help" || (string(gtname) == "default" && doNotExistExplicitDefaultTask(tds))
 }
 
-func ShowHelp(filename path.Path, gtname grtask.GroupTask, tds taskset.TaskDataSet, show_private bool, pager_min_row uint) {
-	g, _, _ := gtname.Split()
-
+func ShowHelp(filename path.Path, gtname grtask.GroupTask, tds taskset.TaskDataSet, show_private bool) {
 	tds = getEmbedArgsTexts(tds)
 	tds = getTaskNameMaxLength(tds)
 
-	group_map := getGroupMap(tds, show_private)
+	group_map := getGroupMap(tds, gtname, show_private)
 	group_arr := getGroupArrAndSort(group_map)
 
 	counts := countGroupTaskName(tds)
@@ -57,10 +56,6 @@ func ShowHelp(filename path.Path, gtname grtask.GroupTask, tds taskset.TaskDataS
 	s := fmt.Sprintf(bgray + "[%s help]" + clear + "\n", filename)
 
 	for _, k := range group_arr {
-		if g != "" && string(g) != k {
-			continue
-		}
-
 		if k == "_" {
 			for _, t := range group_map["_"] {
 				if counts[k + ":" + string(t.Task)] > 1 {
@@ -100,5 +95,5 @@ func ShowHelp(filename path.Path, gtname grtask.GroupTask, tds taskset.TaskDataS
 		} 
 	}
 
-	PagerOutput(s, pager_min_row)
+	PagerOutput(s, config.Config.PagerMinLimit)
 }
