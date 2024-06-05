@@ -6,7 +6,7 @@ import (
 )
 
 // ARG=value の形式
-const arg_reg = "(?P<name>\\w+)=(?P<value>.+)"
+const arg_reg = "(?P<name>\\w+)[:=](?P<value>.+)"
 var arg_rex = regexp.MustCompile("^" + arg_reg + "$")
 var validate_arg_rex = arg_rex
 

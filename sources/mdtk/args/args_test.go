@@ -23,7 +23,7 @@ func Test_Arg(t *testing.T) {
 			{"key='va lu e'", positive},
 			{"key =value", negative},
 			{"ke~y=value", negative},
-			{"key: value", negative},
+			{"key: value", positive},
 		}
 
 		for _, tt := range tests {
@@ -80,7 +80,8 @@ func Test_Args(t *testing.T) {
 			expected string
 		} {
 			{[]string{"key=value", "key=value", "key=value"}, positive},
-			{[]string{"key=value", "key: value", "key=value"}, negative},
+			{[]string{"key=value", "key: value", "key=value"}, positive},
+			{[]string{"key=value", "key; value", "key=value"}, negative},
 		}
 
 		for _, tt := range tests {

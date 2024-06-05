@@ -3,7 +3,7 @@
 
 ## Base Test
 
-```task::hello_world
+```sh task::hello_world hello
 THIS=mdtk
 echo "Hello $THIS World!"
 ```

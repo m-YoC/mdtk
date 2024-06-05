@@ -67,6 +67,16 @@ In other words, you are merely writing a shell, bash, or other script within the
 ```
 ~~~
 
+It can also be written with language aliases added, as follows.
+
+~~~markdown
+```bash  task:<group>:<task>  <description>
+
+# Write your script...
+
+```
+~~~
+
 The characters that can be used in \<group> and \<task> are as follows.
 - Lower Alphabets, Upper Alphabets, Numbers, '_', '-' and '.'
 - First character is only Lower Alphabets, Upper Alphabets and '_'

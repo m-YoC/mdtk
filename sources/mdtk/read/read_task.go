@@ -10,13 +10,17 @@ import (
 	"mdtk/code"
 	"mdtk/taskset"
 	"mdtk/path"
+	"mdtk/config"
 )
 
 const block_reg = "(?P<block>`{3,}|~{3,})"
 const code_reg = "(?P<code>.*?)"
-var task_head_rex = regexp.MustCompile("(?m)^" + block_reg + getTaskHeadRegExp() + "$")
 
-func getTaskHeadRegExp() string {
+
+
+var task_head_rex *regexp.Regexp
+
+func getTaskHeadReg() string {
 	greg := "(?P<group>(?:" + base.NameReg + ")?)"
 	treg := "(?P<task>" + base.NameReg + ")"
 	dreg := "(?P<description>[^\n]*)"
@@ -24,6 +28,22 @@ func getTaskHeadRegExp() string {
 	return "task:" + greg + ":" + treg + "(?:[ \t]+" + dreg + ")?"
 	// return "task:" + greg + ":" + treg
 }
+
+func getProgTypeReg() string {
+	progs := config.Config.LangAlias
+	prog_reg := "(?:(?:" + strings.Join(progs, "|") + ")[ \t]+)?"
+	return prog_reg
+}
+
+func GetTaskHeadRex() *regexp.Regexp {
+	if task_head_rex == nil {
+		task_head_rex = regexp.MustCompile("(?m)^" + block_reg + getProgTypeReg() + getTaskHeadReg() + "$")
+	}
+	return task_head_rex
+}
+
+
+
 
 type Markdown string
 
@@ -42,23 +62,23 @@ func (md Markdown) ExtractCode(begin int, end_block string) (code.Code, error) {
 }
 
 func (md Markdown) GetTaskBlock() ([]taskset.TaskData, error) {
-	heads := task_head_rex.FindAllStringSubmatch(string(md), -1)
-	indices := task_head_rex.FindAllStringIndex(string(md), -1)
+	heads := GetTaskHeadRex().FindAllStringSubmatch(string(md), -1)
+	indices := GetTaskHeadRex().FindAllStringIndex(string(md), -1)
 
 	res := []taskset.TaskData{}
 	for i, head := range heads {
-		block := head[task_head_rex.SubexpIndex("block")]
+		block := head[GetTaskHeadRex().SubexpIndex("block")]
 		c, err := md.ExtractCode(indices[i][1], block)
 		if err != nil {
 			return []taskset.TaskData{}, err
 		}
 
 		var task_data taskset.TaskData
-		gbuf := head[task_head_rex.SubexpIndex("group")]
+		gbuf := head[GetTaskHeadRex().SubexpIndex("group")]
 		if gbuf == "" { gbuf = "_" }
 		task_data.Group = group.Group(gbuf)
-		task_data.Task = task.Task(head[task_head_rex.SubexpIndex("task")])
-		task_data.Description = head[task_head_rex.SubexpIndex("description")]
+		task_data.Task = task.Task(head[GetTaskHeadRex().SubexpIndex("task")])
+		task_data.Description = head[GetTaskHeadRex().SubexpIndex("description")]
 		task_data.Code = c
 
 		res = append(res, task_data)

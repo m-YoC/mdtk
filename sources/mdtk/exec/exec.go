@@ -5,40 +5,26 @@ import (
 	"os"
 	"strings"
 	"os/exec"
+	"mdtk/config"
 )
 
-var shname string
-
-func init() {
-	shname = getShell()
-}
-
-func Shname() string {
-	return shname
-}
-
-func getShell() string {
-	sh := os.Getenv("SHELL")
-	if sh == "" {
-		sh = "sh"
-	}
-
-	return sh
+func GetShell() string {
+	return config.Config.Shell
 }
 
 func GetShHead() string {
-	return "set -euo pipefail"
+	return config.Config.ScriptHeadSet
 }
 
 func ToExecCode(code string, eos string) string {
-	return "cat - << '" + eos + "' | " + shname + "\n" + GetShHead() + "\n" + code + "\n" + eos
+	return "cat - << '" + eos + "' | " + GetShell() + "\n" + GetShHead() + "\n" + code + "\n" + eos
 }
 
 func Run(code string, quiet_mode bool) {
 	execcode := ToExecCode(code, "EOS")
 	// fmt.Println(execcode)
 
-	out, err := exec.Command(Shname(), "-c", execcode).CombinedOutput()
+	out, err := exec.Command(GetShell(), "-c", execcode).CombinedOutput()
 	if quiet_mode {
 		out = nil	
 	}

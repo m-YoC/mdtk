@@ -1,5 +1,5 @@
 # shell to be used
-# shell: /bin/bash
+shell: sh
 script_head_set: set -euo pipefail
 
 # List of languages that can be written at beginning of fenced code block

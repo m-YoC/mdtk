@@ -222,7 +222,7 @@ func checkOptionsAndWriteScriptToStdout(codedata code.Code, flags parse.Flag) bo
 
 	c := codedata.RemoveEmbedArgsComment()
 	if sb {
-		h := fmt.Sprintln("#!" + exec.Shname())
+		h := fmt.Sprintln("#!" + exec.GetShell())
 		h += fmt.Sprintln(exec.GetShHead())
 		h += fmt.Sprintln("")
 		c = code.Code(h) + c

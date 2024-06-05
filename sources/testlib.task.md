@@ -6,6 +6,13 @@
 echo $(task1) $(task2) 
 ~~~
 
+~~~task:_lib:hello_private_world hello private
+#embed> _lib:task1
+#embed> _lib:task2
+
+echo $(task1) $(task2) 
+~~~
+
 ~~~task:_lib:task1
 function task1 () {
     echo hello
