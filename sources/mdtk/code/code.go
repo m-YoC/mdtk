@@ -13,6 +13,7 @@ func init() {
 	embed_comment_rex_map["config"] = regexp.MustCompile(getEmbedCommentRegexStr("config"))
 	embed_comment_rex_map["embed"] = regexp.MustCompile(getEmbedCommentRegexStr("embed"))
 	embed_comment_rex_map["task"] = regexp.MustCompile(getEmbedCommentRegexStr("task"))
+	embed_comment_rex_map["func"] = regexp.MustCompile(getEmbedCommentRegexStr("func"))
 	embed_comment_rex_map["desc"] = regexp.MustCompile(getEmbedCommentRegexStr("desc"))
 	embed_comment_rex_map["args"] = regexp.MustCompile(getEmbedCommentRegexStr("args"))
 }

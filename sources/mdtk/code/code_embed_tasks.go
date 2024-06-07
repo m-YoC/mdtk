@@ -47,6 +47,8 @@ func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, err
 	res := string(code)
 	for _, task := range tasks {
 		use_new_task_stack, grtaskname, args, err1 := getEmbedCommentTaskAndArgs(task[1])
+		head := ""
+
 		if err1 != nil {
 			return "", err1
 		}
@@ -57,7 +59,8 @@ func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, err
 		}
 		subcode = subcode.RemoveEmbedDescComment().RemoveEmbedArgsComment()
 		rsubcode := indent + strings.Replace(string(subcode), "\n", "\n" + indent, -1)
-		execsubcode := "\n# subtask: " + string(grtaskname) + "\n(\n" + rsubcode + "\n) # end: " + string(grtaskname) + "\n"
+		execsubcode := "\n# subtask: " + string(grtaskname) + "\n"
+		execsubcode += head + " (\n" + rsubcode + "\n) # end: " + string(grtaskname) + "\n"
 		res = strings.Replace(res, task[0], execsubcode, 1)
 	}
 

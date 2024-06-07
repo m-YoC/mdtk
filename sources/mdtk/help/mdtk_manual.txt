@@ -50,13 +50,18 @@ It cannot be used in normal task run.
 * Embedded Comments
 Some comments written as '#xxxx> comment' have a special behavior.
 
-  #embed>  <group>:<task>         : The selected task is directly embedded.
-  #task>   <group>:<task> -- args : The selected task is embedded as a subshell.
-  #task> @ <group>:<task> -- args : The config once flag is temporarily reset.
-                                    The rest is the same as without @.
-  #config> once                   : When called multiple times, it is called only the first time.
-  #desc>   comments               : Show comments as additional description in task help.
-  #args>   comments               : Show comments as arguments in task help.
+  #embed>  <group>:<task>                  : The selected task is directly embedded.
+  #task>   <group>:<task> -- args          : The selected task is embedded as a subshell.
+  #task> @ <group>:<task> -- args          : The config once flag is temporarily reset.
+                                             The rest is the same as without @.
+  #func> <funcname> <group>:<task> -- args : The selected task is embedded as a subshell type function.
+                                             The config once flag is temporarily reset.
+                                             If you want the function to have arguments, 
+                                             pass positional parameters to the task with <args>.
+                                             (ex: #func> hello g:t -- arg1=$1 arg2=$2)
+  #config> once                            : When called multiple times, it is called only the first time.
+  #desc>   comments                        : Show comments as additional description in task help.
+  #args>   comments                        : Show comments as arguments in task help.
 
 
 * Filename

@@ -58,4 +58,6 @@
         - 未記入のgroupは0
         - 同じ数値のgroupは辞書順
     - [x] groupの一覧だけ表示する機能
-
+- v0.5.0以降
+    - [ ] 関数化して読み込むembedded commentを作成
+        - `#func> funcname group:task -- args...`

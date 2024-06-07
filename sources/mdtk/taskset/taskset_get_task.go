@@ -52,7 +52,12 @@ func (tds TaskDataSet) GetTask(gtname grtask.GroupTask, args args.Args, args_enc
 			return "", err
 		}
 
-		return res.ApplySubTasks(tds, nestsize)
+		res, err = res.ApplySubTasks(tds, nestsize)
+		if err != nil {
+			return "", err
+		}
+		
+		return res.ApplyFuncs(tds, nestsize)
 	}
 
 	if use_new_task_stack {
