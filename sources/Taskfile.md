@@ -18,7 +18,7 @@ echo "Hello $THIS World!"
 echo hello mdtk! pwd:`pwd`
 ```
 
-```task::test2   mdtk test
+```task::test2
 #config> once
 echo "hello mdtk! (config once)"
 ```

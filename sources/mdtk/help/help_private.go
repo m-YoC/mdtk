@@ -32,7 +32,11 @@ func getEmbedDescTexts(tds taskset.TaskDataSet) taskset.TaskDataSet {
 	for i, task := range tds.Data {
 		desc := task.Code.GetEmbedDescText()
 		if len(tds.Data[i].Description) == 1 && tds.Data[i].Description[0] == "" {
-			tds.Data[i].Description = desc
+			if len(desc) != 0 {
+				tds.Data[i].Description = desc
+			} else {
+				tds.Data[i].Description = []string{"----"}
+			}
 		} else {
 			tds.Data[i].Description = append(tds.Data[i].Description, desc...)
 		}

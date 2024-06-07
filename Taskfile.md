@@ -26,13 +26,26 @@ echo 'run command: tar -zxvf ./mdtk_bin_VERSION.tar.gz'
 ~~~
 
 ## Install Guide
-[!] Cannot install mdtk using mdtk.
 
 ~~~bash task:install-guide:linux-amd64 -- Display command (amd64 arch)
 echo 'run command: sudo cp ./sources/mdtk_bin/linux_amd64/mdtk /usr/local/bin/mdtk'
+echo 'create script'
+filename=install.sh
+mdtk _install install-linux --all-task --script -- arch=amd64 > $filename
+sudo chmod +x $filename
 ~~~
 ~~~bash task:install-guide:linux-arm64 -- Display command (arm64 arch)
 echo 'run command: sudo cp ./sources/mdtk_bin/linux_arm64/mdtk /usr/local/bin/mdtk'
+echo 'create script'
+filename=install.sh
+mdtk _install install-linux --all-task --script -- arch=arm64 > $filename
+sudo chmod +x $filename
+~~~
+
+~~~bash task:_install:install-linux
+#args> arch=(amd64|arm64)
+echo "Install mdtk (os: linux, arch: $arch)"
+sudo cp ./sources/mdtk_bin/linux_$arch/mdtk /usr/local/bin/mdtk
 ~~~
 
 ## Utils
