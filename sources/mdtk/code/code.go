@@ -1,6 +1,7 @@
 package code
 
 import (
+	"strings"
     "regexp"
 	"mdtk/grtask"
 	"mdtk/args"
@@ -12,13 +13,15 @@ func init() {
 	embed_comment_rex_map["config"] = regexp.MustCompile(getEmbedCommentRegexStr("config"))
 	embed_comment_rex_map["embed"] = regexp.MustCompile(getEmbedCommentRegexStr("embed"))
 	embed_comment_rex_map["task"] = regexp.MustCompile(getEmbedCommentRegexStr("task"))
+	embed_comment_rex_map["desc"] = regexp.MustCompile(getEmbedCommentRegexStr("desc"))
 	embed_comment_rex_map["args"] = regexp.MustCompile(getEmbedCommentRegexStr("args"))
 }
 
 func getEmbedCommentRegexStr(key string) string {
 	// #key> comment...
 	const comment_str = "[^ \t\n](?:.*[^ \t\n])?"
-	return "(?m)^[ \t]*#" + key + ">[ \t]+(" + comment_str + ")[ \t]*$"
+	var key_str = "#" + key + ">"
+	return "(?m)^[ \t]*" + key_str + "[ \t]+(" + comment_str + ")[ \t]*$"
 }
 
 type TaskDataSetInterface interface {
@@ -38,6 +41,37 @@ func (code Code) GetEmbedComment(key string) [][]string {
 	rex := regexp.MustCompile(reg)
 	res := rex.FindAllStringSubmatch(string(code), -1)
 	return res
+}
+
+
+func (code Code) GetEmbedCommentText(key string) []string {
+	res := []string{}
+	embeds := code.GetEmbedComment(key)
+
+	if len(embeds) == 0 {
+		return res
+	}
+
+	for _, embed := range embeds {
+		res = append(res, embed[1])
+	}
+
+	return res
+}
+
+func (code Code) RemoveEmbedComment(key string) Code {
+	embeds := code.GetEmbedComment(key)
+
+	if len(embeds) == 0 {
+		return code
+	}
+
+	res := string(code)
+	for _, embed := range embeds {
+		res = strings.Replace(res, embed[0] + "\n", "", 1)
+	}
+
+	return Code(res)
 }
 
 

@@ -61,21 +61,4 @@ func Test_CodeEmbedArgs(t *testing.T) {
 		})
 	})
 
-	t.Run("RemoveEmbedArgsComment", func(t *testing.T) {
-		t.Run("positive1", func(t *testing.T) {
-			code := Code("#TestString\n#args> hoge hoge hoge hoge\n") 
-	
-			res := code.RemoveEmbedArgsComment()
-			assert.Equal(t, "#TestString\n", string(res))
-			
-		})
-
-		t.Run("positive2", func(t *testing.T) {
-			code := Code("#TestString\n") 
-	
-			res := code.RemoveEmbedArgsComment()
-			assert.Equal(t, "#TestString\n", string(res))
-			
-		})
-	})
 }

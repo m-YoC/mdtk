@@ -24,7 +24,7 @@ Download the appropriate binary for your environment and move it to $PATH direct
         - 'help' task : Show task help. If write group, show only written group's tasks.
         - empty     : If 'default' task is defined, run it. Otherwise, run 'help'.
 - args       -> arg_name=arg_value
-    - Write after 2 hyphens.
+    - Write after two hyphens.
     - {$} is a special variable for --script option, replaced by positional parameter $1...$9.
 
 ### * options
@@ -46,6 +46,7 @@ Download the appropriate binary for your environment and move it to $PATH direct
     --make-library  [+value]  Make taskdata library.
                               Value is library name.
     --version, -v             Show version.
+    --groups, -g              Show groups.
     --help, -h                Show command help.
     --manual, -m              Show mdtk manual.
     --write-configbase        Write config base file to current directory.
@@ -60,7 +61,7 @@ Commands in the code block are not independent and run as a single script (run i
 In other words, you are merely writing a shell, bash, or other script within the code block.  
 
 ~~~markdown
-```task:<group>:<task>  <description>
+```task:<group>:<task> -- <description>
 
 # Write your script...
 
@@ -70,7 +71,7 @@ In other words, you are merely writing a shell, bash, or other script within the
 It can also be written with language aliases added, as follows.
 
 ~~~markdown
-```bash  task:<group>:<task>  <description>
+```bash  task:<group>:<task> -- <description>
 
 # Write your script...
 
@@ -83,9 +84,11 @@ The characters that can be used in \<group> and \<task> are as follows.
 
 \<group> and \<description> can be empty. (ex: ```task::\<task> ~)  
 '\_' group is as same as empty.  
-Group that first is '_' and the length is over 2 is a private group.   
+Group that first is '_' and the length is over two is a private group.   
 Private groups cannot run from command directly.
 
+'--' before \<description> is not necessary, but it is better for visibility.  
+Also, the number of '-' need not be two, but any number of one or more.
 
 #### example
 ~~~markdown
@@ -96,6 +99,7 @@ echo "Hello $THIS World!"
 
 # -> Hello mdtk World!
 ~~~
+
 
 ### * Variables
 No special configuration is required to use task variables.  
@@ -121,6 +125,7 @@ Some comments written as '#xxxx> comment' have a special behavior.
 #task> @ <group>:<task> -- args : The config once flag is temporarily reset.
                                   The rest is the same as without @.
 #config> once                   : When called multiple times, it is called only the first time.
+#desc>   comments               : Show comments as additional description in task help.
 #args>   comments               : Show comments as arguments in task help.
 ~~~
 
@@ -144,6 +149,23 @@ There must be no duplicate group/task combinations throughout all read files.
 
 ```
 ~~~
+
+
+### * Taskfile config
+#### ** Group Order
+You can set integers that control the order of groups in the following code block.  
+This configuration is used in task help.  
+In task help, the higher the order value, the higher its group is displayed.  
+The order value is zero, if not set.   
+However, '_' (nameless) group will be the top of task help unless set number explicitly.  
+
+~~~markdown
+```taskconfig:group-order
+<groupname>: <integer> 
+```
+~~~
+
+In this configuration, only what is written to the root file is used.  
 
 
 ### * Task Cache

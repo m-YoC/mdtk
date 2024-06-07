@@ -3,6 +3,7 @@ package help
 import (
 	"fmt"
 	"strconv"
+	"mdtk/lib"
 	"mdtk/grtask"
 	"mdtk/taskset"
 	"mdtk/path"
@@ -15,15 +16,16 @@ func ShouldShowHelp(gtname grtask.GroupTask, tds taskset.TaskDataSet) bool {
 }
 
 func ShowHelp(filename path.Path, gtname grtask.GroupTask, tds taskset.TaskDataSet, show_private bool) {
+	tds = getEmbedDescTexts(tds)
 	tds = getEmbedArgsTexts(tds)
-	tds = getTaskNameMaxLength(tds)
 
 	group_map := getGroupMap(tds, gtname, show_private)
-	group_arr := getGroupArrAndSort(group_map)
+	group_arr := getGroupArrAndSort(group_map, tds.GroupOrder)
 
 	counts := countGroupTaskName(tds)
 
-	taskname_width := max(20, tds.TaskNameMaxLength + 7)
+	taskNameMaxLength := getTaskNameMaxLength(tds)
+	taskname_width := max(20, taskNameMaxLength + 7)
 
 	getTaskNameFormatStr := func(head_str string) string {
 		return gray + head_str + cyan + "%-" + strconv.Itoa(taskname_width - len(head_str)) + "s" + clear
@@ -41,56 +43,56 @@ func ShowHelp(filename path.Path, gtname grtask.GroupTask, tds taskset.TaskDataS
 	group_format_str := getDescFormatStr(gray, "") + "\n"
 	plane_task_format_str := getTaskNameFormatStr("") + getDescFormatStr(clear, "") + "\n"
 	group_task_format_str := getTaskNameFormatStr("\\_ ") + getDescFormatStr(clear, "") + "\n"
+	task_format_str := [2]string{plane_task_format_str, group_task_format_str}
 
 	// For displaying validation error
 	plane_task_format_str2 := getTaskNameFormatStr2("") + getDescFormatStr(magenta, "path: ") + "\n"
 	group_task_format_str2 := getTaskNameFormatStr2("\\_ ") + getDescFormatStr(magenta, "path: ") + "\n"
+	task_format_str2 := [2]string{plane_task_format_str2, group_task_format_str2}
+
+	desc_format_str1 := getTaskNameFormatStr("") + getDescFormatStr(clear, "") + "\n"
+	desc_format_str2 := getTaskNameFormatStr("|") + getDescFormatStr(clear, "") + "\n"
+	desc_format_str := [2]string{desc_format_str1, desc_format_str2}
 
 	args_format_str1 := getTaskNameFormatStr("") + getDescFormatStr(gray, "args: ") + "\n"
 	args_format_str2 := getTaskNameFormatStr("|") + getDescFormatStr(gray, "args: ") + "\n"
-
 	args_format_str := [2]string{args_format_str1, args_format_str2}
 
 	// ------ Print -------------------------------------
 
 	s := fmt.Sprintf(bgray + "[%s help]" + clear + "\n", filename)
 
-	for _, k := range group_arr {
-		if k == "_" {
-			for _, t := range group_map["_"] {
-				if counts[k + ":" + string(t.Task)] > 1 {
-					s += fmt.Sprintf(plane_task_format_str2, t.Task, t.FilePath)
-					continue
-				}
-
-				s += fmt.Sprintf(plane_task_format_str, t.Task, t.Description)
-
-				for _, a := range t.ArgsTexts {
-					s += fmt.Sprintf(args_format_str[0], "", a)
-				}
+	for _, kk := range group_arr {
+		k := kk.Name
+		n := 0
+		if k != "_" {
+			n = 1
+			s += fmt.Sprintf(group_format_str, k)
+		}
+		
+		for i, t := range group_map[k] {
+			if counts[k + ":" + string(t.Task)] > 1 {
+				s += fmt.Sprintf(task_format_str2[n], t.Task, t.FilePath)
+				continue
 			}
 
-		} else {
-			s += fmt.Sprintf(group_format_str, k)
+			s += fmt.Sprintf(task_format_str[n], t.Task, t.Description[0])
 
-			for i, t := range group_map[k] {
-				if counts[k + ":" + string(t.Task)] > 1 {
-					s += fmt.Sprintf(group_task_format_str2, t.Task, t.FilePath)
-					continue
+			idx := lib.Btoi[int](n == 1 && (i + 1) < len(group_map[k]))
+
+			if len(t.Description) > 1 {
+				for _, d := range t.Description[1:] {
+					s += fmt.Sprintf(desc_format_str[idx], "", d)
 				}
-
-				s += fmt.Sprintf(group_task_format_str, t.Task, t.Description)
-
-				idx := -(i + 1) / len(group_map[k]) + 1
-				for _, a := range t.ArgsTexts {
-					s += fmt.Sprintf(args_format_str[idx], "", a)
-				}
-				
+			}
+			for _, a := range t.ArgsTexts {
+				s += fmt.Sprintf(args_format_str[idx], "", a)
 			}
 			
 		}
 		
-		if len(group_map[k][len(group_map[k])-1].ArgsTexts) == 0 {
+		back := group_map[k][len(group_map[k])-1]
+		if len(back.Description) < 2 && len(back.ArgsTexts) == 0 {
 			s += fmt.Sprintln("")
 		} 
 	}

@@ -10,13 +10,19 @@ const md_sample = `
 echo test
 ~~~
 
-~~~task:group:task
+~~~bash task:group:task
 echo test2
 ~~~
 
 ~~~taskfile
 go/test/file.md
   /markdown/read/data.md  
+~~~
+
+~~~taskconfig:group-order
+hello: 1
+ world : -2
+ nothing : nil
 ~~~
 `
 

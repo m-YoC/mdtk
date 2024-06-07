@@ -45,17 +45,10 @@ func (code Code) ApplyArgs(args args.Args, enclose_with_quotes bool) (Code, erro
 }
 
 func (code Code) RemoveEmbedArgsComment() Code {
-	embeds := code.GetEmbedComment("args")
+	return code.RemoveEmbedComment("args")
+}
 
-	if len(embeds) == 0 {
-		return code
-	}
-
-	res := string(code)
-	for _, embed := range embeds {
-		res = strings.Replace(res, embed[0] + "\n", "", 1)
-	}
-
-	return Code(res)
+func (code Code) GetEmbedArgsText() []string {
+	return code.GetEmbedCommentText("args")
 }
 

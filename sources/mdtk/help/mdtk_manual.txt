@@ -5,7 +5,7 @@ The definition of a task is written in the following code block.
 Commands in the code block are not independent and run as a single script (run in your SHELL environment).
 In other words, you are merely writing a shell, bash, or other script within the code block.
 
-| ```task:<group>:<task>  <description>
+| ```task:<group>:<task> -- <description>
 |
 | # Write your script...
 |
@@ -13,7 +13,7 @@ In other words, you are merely writing a shell, bash, or other script within the
 
 It can also be written with languages added, as follows.
 
-| ```bash task:<group>:<task>  <description>
+| ```bash task:<group>:<task> -- <description>
 |
 | # Write your script...
 |
@@ -25,8 +25,11 @@ The characters that can be used in <group> and <task> are as follows.
 
 <group> and <description> can be empty. (ex: ```task::<task> ~)
 '_' group is as same as empty.
-Group that first is '_' and the length is over 2 is a private group. 
+Group that first is '_' and the length is over two is a private group. 
 Private groups cannot run from command directly.
+
+'--' before <description> is not necessary, but it is better for visibility.
+Also, the number of '-' need not be two, but any number of one or more.
 
 
 * Variables
@@ -52,6 +55,7 @@ Some comments written as '#xxxx> comment' have a special behavior.
   #task> @ <group>:<task> -- args : The config once flag is temporarily reset.
                                     The rest is the same as without @.
   #config> once                   : When called multiple times, it is called only the first time.
+  #desc>   comments               : Show comments as additional description in task help.
   #args>   comments               : Show comments as arguments in task help.
 
 
@@ -71,6 +75,21 @@ There must be no duplicate group/task combinations throughout all read files.
 | # Write sub taskfile path...
 |
 | ```
+
+
+* Taskfile config
+** Group Order
+You can set integers that control the order of groups in the following code block.
+This configuration is used in task help.
+In task help, the higher the order value, the higher its group is displayed.
+The order value is zero, if not set. 
+However, '_' (nameless) group will be the top of task help unless set number explicitly.
+
+| ```taskconfig:group-order
+| <groupname>: <integer>
+| ```
+
+In this configuration, only what is written to the root file is used.
 
 
 * Task Cache and Library

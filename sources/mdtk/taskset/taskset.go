@@ -11,7 +11,7 @@ import (
 type TaskData struct {
 	Group group.Group
 	Task task.Task
-	Description string
+	Description []string
 	Code code.Code
 	ArgsTexts []string
 	FilePath path.Path
@@ -20,7 +20,7 @@ type TaskData struct {
 type TaskDataSet struct {
 	Data []TaskData
 	FilePath map[path.Path]bool
-	TaskNameMaxLength int
+	GroupOrder map[group.Group]int64
 }
 
 

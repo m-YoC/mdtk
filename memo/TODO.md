@@ -44,3 +44,18 @@
     - [x] scriptの頭に付けるsetもconfigで調節できるように
     - [x] argsの分離文字に`=`だけでなく`:`も使えるように
 - v0.4.1以降
+    - [x] embedded comment: descの追加
+        - task helpで追加説明を行う。タスク名定義行で説明がない場合は行圧縮する
+    - [x] bugfix: shellの初期値が`bash`になってたのを`/bin/bash`に変更
+        - シバンに埋め込んだときに上手く動かなかったため
+    - [x] 視認性のためにタスク名定義行のdesc前に1つ以上の連続した`-`を入れられるようにした
+        - 表示はされない
+        - taskname及びdescの間にスペースは挟むこと
+        - `bash task::hello -- description`
+- v0.4.2以降
+    - [x] taskconfig:group-order機能
+        - groupのtask helpでの並び順をint型の数値で制御する。数値が大きいほど上になる
+        - 未記入のgroupは0
+        - 同じ数値のgroupは辞書順
+    - [x] groupの一覧だけ表示する機能
+

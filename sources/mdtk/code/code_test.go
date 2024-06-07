@@ -44,4 +44,24 @@ func Test_Code(t *testing.T) {
 		assert.Equal(t, "Hello Golang Test!!", res[0][1])
 		assert.Equal(t, "HogeFuga", res[1][1])
 	})
+
+	t.Run("GetEmbedCommentText", func(t *testing.T) {
+		code := Code(TestCode1) 
+
+		res := code.GetEmbedCommentText("test")
+		assert.Equal(t, 2, len(res))
+		assert.Equal(t, "Hello Golang Test!!", res[0])
+		assert.Equal(t, "HogeFuga", res[1])
+	})
+
+	t.Run("RemoveEmbedComment", func(t *testing.T) {
+		code := Code(TestCode1) 
+
+		res := code.RemoveEmbedComment("test")
+		assert.Equal(t, "#TestString1\necho Happy Test\necho hahahahaha\n", string(res))
+	})
 }
+
+
+
+

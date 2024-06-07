@@ -16,16 +16,15 @@ import (
 const block_reg = "(?P<block>`{3,}|~{3,})"
 const code_reg = "(?P<code>.*?)"
 
-
-
 var task_head_rex *regexp.Regexp
 
 func getTaskHeadReg() string {
 	greg := "(?P<group>(?:" + base.NameReg + ")?)"
 	treg := "(?P<task>" + base.NameReg + ")"
+	dspacer := "(?:-+)"
 	dreg := "(?P<description>[^\n]*)"
 
-	return "task:" + greg + ":" + treg + "(?:[ \t]+" + dreg + ")?"
+	return "task:" + greg + ":" + treg + "(?:[ \t]+" + dspacer + ")?(?:[ \t]+" + dreg + ")?"
 	// return "task:" + greg + ":" + treg
 }
 
@@ -62,23 +61,24 @@ func (md Markdown) ExtractCode(begin int, end_block string) (code.Code, error) {
 }
 
 func (md Markdown) GetTaskBlock() ([]taskset.TaskData, error) {
-	heads := GetTaskHeadRex().FindAllStringSubmatch(string(md), -1)
-	indices := GetTaskHeadRex().FindAllStringIndex(string(md), -1)
+	rex := GetTaskHeadRex()
+	heads := rex.FindAllStringSubmatch(string(md), -1)
+	indices := rex.FindAllStringIndex(string(md), -1)
 
 	res := []taskset.TaskData{}
 	for i, head := range heads {
-		block := head[GetTaskHeadRex().SubexpIndex("block")]
+		block := head[rex.SubexpIndex("block")]
 		c, err := md.ExtractCode(indices[i][1], block)
 		if err != nil {
 			return []taskset.TaskData{}, err
 		}
 
 		var task_data taskset.TaskData
-		gbuf := head[GetTaskHeadRex().SubexpIndex("group")]
+		gbuf := head[rex.SubexpIndex("group")]
 		if gbuf == "" { gbuf = "_" }
 		task_data.Group = group.Group(gbuf)
-		task_data.Task = task.Task(head[GetTaskHeadRex().SubexpIndex("task")])
-		task_data.Description = head[GetTaskHeadRex().SubexpIndex("description")]
+		task_data.Task = task.Task(head[rex.SubexpIndex("task")])
+		task_data.Description = []string{head[rex.SubexpIndex("description")]}
 		task_data.Code = c
 
 		res = append(res, task_data)
@@ -89,7 +89,7 @@ func (md Markdown) GetTaskBlock() ([]taskset.TaskData, error) {
 
 
 func ReadTask(filename path.Path) (taskset.TaskDataSet, error) {
-	readTaskImpl := func(filename path.Path) (taskset.TaskDataSet, error) {
+	readTaskImpl := func(filename path.Path, is_root_file bool) (taskset.TaskDataSet, error) {
 		tds := taskset.TaskDataSet{}
 		base_abs_path := filename.GetFileAbsPath()
 		base_dir := base_abs_path.Dir()
@@ -107,7 +107,7 @@ func ReadTask(filename path.Path) (taskset.TaskDataSet, error) {
 		tds.Data = tdarr
 
 		tds.FilePath = map[path.Path]bool{base_abs_path: true}
-		for _, path := range tfp {
+		for path, _ := range tfp {
 			if f := base_dir.GetSubFilePath(path); f != base_abs_path {
 				tds.FilePath[f] = false
 			}
@@ -117,10 +117,18 @@ func ReadTask(filename path.Path) (taskset.TaskDataSet, error) {
 			tds.Data[i].FilePath = base_abs_path
 		}
 
+		if is_root_file {
+			tdgo, err := md.GetTaskConfigGroupOrder()
+			if err != nil {
+				return taskset.TaskDataSet{}, fmt.Errorf("%w%s\n", err, base_abs_path)
+			}
+			tds.GroupOrder = tdgo
+		}
+
 		return tds, nil
 	}
 
-	tds, err := readTaskImpl(filename)
+	tds, err := readTaskImpl(filename, true)
 	if err != nil {
 		return taskset.TaskDataSet{}, err
 	}
@@ -129,7 +137,7 @@ func ReadTask(filename path.Path) (taskset.TaskDataSet, error) {
 	for !tds.HasOnlyFilePathsAlreadyRead() {
 		for k, v := range tds.FilePath {
 			if !v {
-				sub_tds, errr := readTaskImpl(k)
+				sub_tds, errr := readTaskImpl(k, false)
 				if errr != nil {
 					return taskset.TaskDataSet{}, errr
 				}

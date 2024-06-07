@@ -1,4 +1,4 @@
-# shell to be used
+# shell to be used (also used for shebang of --script option)
 # shell: /bin/bash
 script_head_set: set -euo pipefail
 

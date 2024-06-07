@@ -1,14 +1,20 @@
 # mdtk sample
 
+~~~taskconfig:group-order
+embed: 1
+~~~
 
 ## Base Test
 
-```sh task::hello_world hello
+```bash task::hello_world
+#desc> hello world
+#desc> test sample
 THIS=mdtk
 echo "Hello $THIS World!"
 ```
 
-```task::test   mdtk first test 日本語のテキストサンプルです
+```bash task::test -- mdtk first test 日本語のテキストサンプルです
+#desc> hello mdtk
 echo hello mdtk! pwd:`pwd`
 ```
 
@@ -54,6 +60,7 @@ echo hello mdtk!
 ```task:args:arg_test   mdtk arg test (args_ex: -- a1=hello a2=world)
 echo "- arg test -"
 #args> a1:string a2:string
+#desc> test sample
 echo a1=$a1 a2=$a2
 #embed> embed:embed_args_test
 ```

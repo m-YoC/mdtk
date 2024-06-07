@@ -2,6 +2,7 @@ package help
 
 import (
 	"sort"
+	"math"
 	"mdtk/group"
 	"mdtk/grtask"
 	"mdtk/taskset"
@@ -26,37 +27,38 @@ func doNotExistExplicitDefaultTask(tds taskset.TaskDataSet) bool {
 	return true
 }
 
-
-func getEmbedArgsTexts(tds taskset.TaskDataSet) taskset.TaskDataSet {
+func getEmbedDescTexts(tds taskset.TaskDataSet) taskset.TaskDataSet {
 	res := tds
 	for i, task := range tds.Data {
-		tds.Data[i].ArgsTexts = []string{}
-
-		embeds := task.Code.GetEmbedComment("args")
-
-		if len(embeds) == 0 {
-			continue
-		}
-	
-		for _, embed := range embeds {
-			tds.Data[i].ArgsTexts = append(tds.Data[i].ArgsTexts, embed[1])
+		desc := task.Code.GetEmbedDescText()
+		if len(tds.Data[i].Description) == 1 && tds.Data[i].Description[0] == "" {
+			tds.Data[i].Description = desc
+		} else {
+			tds.Data[i].Description = append(tds.Data[i].Description, desc...)
 		}
 	}
 	
 	return res
 }
 
-func getTaskNameMaxLength(tds taskset.TaskDataSet) taskset.TaskDataSet {
+func getEmbedArgsTexts(tds taskset.TaskDataSet) taskset.TaskDataSet {
+	res := tds
+	for i, task := range tds.Data {
+		tds.Data[i].ArgsTexts = task.Code.GetEmbedArgsText()
+	}
+	
+	return res
+}
+
+func getTaskNameMaxLength(tds taskset.TaskDataSet) int {
 	buf_len := 0
 	for _, task := range tds.Data {
 		if len(task.Task) > buf_len {
 			buf_len = len(task.Task)
 		}
 	}
-
-	tds.TaskNameMaxLength = buf_len
 	
-	return tds
+	return buf_len
 }
 
 func getGroupMap(tds taskset.TaskDataSet, gtname grtask.GroupTask, show_private bool) map[string][]taskset.TaskData {
@@ -82,23 +84,43 @@ func getGroupMap(tds taskset.TaskDataSet, gtname grtask.GroupTask, show_private 
 	return group_map
 }
 
+type groupArr struct {
+	Name string
+	Order int64
+}
 // Ensure that private groups are at the bottom
-func getGroupArrAndSort(group_map map[string][]taskset.TaskData) []string {
-	group_arr_public := []string{}
-	group_arr_private := []string{}
+func getGroupArrAndSort(group_map map[string][]taskset.TaskData, group_order map[group.Group]int64) []groupArr {
+	garr_pub := []groupArr{}
+	garr_prv := []groupArr{}
 
 	for k, _ := range group_map {
+		o := int64(0)
+		if k == "_" { o = math.MaxInt64 }
+		if vv, ok := group_order[group.Group(k)]; ok { o = vv }
+		
 		if group.Group(k).IsPrivate() {
-			group_arr_private = append(group_arr_private, k)
+			garr_prv = append(garr_prv, groupArr{Name: k, Order: o})
 		} else {
-			group_arr_public = append(group_arr_public, k)
+			garr_pub = append(garr_pub, groupArr{Name: k, Order: o})
 		}
 		
 	}
-	sort.Strings(group_arr_public)
-	sort.Strings(group_arr_private)
+	sort.Slice(garr_pub, func(i, j int) bool {
+		if garr_pub[i].Order == garr_pub[j].Order {
+			return garr_pub[i].Name < garr_pub[j].Name
+		} else {
+			return garr_pub[i].Order > garr_pub[j].Order
+		}
+	})
+	sort.Slice(garr_prv, func(i, j int) bool {
+		if garr_prv[i].Order == garr_prv[j].Order {
+			return garr_prv[i].Name < garr_prv[j].Name
+		} else {
+			return garr_prv[i].Order > garr_prv[j].Order
+		}
+	})
 
-	return append(group_arr_public, group_arr_private...)
+	return append(garr_pub, garr_prv...)
 }
 
 func countGroupTaskName(tds taskset.TaskDataSet) map[string]int {

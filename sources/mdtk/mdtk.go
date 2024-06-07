@@ -31,6 +31,7 @@ func GetFlag () parse.Flag {
 	flags.Set("--make-library", []string{}).SetHasValue("").SetDescription("Make taskdata library.\nValue is library name.")
 
 	flags.Set("--version", []string{"-v"}).SetDescription("Show version.")
+	flags.Set("--groups", []string{"-g"}).SetDescription("Show groups.")
 	flags.Set("--help", []string{"-h"}).SetDescription("Show command help.")
 	flags.Set("--manual", []string{"-m"}).SetDescription("Show mdtk manual.")
 	flags.Set("--write-configbase", []string{}).SetDescription("Write config base file to current directory.")
@@ -88,6 +89,12 @@ func main() {
 	// make lib
 	if fd := flags.GetData("--make-library"); fd.Exist {
 		cache.WriteLib(tds, filename.Dir(), fd.Value, int(flags.GetData("--nest").ValueUint()))		
+		return
+	}
+
+	// show groups
+	if flags.GetData("--groups").Exist {
+		help.ShowGroups(filename, tds, flags.GetData("--all-task").Exist)
 		return
 	}
 	

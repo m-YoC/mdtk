@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"os/user"
 	"strings"
@@ -31,8 +32,6 @@ func init() {
 
 	if os.Getenv("SHELL") != "" {
 		Config.Shell = os.Getenv("SHELL")
-	} else {
-		Config.Shell = "bash"
 	}
 
 	if os.Getenv("PAGER") != "" {
@@ -99,7 +98,8 @@ func setConfig(data []string) error {
 			} else {
 				Config.PagerMinLimit = uint(vv)
 			}
-			
+		default:
+			return fmt.Errorf("%s: [%s] is invalid parameter.\n", configName, k)
 		}
 	}
 
