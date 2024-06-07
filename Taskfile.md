@@ -14,6 +14,14 @@ docker compose build
 docker compose build --progress=plain
 ~~~
 
+## Git
+~~~bash task:git:git-push -- Git add all & commit & push
+#args> ct:commit text
+git add .
+git commit -m $c
+git push
+~~~
+
 ## Compress to .tar.gz and Decompress
 
 ~~~bash task:tar.gz:compress -- Compress binary files
