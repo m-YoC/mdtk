@@ -18,7 +18,7 @@ docker compose build --progress=plain
 ~~~bash task:git:git-push -- Git add all & commit & push
 #args> ct:commit text
 git add .
-git commit -m $c
+git commit -m "$c"
 git push
 ~~~
 
