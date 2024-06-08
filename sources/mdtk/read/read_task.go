@@ -24,7 +24,11 @@ func getTaskHeadReg() string {
 	dspacer := "(?:-+)"
 	dreg := "(?P<description>[^\n]*)"
 
-	return "task:" + greg + ":" + treg + "(?:[ \t]+" + dspacer + ")?(?:[ \t]+" + dreg + ")?"
+	res := "task:" + greg + ":" + treg
+	res += "(?:[ \t]+" + dspacer + ")?"
+	res += "(?:[ \t]+" + dreg    + ")?"
+
+	return res
 	// return "task:" + greg + ":" + treg
 }
 

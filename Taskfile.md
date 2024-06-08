@@ -32,15 +32,22 @@ git tag
 git push origin $t
 ~~~
 
+~~~bash task:git:rm-git-tag -- remove git tag & push to GitHub
+#args> t:tag
+git tag --delete $t
+git push origin :$t
+~~~
+
 ## Compress to .tar.gz and Decompress
 
 ~~~bash task:tar.gz:compress -- Compress binary files
 cd sources
 source ./mdtk/version.txt
-tar -zcvf ../mdtk_bin_v${VERSION}.tar.gz ./mdtk_bin 
+tar -zcvf ../mdtk_bin_v${VERSION}_amd64.tar.gz ./mdtk_bin/linux_amd64
+tar -zcvf ../mdtk_bin_v${VERSION}_arm64.tar.gz ./mdtk_bin/linux_arm64
 ~~~
 ~~~bash task:tar.gz:decompress -- Decompress binary files
-echo 'run command: tar -zxvf ./mdtk_bin_VERSION.tar.gz'
+echo 'run command: tar -zxvf ./mdtk_bin_VERSION_ARCH.tar.gz'
 ~~~
 
 ## Install Guide

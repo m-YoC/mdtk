@@ -1,9 +1,11 @@
 # shell to be used
-shell: bash
+shell: /bin/bash
 script_head_set: set -euo pipefail
 
 # List of languages that can be written at beginning of fenced code block
 acceptable_langs: sh shell bash zsh
+
+nest_max_depth: 30
 
 # Settings of pager
 pager: less -R

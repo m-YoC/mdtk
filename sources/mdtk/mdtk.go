@@ -14,13 +14,16 @@ import (
 	"mdtk/cache"
 	"mdtk/config"
 	"os"
+	"strconv"
 	_ "embed"
 )
 
 func GetFlag () parse.Flag {
+	nestsizestr := strconv.FormatUint(uint64(config.Config.NestMaxDepth), 10)
+
 	flags := parse.Flag{}
 	flags.Set("--file", []string{"-f"}).SetHasValue("").SetDescription("Select a task file.")
-	flags.Set("--nest", []string{"-n"}).SetHasValue("20").SetDescription("Set the nest maximum times of embedded comment (embed/task).\nDefault is 20.")
+	flags.Set("--nest", []string{"-n"}).SetHasValue(nestsizestr).SetDescription("Set the nest maximum depth of embedded comment (embed/task).\nDefault is " + nestsizestr + ".")
 	flags.Set("--quiet", []string{"-q"}).SetDescription("Task output is not sent to standard output.")
 	flags.Set("--all-task", []string{"-a"}).SetDescription("Can select private groups at the command.\nOr show all tasks that include private groups at task help.")
 	flags.Set("--script", []string{"-s"}).SetDescription("Display run-script.\n(= shebang + '" + exec.GetShHead() + "' + expanded-script)\nIf --debug option is not set, do not run.")
@@ -55,9 +58,20 @@ func main() {
 	task_args := args.ToArgs(task_args_strarr...)
 
 	if fd := flags.GetData("--file"); fd.Exist {
-		config.ReadConfig(string(path.Path(fd.Value).Dir()))
+		if err := config.ReadConfig(string(path.Path(fd.Value).Dir())); err != nil {
+			fmt.Print(err)
+			os.Exit(1)
+		}
 	} else {
-		config.ReadConfig("")
+		if err := config.ReadConfig(""); err != nil {
+			fmt.Print(err)
+			os.Exit(1)
+		}
+	}
+
+	nestsize := config.Config.NestMaxDepth
+	if fd := flags.GetData("--nest"); fd.Exist {
+		nestsize = uint(fd.ValueUint())
 	}
 
 	// show command/md help
@@ -88,7 +102,7 @@ func main() {
 
 	// make lib
 	if fd := flags.GetData("--make-library"); fd.Exist {
-		cache.WriteLib(tds, filename.Dir(), fd.Value, int(flags.GetData("--nest").ValueUint()))		
+		cache.WriteLib(tds, filename.Dir(), fd.Value, int(nestsize))		
 		return
 	}
 
@@ -110,7 +124,7 @@ func main() {
 		os.Exit(1)
 	}
 	
-	code := tds.GetTaskStart(gtname, task_args, int(flags.GetData("--nest").ValueUint()))
+	code := tds.GetTaskStart(gtname, task_args, int(nestsize))
 
 	if checkOptionsAndWriteScriptToStdout(code, flags) {
 		return

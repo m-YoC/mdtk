@@ -15,29 +15,19 @@ func GetShHead() string {
 	return config.Config.ScriptHeadSet
 }
 
-func ToExecCode(code string, eos string) string {
-	return "cat - << '" + eos + "' | " + GetShell() + "\n" + GetShHead() + "\n" + code + "\n" + eos
-}
-
 func Run(code string, quiet_mode bool) {
-	execcode := ToExecCode(code, "EOS")
-	// fmt.Println(execcode)
+	cmd := exec.Command(GetShell(), "-c", GetShHead() + "\n" + code)
 
-	cmd := exec.Command(GetShell(), "-c", execcode)
 	if !quiet_mode {
 		cmd.Stdout = os.Stdout
 	}
+	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 
-	err := cmd.Run()
-
-	if err != nil {	
+	if err := cmd.Run(); err != nil {	
 		errtext := "mdtk: Command exec error."
 		fmt.Println(errtext, "Error command was run in", os.Args)
 		os.Exit(1)
 	}
-
-	// 実行したコマンドの結果を出力
-	// fmt.Print(string(out))
 }
 

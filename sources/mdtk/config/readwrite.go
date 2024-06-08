@@ -21,6 +21,7 @@ type cfg struct {
 	Shell string
 	ScriptHeadSet string
 	LangAlias []string
+	NestMaxDepth uint
 	Pager []string
 	PagerMinLimit uint
 }
@@ -85,6 +86,12 @@ func setConfig(data []string) error {
 				return err
 			} else {
 				Config.LangAlias = s
+			}
+		case "nest_max_depth":
+			if vv, err := strconv.ParseUint(strings.TrimSpace(v), 10, 64); err != nil {
+				return err
+			} else {
+				Config.NestMaxDepth = uint(vv)
 			}
 		case "pager":
 			if s, err := parse.LexArgString(v); err != nil {

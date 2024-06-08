@@ -6,11 +6,14 @@ embed: 1
 
 ## Base Test
 
-```bash task::hello_world
+```bash task::hello_world  -- aaa
 #desc> hello world
 #desc> test sample
 THIS=mdtk
 echo "Hello $THIS World!"
+read num
+echo $num
+echo ion
 ```
 
 ```bash task::test -- mdtk first test 日本語のテキストサンプルです

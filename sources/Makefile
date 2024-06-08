@@ -12,6 +12,7 @@ install: ## mdtk install (test)
 	cd mdtk && CGO_ENABLED=0 go install -ldflags '-s -w' -trimpath mdtk.go
 test:
 	@cd mdtk && go test ./...
+
 	
 
 cross-compile: ## cross compile
