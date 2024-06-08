@@ -13,6 +13,9 @@ docker compose build
 ~~~bash task:docker:build-plain -- Build all container (--progress=plain)
 docker compose build --progress=plain
 ~~~
+~~~bash task:docker:status
+docker stats
+~~~
 
 ## Git
 ~~~bash task:git:git-push -- Git add all & commit & push

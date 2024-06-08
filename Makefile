@@ -16,9 +16,9 @@ decompress-bin: ## decompress binary files
 	@echo 'run command: tar -zxvf ./mdtk_bin_VERSION.tar.gz'
 
 install-linux-amd64: ## Install mdtk to /usr/local/bin/
-	cp ./sources/mdtk_bin/linux_amd64/mdtk /usr/local/bin/mdtk
+	sudo cp ./sources/mdtk_bin/linux_amd64/mdtk /usr/local/bin/mdtk
 install-linux-arm64: ## Install mdtk to /usr/local/bin/
-	cp ./sources/mdtk_bin/linux_arm64/mdtk /usr/local/bin/mdtk
+	sudo cp ./sources/mdtk_bin/linux_arm64/mdtk /usr/local/bin/mdtk
 
 size:
 	@cd ./sources/mdtk_bin/linux_amd64 && ls -lh

@@ -59,5 +59,9 @@
         - 同じ数値のgroupは辞書順
     - [x] groupの一覧だけ表示する機能
 - v0.5.0以降
-    - [ ] 関数化して読み込むembedded commentを作成
+    - [x] 関数化して読み込むembedded commentを作成
         - `#func> funcname group:task -- args...`
+- v0.5.1以降
+    - [x] execの出力がストリーム出力に対応していなかったので修正
+        - 全部終わってから書き出していた
+        

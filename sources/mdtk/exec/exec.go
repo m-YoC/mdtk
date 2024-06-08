@@ -3,7 +3,6 @@ package exec
 import (
 	"fmt"
 	"os"
-	"strings"
 	"os/exec"
 	"mdtk/config"
 )
@@ -24,23 +23,21 @@ func Run(code string, quiet_mode bool) {
 	execcode := ToExecCode(code, "EOS")
 	// fmt.Println(execcode)
 
-	out, err := exec.Command(GetShell(), "-c", execcode).CombinedOutput()
-	if quiet_mode {
-		out = nil	
+	cmd := exec.Command(GetShell(), "-c", execcode)
+	if !quiet_mode {
+		cmd.Stdout = os.Stdout
 	}
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Run()
+
 	if err != nil {	
-		PrintExecError(out)
+		errtext := "mdtk: Command exec error."
+		fmt.Println(errtext, "Error command was run in", os.Args)
 		os.Exit(1)
 	}
 
 	// 実行したコマンドの結果を出力
-	fmt.Print(string(out))
+	// fmt.Print(string(out))
 }
 
-func PrintExecError(out []byte) {
-	errtext := "mdtk: Command exec error."
-	fmt.Print(string(out))
-	if !strings.Contains(string(out), errtext) {
-		fmt.Println(errtext, "Error command was run in", os.Args)
-	}
-}
