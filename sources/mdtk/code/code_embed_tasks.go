@@ -60,7 +60,7 @@ func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, err
 		subcode = subcode.RemoveEmbedDescComment().RemoveEmbedArgsComment()
 		rsubcode := indent + strings.Replace(string(subcode), "\n", "\n" + indent, -1)
 		execsubcode := "\n# subtask: " + string(grtaskname) + "\n"
-		execsubcode += head + " (\n" + rsubcode + "\n) # end: " + string(grtaskname) + "\n"
+		execsubcode += head + "(\n" + rsubcode + "\n) # end: " + string(grtaskname) + "\n"
 		res = strings.Replace(res, task[0], execsubcode, 1)
 	}
 

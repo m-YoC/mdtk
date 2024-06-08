@@ -18,8 +18,15 @@ docker compose build --progress=plain
 ~~~bash task:git:git-push -- Git add all & commit & push
 #args> ct:commit text
 git add .
-git commit -m "$c"
+git commit -m "$ct"
 git push
+~~~
+
+~~~bash task:git:set-git-tag -- set git tag & push to GitHub
+#args> t:tag
+git tag $t
+git tag
+git push origin $t
 ~~~
 
 ## Compress to .tar.gz and Decompress
