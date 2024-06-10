@@ -50,7 +50,7 @@ func getGroupMap(tds taskset.TaskDataSet, gtname grtask.GroupTask, show_private 
 	data := [3][]taskset.TaskData{{}, {}, {}}
 
 	for _, t := range tds.Data {
-		if !show_private && t.HasAttr("hidden") {
+		if !show_private && t.HasAttr(taskset.ATTR_HIDDEN) {
 			continue
 		}
 
@@ -59,8 +59,8 @@ func getGroupMap(tds taskset.TaskDataSet, gtname grtask.GroupTask, show_private 
 		}
 
 		idx := MID
-		if  t.HasAttr("t") && !t.HasAttr("b") { idx = TOP }
-		if !t.HasAttr("t") &&  t.HasAttr("b") { idx = BTM }
+		if  t.HasAttr(taskset.ATTR_TOP) && !t.HasAttr(taskset.ATTR_BOTTOM) { idx = TOP }
+		if !t.HasAttr(taskset.ATTR_TOP) &&  t.HasAttr(taskset.ATTR_BOTTOM) { idx = BTM }
 
 		data[idx] = append(data[idx], t)
 	}

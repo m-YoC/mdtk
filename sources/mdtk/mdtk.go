@@ -8,6 +8,7 @@ import (
 	"mdtk/path"
 	"mdtk/read"
 	"mdtk/grtask"
+	"mdtk/taskset"
 	"mdtk/code"
 	"mdtk/args"
 	"mdtk/cache"
@@ -103,7 +104,7 @@ func main() {
 	if td, err := tds.GetTaskData(gtname.Split()); err != nil {
 		fmt.Print(err)
 		sub.MdtkExit(1)
-	} else if td.HasAttr("hidden") && !flags.GetData("--all-task").Exist {
+	} else if td.HasAttr(taskset.ATTR_HIDDEN) && !flags.GetData("--all-task").Exist {
 		fmt.Println("Private/Hidden group cannot be executed directly.")
 		fmt.Printf("[group: %s | task: %s | path: %s]\n", td.Group, td.Task, td.FilePath)
 		sub.MdtkExit(1)

@@ -8,6 +8,12 @@ import (
 	"mdtk/path"
 )
 
+const (
+	ATTR_HIDDEN = "hidden"
+	ATTR_TOP    = "t"
+	ATTR_BOTTOM = "b"
+)
+
 type TaskData struct {
 	Group group.Group
 	Task task.Task
@@ -64,7 +70,7 @@ func (td TaskData) getAttributesFromDesc() ([]string, string) {
 func (td *TaskData) GetAttrsAndSet() {
 	attrs, _ := td.getAttributesFromDesc()
 	if td.Group.IsPrivate() {
-		attrs = append(attrs, "hidden")
+		attrs = append(attrs, ATTR_HIDDEN)
 	}
 	td.Attributes = attrs
 }
