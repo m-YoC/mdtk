@@ -27,32 +27,6 @@ func doNotExistExplicitDefaultTask(tds taskset.TaskDataSet) bool {
 	return true
 }
 
-func getEmbedDescTexts(tds taskset.TaskDataSet) taskset.TaskDataSet {
-	res := tds
-	for i, task := range tds.Data {
-		desc := task.Code.GetEmbedDescText()
-		if len(tds.Data[i].Description) == 1 && tds.Data[i].Description[0] == "" {
-			if len(desc) != 0 {
-				tds.Data[i].Description = desc
-			} else {
-				tds.Data[i].Description = []string{"----"}
-			}
-		} else {
-			tds.Data[i].Description = append(tds.Data[i].Description, desc...)
-		}
-	}
-	
-	return res
-}
-
-func getEmbedArgsTexts(tds taskset.TaskDataSet) taskset.TaskDataSet {
-	res := tds
-	for i, task := range tds.Data {
-		tds.Data[i].ArgsTexts = task.Code.GetEmbedArgsText()
-	}
-	
-	return res
-}
 
 func getTaskNameMaxLength(tds taskset.TaskDataSet) int {
 	buf_len := 0
@@ -66,11 +40,17 @@ func getTaskNameMaxLength(tds taskset.TaskDataSet) int {
 }
 
 func getGroupMap(tds taskset.TaskDataSet, gtname grtask.GroupTask, show_private bool) map[string][]taskset.TaskData {
-	group_map := map[string][]taskset.TaskData{}
 	g, _, _ := gtname.Split()
-	
+
+	const (
+		TOP = iota
+		MID
+		BTM
+	)
+	data := [3][]taskset.TaskData{{}, {}, {}}
+
 	for _, t := range tds.Data {
-		if !show_private && t.Group.IsPrivate() {
+		if !show_private && t.HasAttr("hidden") {
 			continue
 		}
 
@@ -78,10 +58,23 @@ func getGroupMap(tds taskset.TaskDataSet, gtname grtask.GroupTask, show_private 
 			continue
 		}
 
-		if _, ok := group_map[string(t.Group)]; ok {
-			group_map[string(t.Group)] = append(group_map[string(t.Group)], t)
-		} else {
-			group_map[string(t.Group)] = []taskset.TaskData{ t }
+		idx := MID
+		if  t.HasAttr("t") && !t.HasAttr("b") { idx = TOP }
+		if !t.HasAttr("t") &&  t.HasAttr("b") { idx = BTM }
+
+		data[idx] = append(data[idx], t)
+	}
+	
+
+	group_map := map[string][]taskset.TaskData{}
+	
+	for _, d := range data {
+		for _, t := range d {
+			if _, ok := group_map[string(t.Group)]; ok {
+				group_map[string(t.Group)] = append(group_map[string(t.Group)], t)
+			} else {
+				group_map[string(t.Group)] = []taskset.TaskData{ t }
+			}
 		}
 	}
 

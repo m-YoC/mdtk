@@ -31,6 +31,16 @@ Private groups cannot run from command directly.
 '--' before <description> is not necessary, but it is better for visibility.
 Also, the number of '-' need not be two, but any number of one or more.
 
+** Attributes
+You can write attributes in the beginning of <description> using '[...]'.
+- format: [attr1 attr2 ...] description...
+- Set space between each attribute
+
+    Attributes List
+    - hidden: The task gets same effects as private group.
+    - t     : In the task help, the task will be written on the upper side of the group.
+    - b     : In the task help, the task will be written on the lower side of the group.
+
 
 * Variables
 No special configuration is required to use task variables.
@@ -82,7 +92,7 @@ There must be no duplicate group/task combinations throughout all read files.
 | ```
 
 
-* Taskfile config
+* Taskfile Config
 ** Group Order
 You can set integers that control the order of groups in the following code block.
 This configuration is used in task help.

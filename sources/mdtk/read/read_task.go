@@ -85,6 +85,8 @@ func (md Markdown) GetTaskBlock() ([]taskset.TaskData, error) {
 		task_data.Description = []string{head[rex.SubexpIndex("description")]}
 		task_data.Code = c
 
+		task_data.GetAttrsAndSet()
+
 		res = append(res, task_data)
 	}
 

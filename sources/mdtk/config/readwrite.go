@@ -18,7 +18,7 @@ const configName = ".mdtkconfig"
 var dflt string
 
 type cfg struct {
-	Shell string
+	Shell []string
 	ScriptHeadSet string
 	LangAlias []string
 	NestMaxDepth uint
@@ -32,7 +32,7 @@ func init() {
 	setConfig(strings.Split(dflt, "\n"))
 
 	if os.Getenv("SHELL") != "" {
-		Config.Shell = os.Getenv("SHELL")
+		Config.Shell = []string{os.Getenv("SHELL"), "-c"}
 	}
 
 	if os.Getenv("PAGER") != "" {
@@ -78,7 +78,11 @@ func setConfig(data []string) error {
 
 		switch k {
 		case "shell":
-			Config.Shell = strings.TrimSpace(v)
+			if s, err := parse.LexArgString(v); err != nil {
+				return err
+			} else {
+				Config.Shell = s
+			}
 		case "script_head_set":
 			Config.ScriptHeadSet = strings.TrimSpace(v)
 		case "acceptable_langs":

@@ -29,16 +29,12 @@ Download the appropriate binary for your environment and move it to $PATH direct
 
 ### * options
     --file, -f  [+value]      Select a task file.
-    --nest, -n  [+value]      Set the nest maximum times of embedded comment (embed/task).
+    --nest, -n  [+value]      Set the nest maximum depth of embedded comment (embed/task).
                               Default is 20.
     --quiet, -q               Task output is not sent to standard output.
-    --all-task, -a            Can select private groups at the command.
-                              Or show all tasks that include private groups at task help.
-    --script, -s              Display run-script.
-                              (= shebang + 'set -euo pipefail' + expanded-script)
-                              If --debug option is not set, do not run.
-    --debug, -d               Display expanded-script and run.
-                              If --script option is set, display run-script.
+    --all-task, -a            Can select private groups and hidden tasks at the command.
+                              Or show all tasks that include private groups and hidden tasks  at task help.
+    --script, -s              Display script.
     --make-cache, -c          Make taskdata cache.
     --lib, -l  [+value]       Select a library file.
                               This is a special version of --file option.
@@ -90,9 +86,19 @@ Private groups cannot run from command directly.
 '--' before \<description> is not necessary, but it is better for visibility.  
 Also, the number of '-' need not be two, but any number of one or more.
 
+#### ** Attributes
+You can write attributes in the beginning of \<description> using '[...]'.  
+  - format: `[attr1 attr2 ...] description...`
+  - Set space between each attribute
+  - Attributes List
+    - `hidden`: The task gets same effects as private group.
+    - `t`     : In the task help, the task will be written on the upper side of the group.
+    - `b`     : In the task help, the task will be written on the lower side of the group.
+
+
 #### example
 ~~~markdown
-```task::hello_world
+```task::hello_world -- [t] This is Detail Text.
 THIS=mdtk
 echo "Hello $THIS World!"
 ```

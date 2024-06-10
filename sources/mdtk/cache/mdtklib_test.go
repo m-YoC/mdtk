@@ -27,13 +27,23 @@ func Test_expandPublicGroupTask(t *testing.T) {
 	tds := taskset.TaskDataSet{Data: []taskset.TaskData{}}
 	tds.Data = append(tds.Data, taskset.TaskData{Group: "_", Task: "task1", Code: code.Code(code1)})
 	tds.Data = append(tds.Data, taskset.TaskData{Group: "_", Task: "task2", Code: code.Code(code2)})
+	tds.Data = append(tds.Data, taskset.TaskData{Group: "_", Task: "task3", Code: code.Code(code1), Attributes: []string{"hidden"}})
+	
+	assert.False(t, tds.Data[0].HasAttr("hidden"))
+	assert.False(t, tds.Data[1].HasAttr("hidden"))
+	assert.True(t, tds.Data[2].HasAttr("hidden"))
 	assert.Equal(t, code12, string(expandPublicGroupTask(tds, 10).Data[0].Code))
+	assert.Equal(t, code1, string(expandPublicGroupTask(tds, 10).Data[2].Code))
 }
 
 func Test_removePrivateGroupTask(t *testing.T) {
 	tds := taskset.TaskDataSet{Data: []taskset.TaskData{}}
 	tds.Data = append(tds.Data, taskset.TaskData{Group: "_", Task: "task1", Code: code.Code(code1)})
-	tds.Data = append(tds.Data, taskset.TaskData{Group: "_private", Task: "task2", Code: code.Code(code2)})
+	tds.Data = append(tds.Data, taskset.TaskData{Group: "_private", Task: "task2", Code: code.Code(code2), Description: []string{""}})
+	tds.Data[1].GetAttrsAndSet()
+
+	assert.False(t, tds.Data[0].HasAttr("hidden"))
+	assert.True(t, tds.Data[1].HasAttr("hidden"))
 	assert.Equal(t, 1, len(removePrivateGroupTask(tds).Data))
 }
 

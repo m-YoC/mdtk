@@ -14,15 +14,17 @@ echo "Hello $THIS World!"
 read num
 echo $num
 echo ion
+#embed> test
 ```
 
-```bash task::test -- mdtk first test 日本語のテキストサンプルです
+```bash task::test -- [t] mdtk first test 日本語のテキストサンプルです
 #desc> hello mdtk
 echo hello mdtk! pwd:`pwd`
 ```
 
-```task::test2
+```bash task::test2
 #config> once
+#embed> test
 echo "hello mdtk! (config once)"
 ```
 

@@ -13,8 +13,7 @@ func (tds TaskDataSet) GetTask(gtname grtask.GroupTask, args args.Args, args_enc
 		return "", fmt.Errorf("Nest of embed/task comments is too deep.\n")
 	}
 
-	var err error
-	gname, tname, err := gtname.Split()
+	c, err := tds.GetCode(gtname.Split())
 	if err != nil {
 		return "", err
 	}
@@ -22,12 +21,6 @@ func (tds TaskDataSet) GetTask(gtname grtask.GroupTask, args args.Args, args_enc
 	if err := args.Validate(); err != nil {
 		return "", err
 	}
-	
-	c, err := tds.GetCode(gname, tname)
-	if err != nil {
-		return "", err
-	}
-
 
 	if f:= false; !use_new_task_stack {
 		if c, f = c.ApplyConfigOnce(gtname); f {

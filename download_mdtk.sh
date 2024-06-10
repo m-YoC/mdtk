@@ -15,6 +15,13 @@ url=$(echo $j | jq -r ".assets[] | select(.name | test(\"^mdtk_bin_v.+_$arch.tar
 (
     cd $(dirname $0)
 
+    echo Download: $fname
+
+    if [ -f "./$fname" ]; then
+        echo filename: $fname already exists.
+        exit 1
+    fi
+
     wget -q $url
     tar -zxvf ./$fname
     rm -R ./$fname

@@ -11,7 +11,10 @@ import (
 func expandPublicGroupTask(tds taskset.TaskDataSet, nestsize int) taskset.TaskDataSet {
 
 	for i, data := range tds.Data {
-		if data.Group.IsPrivate() {
+		/*if data.Group.IsPrivate() {
+			continue
+		}*/
+		if data.HasAttr("hidden") {
 			continue
 		}
 		code := tds.GetTaskStart(grtask.Create(data.Group, data.Task), args.Args{}, nestsize)
@@ -24,7 +27,10 @@ func expandPublicGroupTask(tds taskset.TaskDataSet, nestsize int) taskset.TaskDa
 func removePrivateGroupTask(tds taskset.TaskDataSet) taskset.TaskDataSet {
 	d := []taskset.TaskData{}
 	for _, data := range tds.Data {
-		if !data.Group.IsPrivate() {
+		/*if !data.Group.IsPrivate() {
+			d = append(d, data)
+		}*/
+		if !data.HasAttr("hidden") {
 			d = append(d, data)
 		}
 	}

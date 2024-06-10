@@ -88,7 +88,7 @@ func Test_TaskDataSet(t *testing.T) {
 					tds.Data[1].Task = task.Task(tt.rename_task2)
 				}
 
-				c, err := tds.GetCode("group", task.Task(tt.taskname))
+				c, err := tds.GetCode("group", task.Task(tt.taskname), nil)
 				if tt.expected == positive {
 					if assert.NoError(t, err) {
 						assert.Equal(t, "echo test", string(c))

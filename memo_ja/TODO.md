@@ -65,17 +65,28 @@
     - [x] execの出力がストリーム出力に対応していなかったので修正
         - 全部終わってから書き出していた
 - v0.5.2以降
-    - [ ] 属性(`attribute`)をつけれるようにする
-        - `~~~sh task::t -- description`
-            - `description = [attribute] xxxxxxx`
-            - descriptionの一部として扱う
-            - descriptionの最初に記述する
-            - 当然無くてもいい
-            - タスクヘルプの解析時に属性があるかを解析する
-        - `hidden`属性をつけていたら公開タスクでもタスクヘルプで見えないようにする
-            - group名を非公開に変えてしまうと他のタスクからアクセスできなくなる可能性があるため
-            - ただの非公開扱いなので`-a`をつけたら見える
     - [x] mdtkconfigにnestsizeを指定する項目を増やす
     - [x] tar.gzの作成をamd64とarm64で別にする
     - [x] 標準入力を受け付けなかったバグを修正
 - v0.5.3以降
+    - [x] 属性(`attribute`)をつけれるようにする
+        - `~~~sh task::t -- description`
+            - `description = [attribute...] xxxxxxx`
+            - descriptionの一部として扱う
+            - descriptionの最初に記述する
+            - 当然無くてもいい
+            - 大文字と小文字を区別しない(内部的には全て小文字になる)
+        - `hidden`属性をつけていたら公開タスクでもタスクヘルプで見えないようにする
+            - group名を非公開に変えてしまうと他のタスクからアクセスできなくなる可能性があるため
+            - ただの非公開扱いなので`-a`をつけたら見える
+    - [x] private groupを強制的にhidden属性を付けるようにする
+            - hiddenのチェックで一元管理できるようにする
+    - [x] `set -e` 除去
+    - [x] bugfix
+    - [x] attr `t`, `b`でタスクヘルプにおけるタスクの順番を若干制御できる
+        - t: top, b: bottom
+    - [ ] 属性を他のことに利用できないか？
+        - `deprecated`: 削除予定につける
+        - embedded commentで取り出せるようにする
+            - `#attr> g:t attr` -> `true or false`
+    - [x] キャッシュファイルの処理周りをgoroutine化して若干の並行処理

@@ -8,7 +8,15 @@ import (
 )
 
 func GetShell() string {
-	return config.Config.Shell
+	return config.Config.Shell[0]
+}
+
+func GetShellOpt() []string {
+	if len(config.Config.Shell) == 1 { 
+		return []string{}
+	} else {
+		return config.Config.Shell[1:]
+	}
 }
 
 func GetShHead() string {
@@ -16,7 +24,7 @@ func GetShHead() string {
 }
 
 func Run(code string, quiet_mode bool) {
-	cmd := exec.Command(GetShell(), "-c", GetShHead() + "\n" + code)
+	cmd := exec.Command(GetShell(), append(GetShellOpt(), GetShHead() + "\n" + code)...)
 
 	if !quiet_mode {
 		cmd.Stdout = os.Stdout

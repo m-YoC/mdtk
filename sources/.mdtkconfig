@@ -1,6 +1,6 @@
 # shell to be used
-shell: /bin/bash
-script_head_set: set -euo pipefail
+shell: /bin/bash -c
+script_head_set: set -uo pipefail
 
 # List of languages that can be written at beginning of fenced code block
 acceptable_langs: sh shell bash zsh

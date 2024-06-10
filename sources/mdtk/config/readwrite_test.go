@@ -6,10 +6,11 @@ import (
 )
 
 func Test_setConfig(t *testing.T) {
-	assert.Equal(t, "/bin/bash", Config.Shell)
+	assert.Equal(t, "/bin/bash", Config.Shell[0])
 
-	setConfig([]string{"shell: /bin/sh"})
-	assert.Equal(t, "/bin/sh", Config.Shell)
+	setConfig([]string{"shell: /bin/sh -c"})
+	assert.Equal(t, "/bin/sh", Config.Shell[0])
+	assert.Equal(t, "-c", Config.Shell[1])
 
 	assert.Error(t, setConfig([]string{"hoge: /bin/bash"}))
 	assert.Error(t, setConfig([]string{"pager: less 'a"}))

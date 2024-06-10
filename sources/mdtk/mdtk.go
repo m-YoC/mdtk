@@ -8,11 +8,11 @@ import (
 	"mdtk/path"
 	"mdtk/read"
 	"mdtk/grtask"
-	"mdtk/taskset"
 	"mdtk/code"
 	"mdtk/args"
 	"mdtk/cache"
 	"mdtk/config"
+	"mdtk/mdtk_sub"
 	"os"
 	"strconv"
 	_ "embed"
@@ -25,9 +25,8 @@ func GetFlag () parse.Flag {
 	flags.Set("--file", []string{"-f"}).SetHasValue("").SetDescription("Select a task file.")
 	flags.Set("--nest", []string{"-n"}).SetHasValue(nestsizestr).SetDescription("Set the nest maximum depth of embedded comment (embed/task).\nDefault is " + nestsizestr + ".")
 	flags.Set("--quiet", []string{"-q"}).SetDescription("Task output is not sent to standard output.")
-	flags.Set("--all-task", []string{"-a"}).SetDescription("Can select private groups at the command.\nOr show all tasks that include private groups at task help.")
-	flags.Set("--script", []string{"-s"}).SetDescription("Display run-script.\n(= shebang + '" + exec.GetShHead() + "' + expanded-script)\nIf --debug option is not set, do not run.")
-	flags.Set("--debug", []string{"-d"}).SetDescription("Display expanded-script and run.\nIf --script option is set, display run-script.")
+	flags.Set("--all-task", []string{"-a"}).SetDescription("Can select private groups and hidden tasks at the command.\nOr show all tasks that include private groups and hidden tasks at task help.")
+	flags.Set("--script", []string{"-s"}).SetDescription("Display script.")
 	
 	flags.Set("--make-cache", []string{"-c"}).SetDescription("Make taskdata cache.")
 	flags.Set("--lib", []string{"-l"}).SetHasValue("").SetDescription("Select a library file.\nThis is a special version of --file option.\nNo need to add an extension '.mdtklib'.")
@@ -41,33 +40,15 @@ func GetFlag () parse.Flag {
 	return flags
 }
 
-func LibToFile(flags parse.Flag) parse.Flag {
-	fi := flags.GetIndex("--file")
-	li := flags.GetIndex("--lib")
-	if !flags[fi].Exist && flags[li].Exist {
-		flags[fi].Exist = true
-		flags[fi].Value = flags[li].Value + ".mdtklib"
-	}
-	return flags
-}
+
 
 func main() {
 	gtname_str, flags, task_args_strarr := parse.Parse(os.Args, GetFlag())
-	flags = LibToFile(flags)
+	flags = sub.LibToFile(flags)
 	gtname := grtask.GroupTask(gtname_str)
 	task_args := args.ToArgs(task_args_strarr...)
 
-	if fd := flags.GetData("--file"); fd.Exist {
-		if err := config.ReadConfig(string(path.Path(fd.Value).Dir())); err != nil {
-			fmt.Print(err)
-			os.Exit(1)
-		}
-	} else {
-		if err := config.ReadConfig(""); err != nil {
-			fmt.Print(err)
-			os.Exit(1)
-		}
-	}
+	sub.ReadConfig(flags)
 
 	nestsize := config.Config.NestMaxDepth
 	if fd := flags.GetData("--nest"); fd.Exist {
@@ -76,62 +57,66 @@ func main() {
 
 	// show command/md help
 	if checkOptionsThatDoNotRequireTaskFile(flags) {
-		return
+		sub.MdtkExit(0)
 	}
 
 	// validation
 	if err := gtname.Validate(); err != nil {
 		fmt.Print(err)
-		os.Exit(1)
+		sub.MdtkExit(1)
 	}
 	if err := task_args.Validate(); err != nil {
 		fmt.Print(err)
-		os.Exit(1)
+		sub.MdtkExit(1)
 	}
 	
 	// get Taskfile
 	filename := path.Path("")
-	if fd := flags.GetData("-f"); fd.Exist {
+	if fd := flags.GetData("--file"); fd.Exist {
 		filename = path.Path(fd.Value)
 	} else {
 		filename = read.SearchTaskfile()
 	}
 
 	// read Taskfile
-	tds := readTaskDataSet(filename, flags)
+	tds := sub.ReadTaskDataSet(filename, flags)
 
 	// make lib
 	if fd := flags.GetData("--make-library"); fd.Exist {
 		cache.WriteLib(tds, filename.Dir(), fd.Value, int(nestsize))		
-		return
+		sub.MdtkExit(0)
 	}
 
 	// show groups
 	if flags.GetData("--groups").Exist {
 		help.ShowGroups(filename, tds, flags.GetData("--all-task").Exist)
-		return
+		sub.MdtkExit(0)
 	}
 	
 	// show task help
 	if help.ShouldShowHelp(gtname, tds) {
 		help.ShowHelp(filename, gtname, tds, flags.GetData("--all-task").Exist)
-		return
+		sub.MdtkExit(0)
 	}
 
-	// check PrivateGroup
-	if err := gtname.ValidatePublic(); err != nil && !flags.GetData("--all-task").Exist {
+	// check Private/Hidden Group
+	if td, err := tds.GetTaskData(gtname.Split()); err != nil {
 		fmt.Print(err)
-		os.Exit(1)
+		sub.MdtkExit(1)
+	} else if td.HasAttr("hidden") && !flags.GetData("--all-task").Exist {
+		fmt.Println("Private/Hidden group cannot be executed directly.")
+		fmt.Printf("[group: %s | task: %s | path: %s]\n", td.Group, td.Task, td.FilePath)
+		sub.MdtkExit(1)
 	}
 	
 	code := tds.GetTaskStart(gtname, task_args, int(nestsize))
 
 	if checkOptionsAndWriteScriptToStdout(code, flags) {
-		return
+		sub.MdtkExit(0)
 	}
 
 	exec.Run(string(code), flags.GetData("--quiet").Exist)
-	
+	sub.MdtkExit(0)
 	
 }
 
@@ -172,92 +157,22 @@ func checkOptionsThatDoNotRequireTaskFile(flags parse.Flag) bool {
 	return false
 }
 
-func readTaskDataSet(filename path.Path, flags parse.Flag) taskset.TaskDataSet {
-	// check filename -> *.md / *.mdtklib
-	ext := filename.Ext()
-	switch ext {
-	case ".md":
-		return readTaskDataSetMd(filename, flags)
-	case ".mdtklib":
-		return readTaskDataSetLib(filename)
-	default:
-		fmt.Printf("Extension of [%s] is not '.md' or '.mdtklib'.\n", filename)
-		os.Exit(1)
-	}
-
-	return taskset.TaskDataSet{}
-}
-
-func readTaskDataSetMd(filename path.Path, flags parse.Flag) taskset.TaskDataSet {
-	make_cache_flag := flags.GetData("--make-cache").Exist
-
-	if cache.ExistCacheFile(filename) {
-		tds, err := cache.ReadCache(filename)
-		// fmt.Println("from cache")
-		if err != nil {
-			fmt.Print(err)
-			os.Exit(1)
-		}
-
-		if cache.IsLatestCache(tds, filename) {
-			return tds
-		} else {
-			make_cache_flag = true
-		}
-	}
-
-	tds, err := read.ReadTask(filename)
-	if err != nil {
-		fmt.Print(err)
-		os.Exit(1)
-	}
-
-	if make_cache_flag {
-		cache.WriteCache(tds, filename)
-		fmt.Printf("mdtk: Made %s.cache.\n", filename)
-	}
-
-	return tds
-}
-
-func readTaskDataSetLib(filename path.Path) taskset.TaskDataSet {
-	tds, err := cache.ReadLib(filename)
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	return tds
-}
-
-
 
 func checkOptionsAndWriteScriptToStdout(codedata code.Code, flags parse.Flag) bool {
 	sb := flags.GetData("--script").Exist
-	db := flags.GetData("--debug").Exist
 
-	if !(sb || db) {
+	if !(sb) {
 		return false
 	} 
 
-	c := codedata.RemoveEmbedArgsComment()
-	if sb {
-		h := fmt.Sprintln("#!" + exec.GetShell())
-		h += fmt.Sprintln(exec.GetShHead())
-		h += fmt.Sprintln("")
-		c = code.Code(h) + c
-	}
-
-	if db {
-		cc := fmt.Sprintln("--script--")
-		cc += string(c)
-		cc += fmt.Sprintln("\n----------")
-		c = code.Code(cc)
-	}
+	c := codedata.RemoveEmbedDescComment().RemoveEmbedArgsComment()
+	h := fmt.Sprintln("#!" + exec.GetShell()) //shebang
+	h += fmt.Sprintln(exec.GetShHead())
+	h += fmt.Sprintln("")
+	c = code.Code(h) + c
 
 	fmt.Println(c)
-	return !db
+	return true
 }
 
 

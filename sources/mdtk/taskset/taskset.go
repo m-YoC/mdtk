@@ -8,15 +8,6 @@ import (
 	"mdtk/path"
 )
 
-type TaskData struct {
-	Group group.Group
-	Task task.Task
-	Description []string
-	Code code.Code
-	ArgsTexts []string
-	FilePath path.Path
-}
-
 type TaskDataSet struct {
 	Data []TaskData
 	FilePath map[path.Path]bool
@@ -52,8 +43,11 @@ func (tds TaskDataSet) RemovePathData(set_str string) TaskDataSet {
 	return tds
 }
 
+func (tds TaskDataSet) GetTaskData(gname group.Group, tname task.Task, err error) (TaskData, error) {
+	if err != nil {
+		return TaskData{}, err
+	}
 
-func (tds TaskDataSet) GetCode(gname group.Group, tname task.Task) (code.Code, error) {
 	found := []TaskData{}
 
 	for _, t := range tds.Data {
@@ -65,7 +59,7 @@ func (tds TaskDataSet) GetCode(gname group.Group, tname task.Task) (code.Code, e
 	if len(found) == 0 {
 		s := fmt.Sprintln("Do not find task.")
 		s += fmt.Sprintln("wanted =>", "group:", gname, "/ task:", tname)
-		return "", fmt.Errorf("%s", s)
+		return TaskData{}, fmt.Errorf("%s", s)
 	}
 
 	if len(found) > 1 {
@@ -76,9 +70,19 @@ func (tds TaskDataSet) GetCode(gname group.Group, tname task.Task) (code.Code, e
 			s += fmt.Sprintf("- %-10s  %-10s  %s\n", v.Group, v.Task, v.FilePath)
 		}
 		
-		return "", fmt.Errorf("%s", s)
+		return TaskData{}, fmt.Errorf("%s", s)
 	}
 
-	return found[0].Code, nil
+	return found[0], nil
+}
+
+
+func (tds TaskDataSet) GetCode(gname group.Group, tname task.Task, err error) (code.Code, error) {
+	td, err := tds.GetTaskData(gname, tname, err)
+	if err != nil {
+		return "", err
+	}
+
+	return td.Code, nil
 }
 
