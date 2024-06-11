@@ -3,6 +3,8 @@
 
 mdtk is a task runner using code block of Markdown.
 
+![Logo](./Image/Logo.drawio.svg)
+
 ## Install
 
 Download the appropriate binary for your environment and move it to $PATH directory such as `/usr/local/bin/`.
