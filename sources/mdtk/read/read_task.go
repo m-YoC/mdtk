@@ -33,8 +33,8 @@ func getTaskHeadReg() string {
 }
 
 func getProgTypeReg() string {
-	progs := config.Config.LangAlias
-	prog_reg := "(?:(?:" + strings.Join(progs, "|") + ")[ \t]+)?"
+	progs := append(config.Config.LangAlias, config.Config.LangAliasSub...)
+	prog_reg := "(?:(?P<lang>" + strings.Join(progs, "|") + ")[ \t]+)?"
 	return prog_reg
 }
 
@@ -44,8 +44,6 @@ func GetTaskHeadRex() *regexp.Regexp {
 	}
 	return task_head_rex
 }
-
-
 
 
 type Markdown string
@@ -84,6 +82,11 @@ func (md Markdown) GetTaskBlock() ([]taskset.TaskData, error) {
 		task_data.Task = task.Task(head[rex.SubexpIndex("task")])
 		task_data.Description = []string{head[rex.SubexpIndex("description")]}
 		task_data.Code = c
+
+		task_data.Lang = head[rex.SubexpIndex("lang")]
+		if task_data.Lang == "" || task_data.LangIsContainedIn(config.Config.LangAlias) {
+			task_data.Lang = taskset.ShellLangs
+		}
 
 		task_data.GetAttrsAndSet()
 

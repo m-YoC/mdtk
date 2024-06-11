@@ -17,6 +17,10 @@ func getEmbedDescTexts(tds taskset.TaskDataSet) taskset.TaskDataSet {
 		} else {
 			tds.Data[i].Description = append(tds.Data[i].Description, desc...)
 		}
+
+		if task.Lang != taskset.ShellLangs {
+			tds.Data[i].Description[0] = blue + "<" + task.Lang + "> " + clear + tds.Data[i].Description[0]
+		}
 	}
 	
 	return res

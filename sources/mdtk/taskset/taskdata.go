@@ -9,12 +9,16 @@ import (
 )
 
 const (
-	ATTR_HIDDEN = "hidden"
-	ATTR_TOP    = "t"
-	ATTR_BOTTOM = "b"
+	AttrHidden = "hidden"
+	AttrTop    = "t"
+	AttrBottom = "b"
 )
 
+// Inclusive name of shell languanses
+const ShellLangs = "SHELL"
+
 type TaskData struct {
+	Lang string
 	Group group.Group
 	Task task.Task
 	Code code.Code
@@ -22,6 +26,13 @@ type TaskData struct {
 	Attributes []string
 	ArgsTexts []string
 	FilePath path.Path
+}
+
+func (td TaskData) LangIsContainedIn(l []string) bool {
+	for _, d := range l {
+		if d == td.Lang { return true }
+	}
+	return false
 }
 
 // return: (attrs, desc_that_removed_attrs)
@@ -51,7 +62,7 @@ func (td TaskData) getAttributesFromDesc() ([]string, string) {
 				buf = []rune{}
 			}
 			if v == ']' {
-				attrs_end_idx = i
+				attrs_end_idx = i + 1
 				break
 			}
 		} else {
@@ -63,15 +74,17 @@ func (td TaskData) getAttributesFromDesc() ([]string, string) {
 		return []string{}, str
 	}
 
-	return attrs, str
-	// return attrs, strings.TrimSpace(string(runes[attrs_end_idx:]))
+	// return attrs, str
+	return attrs, strings.TrimSpace(string(runes[attrs_end_idx+1:]))
 }
 
 func (td *TaskData) GetAttrsAndSet() {
-	attrs, _ := td.getAttributesFromDesc()
-	if td.Group.IsPrivate() {
-		attrs = append(attrs, ATTR_HIDDEN)
+	attrs, desc := td.getAttributesFromDesc()
+	if td.Group.IsPrivate() || td.Lang != ShellLangs {
+		attrs = append(attrs, AttrHidden)
 	}
+
+	td.Description[0] = desc
 	td.Attributes = attrs
 }
 

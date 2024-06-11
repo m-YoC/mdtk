@@ -20,19 +20,13 @@ func getEmbedCommentTaskAndArgs(embed_comment string) (bool, grtask.GroupTask, a
 		has_at = true
 	}
 
-	if len(head) == head_idx + 1 {
-		return has_at, grtask.GroupTask(head[head_idx]), args.ToArgs(bottom...), nil
-	}
-
-	if len(head) < head_idx + 1 {
-		s := fmt.Sprintln("Parsing error: too few words.")
+	if len(head) != head_idx + 1 {
+		s := fmt.Sprintln("Parsing error: too many or too few words.")
 		s += fmt.Sprintln("Bad embed task comment.")
 		return has_at, "", args.Args{}, fmt.Errorf("%s", s)
 	}
 
-	s := fmt.Sprintln("Parsing error: too many words.")
-	s += fmt.Sprintln("Bad embed task comment.")
-	return has_at, "", args.Args{}, fmt.Errorf("%s", s)
+	return has_at, grtask.GroupTask(head[head_idx]), args.ToArgs(bottom...), nil
 }
 
 func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, error) {
@@ -46,21 +40,20 @@ func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, err
 
 	res := string(code)
 	for _, task := range tasks {
-		use_new_task_stack, grtaskname, args, err1 := getEmbedCommentTaskAndArgs(task[1])
+		use_same_stack, gtname, args, err1 := getEmbedCommentTaskAndArgs(task[1])
 		head := ""
 
 		if err1 != nil {
 			return "", err1
 		}
 
-		subcode, err2 := tf.GetTask(grtaskname, args, false, use_new_task_stack, nestsize-1)
+		subcode, err2 := tf.GetTask(gtname, args, false, !use_same_stack, nestsize-1)
 		if err2 != nil {
 			return "", err2
 		}
 		subcode = subcode.RemoveEmbedDescComment().RemoveEmbedArgsComment()
 		rsubcode := indent + strings.Replace(string(subcode), "\n", "\n" + indent, -1)
-		execsubcode := "\n# subtask: " + string(grtaskname) + "\n"
-		execsubcode += head + "(\n" + rsubcode + "\n) # end: " + string(grtaskname) + "\n"
+		execsubcode := head + "(  # " + string(gtname) + "\n" + rsubcode + "\n)"
 		res = strings.Replace(res, task[0], execsubcode, 1)
 	}
 

@@ -1,6 +1,8 @@
 package cache
 
 import (
+	"fmt"
+	"mdtk/base"
 	"mdtk/grtask"
 	"mdtk/taskset"
 	"mdtk/args"
@@ -14,10 +16,14 @@ func expandPublicGroupTask(tds taskset.TaskDataSet, nestsize int) taskset.TaskDa
 		/*if data.Group.IsPrivate() {
 			continue
 		}*/
-		if data.HasAttr(taskset.ATTR_HIDDEN) {
+		if data.HasAttr(taskset.AttrHidden) {
 			continue
 		}
-		code := tds.GetTaskStart(grtask.Create(data.Group, data.Task), args.Args{}, nestsize)
+		code, err := tds.GetTaskStart(grtask.Create(data.Group, data.Task), args.Args{}, nestsize)
+		if err != nil {
+			fmt.Print(err)
+			base.MdtkExit(1)
+		}
 		tds.Data[i].Code = code
 	}
 
@@ -30,7 +36,7 @@ func removePrivateGroupTask(tds taskset.TaskDataSet) taskset.TaskDataSet {
 		/*if !data.Group.IsPrivate() {
 			d = append(d, data)
 		}*/
-		if !data.HasAttr(taskset.ATTR_HIDDEN) {
+		if !data.HasAttr(taskset.AttrHidden) {
 			d = append(d, data)
 		}
 	}

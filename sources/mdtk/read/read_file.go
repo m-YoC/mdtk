@@ -17,14 +17,6 @@ func ReadFile(path path.Path) Markdown {
     return Markdown(string(b))
 }
 
-func GetWorkingDir() string {
-	p, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-	}
-	return p
-}
-
 func SearchTaskfile() path.Path {
 	// First: Taskfile.md
 	_, err := os.Stat("Taskfile.md")
@@ -32,8 +24,14 @@ func SearchTaskfile() path.Path {
 		return "Taskfile.md"
 	}
 
-	 // Second: *.task.md
-	pattern := filepath.Join(GetWorkingDir(), "*.taskrun.md")
+	// Second: *.task.md
+	wd, err := path.GetWorkingDir[string]()
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
+
+	pattern := filepath.Join(wd, "*.taskrun.md")
     files, err := filepath.Glob(pattern)
     if err == nil && len(files) == 1 {
         return path.Path(filepath.Base(files[0]))

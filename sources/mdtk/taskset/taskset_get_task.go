@@ -2,7 +2,6 @@ package taskset
 
 import (
 	"fmt"
-	"os"
 	"mdtk/grtask"
 	"mdtk/code"
 	"mdtk/args"
@@ -13,11 +12,19 @@ func (tds TaskDataSet) GetTask(gtname grtask.GroupTask, args args.Args, args_enc
 		return "", fmt.Errorf("Nest of embed/task comments is too deep.\n")
 	}
 
-	c, err := tds.GetCode(gtname.Split())
+	c, l, err := tds.GetCode(gtname.Split())
 	if err != nil {
 		return "", err
 	}
 
+	if l == ShellLangs {
+		return tds.GetTaskShell(c, gtname, args, args_enclose_with_quotes, use_new_task_stack, nestsize)
+	} else {
+		return tds.GetTaskSubLangs(c, gtname, nestsize)
+	}
+}
+
+func (tds TaskDataSet) GetTaskShell(c code.Code, gtname grtask.GroupTask, args args.Args, args_enclose_with_quotes bool, use_new_task_stack bool, nestsize int) (code.Code, error) {
 	if err := args.Validate(); err != nil {
 		return "", err
 	}
@@ -30,6 +37,7 @@ func (tds TaskDataSet) GetTask(gtname grtask.GroupTask, args args.Args, args_enc
 		c, f = c.CheckAndRemoveConfigOnce()
 	}
 	
+	var err error
 	if len(args) != 0 {
 		c, err = c.ApplyArgs(args, args_enclose_with_quotes)
 		if err != nil {
@@ -66,12 +74,24 @@ func (tds TaskDataSet) GetTask(gtname grtask.GroupTask, args args.Args, args_enc
 	return c, nil
 }
 
-func (tds TaskDataSet) GetTaskStart(gtname grtask.GroupTask, args args.Args, nestsize int) code.Code {
+func (tds TaskDataSet) GetTaskSubLangs(c code.Code, gtname grtask.GroupTask, nestsize int) (code.Code, error) {
+	var f bool
+	if c, f = c.ApplyConfigOnce(gtname); f {
+		return c, nil
+	}
+	var err error
+	c, err = c.ApplyEmbedCodes(tds, nestsize)
+	if err != nil {
+		return "", err
+	}
+	return c, nil
+}
+
+func (tds TaskDataSet) GetTaskStart(gtname grtask.GroupTask, args args.Args, nestsize int) (code.Code, error) {
 	s, err := tds.GetTask(gtname, args, true, false, nestsize)
 	if err != nil {
-		fmt.Print(err)
-		os.Exit(1)
+		return "", err
 	}
-	return s
+	return s, nil
 }
 

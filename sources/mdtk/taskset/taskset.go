@@ -77,12 +77,12 @@ func (tds TaskDataSet) GetTaskData(gname group.Group, tname task.Task, err error
 }
 
 
-func (tds TaskDataSet) GetCode(gname group.Group, tname task.Task, err error) (code.Code, error) {
+func (tds TaskDataSet) GetCode(gname group.Group, tname task.Task, err error) (code.Code, string, error) {
 	td, err := tds.GetTaskData(gname, tname, err)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return td.Code, nil
+	return td.Code, td.Lang, nil
 }
 

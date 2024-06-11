@@ -69,6 +69,7 @@ func (fd FlagData) GetHelpStr(head_space_num uint, descline uint) string {
 	s := ""
 	descs := strings.Split(fd.Description, "\n")
 	for i, v := range descs {
+		if i != 0 { v = " " + v }
 		s += fmt.Sprintf("%s%-" + strconv.Itoa(int(descline)) + "s%s", h, ss, v)
 		if i != len(descs)-1 { s += "\n" }
 		ss = ""
@@ -83,10 +84,14 @@ func (fd FlagData) GetHelpStr(head_space_num uint, descline uint) string {
 
 type Flag []FlagData
 
+func (f *Flag) Back() *FlagData {
+	return &(*f)[len(*f)-1]
+}
+
 func (f *Flag) Set(name string, alias []string) *FlagData {
 	fd := FlagData{Name: name, Alias: alias, HasValue: false, Exist: false}
 	*f = append(*f, fd)
-	return &(*f)[len(*f)-1]
+	return f.Back()
 }
 
 func (fd *FlagData) SetHasValue(default_value string) *FlagData {

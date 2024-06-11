@@ -21,7 +21,7 @@ func init() {
 func getEmbedCommentRegexStr(key string) string {
 	// #key> comment...
 	const comment_str = "[^ \t\n](?:.*[^ \t\n])?"
-	var key_str = "#" + key + ">"
+	var key_str = "(?:#|//)" + key + ">"
 	return "(?m)^[ \t]*" + key_str + "[ \t]+(" + comment_str + ")[ \t]*$"
 }
 

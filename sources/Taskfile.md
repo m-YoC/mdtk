@@ -19,12 +19,23 @@ echo ion
 
 ```bash task::test -- [t] mdtk first test 日本語のテキストサンプルです
 #desc> hello mdtk
-echo hello mdtk! pwd:`pwd`
+echo hello mdtk! wd:`pwd`
+
+#task> sub:subtest
+
+#func> ttt sub:subtest
+ttt
+
+mdtk -f ./SubTaskfiles/Taskfile.md sub subtest
 ```
 
-```bash task::test2
+```taskfile
+./SubTaskfiles/Taskfile.md
+```
+
+```md task::test2 -- [t]
+#desc> hello
 #config> once
-#embed> test
 echo "hello mdtk! (config once)"
 ```
 
@@ -46,11 +57,11 @@ echo "- config once test -"
 #embed>  test2
 ```
 
-```task:embed:configonce_test2   mdtk config once test2 (task @)
+```task:embed:configonce_test2   mdtk config once test2 (task)
 echo "- config once test -"
 #embed>  test2
-#task> @ test2
-#task> @ test2
+#task>   test2
+#task>   test2
 #embed>  test2
 ```
 

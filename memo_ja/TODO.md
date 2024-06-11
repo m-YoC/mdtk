@@ -90,3 +90,16 @@
         - embedded commentで取り出せるようにする
             - `#attr> g:t attr` -> `true or false`
     - [x] キャッシュファイルの処理周りをgoroutine化して若干の並行処理
+    - [x] `#task>`の`@`の仕様を逆にする
+    - [x] `--run-in-filedir`オプションを追加
+        - カレントディレクトリではなく読み込んだタスクファイルの存在するディレクトリでタスクを実行する
+    - [x] shell以外のコードも読み込めるようにする
+        - Langを保存
+            - shell系はまとめてSHELLとする
+        - configでacceptable_sub_langsを追加
+        - LangがSHELLでなかったら専用のGetTaskになる
+            - `#embed>`と`#config> once`しか作用しない
+        - 実行はされず強制的に--scriptになる。正確にはシバンなどを追加しない--no-head-script
+        - 強制的にhidden扱いになる
+            - タスクヘルプに表示するときはLangも出す
+        - ***スクリプト内で別の言語を埋め込むことはあるので、Langでの制約は特に付けないものとする***

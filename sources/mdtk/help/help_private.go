@@ -14,6 +14,7 @@ const (
 	cyan = "\033[36m"
 	magenta = "\033[35m"
 	bmagenta = "\033[1;35m"
+	blue = "\033[34m"
 	clear = "\033[0m"
 )
 
@@ -50,7 +51,7 @@ func getGroupMap(tds taskset.TaskDataSet, gtname grtask.GroupTask, show_private 
 	data := [3][]taskset.TaskData{{}, {}, {}}
 
 	for _, t := range tds.Data {
-		if !show_private && t.HasAttr(taskset.ATTR_HIDDEN) {
+		if !show_private && t.HasAttr(taskset.AttrHidden) {
 			continue
 		}
 
@@ -59,8 +60,8 @@ func getGroupMap(tds taskset.TaskDataSet, gtname grtask.GroupTask, show_private 
 		}
 
 		idx := MID
-		if  t.HasAttr(taskset.ATTR_TOP) && !t.HasAttr(taskset.ATTR_BOTTOM) { idx = TOP }
-		if !t.HasAttr(taskset.ATTR_TOP) &&  t.HasAttr(taskset.ATTR_BOTTOM) { idx = BTM }
+		if  t.HasAttr(taskset.AttrTop) && !t.HasAttr(taskset.AttrBottom) { idx = TOP }
+		if !t.HasAttr(taskset.AttrTop) &&  t.HasAttr(taskset.AttrBottom) { idx = BTM }
 
 		data[idx] = append(data[idx], t)
 	}

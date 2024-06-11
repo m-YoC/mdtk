@@ -3,7 +3,8 @@
 script_head_set: set -uo pipefail
 
 # List of languages that can be written at beginning of fenced code block
-acceptable_langs: sh shell bash zsh
+acceptable_langs: shell sh bash
+acceptable_sub_langs: markdown md dockerfile go golang
 
 # Maximum depth at which tasks can be deployed with embedded comment
 nest_max_depth: 20
@@ -11,3 +12,5 @@ nest_max_depth: 20
 # Settings of pager
 pager: less -R
 pager_min_limit: 30
+
+

@@ -21,6 +21,7 @@ type cfg struct {
 	Shell []string
 	ScriptHeadSet string
 	LangAlias []string
+	LangAliasSub []string
 	NestMaxDepth uint
 	Pager []string
 	PagerMinLimit uint
@@ -45,14 +46,8 @@ func init() {
 
 //dir: (-f path -> pwd) -> home -> init
 func getConfigPath(dir string) string {
-	if dir != "" {
-		if _, err := os.Stat(filepath.Join(dir, configName)); err == nil {
-			return filepath.Join(dir, configName)
-		}
-	}
-
-	if _, err := os.Stat(filepath.Join("./", configName)); err == nil {
-		return filepath.Join("./", configName)
+	if _, err := os.Stat(filepath.Join(dir, configName)); err == nil {
+		return filepath.Join(dir, configName)
 	}
 
 	usr, _ := user.Current()
@@ -90,6 +85,12 @@ func setConfig(data []string) error {
 				return err
 			} else {
 				Config.LangAlias = s
+			}
+		case "acceptable_sub_langs":
+			if s, err := parse.LexArgString(v); err != nil {
+				return err
+			} else {
+				Config.LangAliasSub = s
 			}
 		case "nest_max_depth":
 			if vv, err := strconv.ParseUint(strings.TrimSpace(v), 10, 64); err != nil {

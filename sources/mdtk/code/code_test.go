@@ -19,6 +19,11 @@ const TestCode2 = `#TestString2
 echo markdown taskrunner
 `
 
+const TestCode3 = `#TestString3
+RUN #embed> Hello Golang Test!!
+//test> HogeFuga  
+`
+
 type TestTaskDataSet1 struct {}
 
 func (ttds TestTaskDataSet1) GetTask(a grtask.GroupTask, b args.Args, c bool, d bool, e int) (Code, error) {

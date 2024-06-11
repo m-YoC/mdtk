@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"mdtk/base"
 	"mdtk/exec"
 	"mdtk/parse"
 	"mdtk/help"
@@ -9,7 +10,6 @@ import (
 	"mdtk/read"
 	"mdtk/grtask"
 	"mdtk/taskset"
-	"mdtk/code"
 	"mdtk/args"
 	"mdtk/cache"
 	"mdtk/config"
@@ -19,19 +19,45 @@ import (
 	_ "embed"
 )
 
+//go:embed version.txt
+var version string
+
+func getVersion() string {
+	_, v, _ := args.Arg(version).GetData()
+	return v
+}
+
 func GetFlag () parse.Flag {
 	nestsizestr := strconv.FormatUint(uint64(config.Config.NestMaxDepth), 10)
 
 	flags := parse.Flag{}
-	flags.Set("--file", []string{"-f"}).SetHasValue("").SetDescription("Select a task file.")
-	flags.Set("--nest", []string{"-n"}).SetHasValue(nestsizestr).SetDescription("Set the nest maximum depth of embedded comment (embed/task).\nDefault is " + nestsizestr + ".")
-	flags.Set("--quiet", []string{"-q"}).SetDescription("Task output is not sent to standard output.")
-	flags.Set("--all-task", []string{"-a"}).SetDescription("Can select private groups and hidden tasks at the command.\nOr show all tasks that include private groups and hidden tasks at task help.")
-	flags.Set("--script", []string{"-s"}).SetDescription("Display script.")
+	flags.Set("--file", []string{"-f"}).SetHasValue("")
+	flags.Back().SetDescription("Select a task file.")
+
+	flags.Set("--nest", []string{"-n"}).SetHasValue(nestsizestr)
+	flags.Back().SetDescription("Set the nest maximum depth of embedded comment (embed/task).\nDefault is " + nestsizestr + ".")
 	
+	flags.Set("--run-in-filedir", []string{"--rfd"})
+	flags.Back().SetDescription("Not run task in working directory, but run it in taskfile directory.")
+	
+	flags.Set("--quiet", []string{"-q"})
+	flags.Back().SetDescription("Task output is not sent to standard output.")
+	
+	flags.Set("--all-task", []string{"-a"})
+	flags.Back().SetDescription("Can select private groups and hidden tasks at the command.\nOr show all tasks that include private groups and hidden tasks at task help.")
+	
+	flags.Set("--script", []string{"-s"}).SetDescription("Display script.")
+	flags.Set("--no-head-script", []string{"-S"}).SetDescription("Display script (No shebang, etc.).")
+	
+	// -------------------------------------------------------------------------
+
 	flags.Set("--make-cache", []string{"-c"}).SetDescription("Make taskdata cache.")
-	flags.Set("--lib", []string{"-l"}).SetHasValue("").SetDescription("Select a library file.\nThis is a special version of --file option.\nNo need to add an extension '.mdtklib'.")
-	flags.Set("--make-library", []string{}).SetHasValue("").SetDescription("Make taskdata library.\nValue is library name.")
+	flags.Set("--lib", []string{"-l"}).SetHasValue("")
+	flags.Back().SetDescription("Select a library file.\nThis is a special version of --file option.\nNo need to add an extension '.mdtklib'.")
+	flags.Set("--make-library", []string{}).SetHasValue("")
+	flags.Back().SetDescription("Make taskdata library.\nValue is library name.")
+
+	// -------------------------------------------------------------------------
 
 	flags.Set("--version", []string{"-v"}).SetDescription("Show version.")
 	flags.Set("--groups", []string{"-g"}).SetDescription("Show groups.")
@@ -42,35 +68,36 @@ func GetFlag () parse.Flag {
 }
 
 
-
 func main() {
 	gtname_str, flags, task_args_strarr := parse.Parse(os.Args, GetFlag())
 	flags = sub.LibToFile(flags)
 	gtname := grtask.GroupTask(gtname_str)
 	task_args := args.ToArgs(task_args_strarr...)
 
-	sub.ReadConfig(flags)
+	sub.ReadConfig(flags.GetData("--file"))
+	nestsize := sub.GetNestSize(flags.GetData("--nest"))
 
-	nestsize := config.Config.NestMaxDepth
-	if fd := flags.GetData("--nest"); fd.Exist {
-		nestsize = uint(fd.ValueUint())
+	if flags.GetData("--version").Exist {
+		fmt.Println("mdtk version", getVersion())
+		base.MdtkExit(0)
 	}
 
 	// show command/md help
-	if checkOptionsThatDoNotRequireTaskFile(flags) {
-		sub.MdtkExit(0)
+	if flags.GetData("--help").Exist {
+		help.ShowCommandHelp(flags, 26)
+		base.MdtkExit(0)
 	}
 
-	// validation
-	if err := gtname.Validate(); err != nil {
-		fmt.Print(err)
-		sub.MdtkExit(1)
+	if flags.GetData("--manual").Exist {
+		help.ShowManual()
+		base.MdtkExit(0)
 	}
-	if err := task_args.Validate(); err != nil {
-		fmt.Print(err)
-		sub.MdtkExit(1)
+
+	if flags.GetData("--write-configbase").Exist {
+		config.WriteDefaultConfig()
+		base.MdtkExit(0)
 	}
-	
+
 	// get Taskfile
 	filename := path.Path("")
 	if fd := flags.GetData("--file"); fd.Exist {
@@ -79,101 +106,66 @@ func main() {
 		filename = read.SearchTaskfile()
 	}
 
+	// get directory of root Taskfile
+	dir := filename.Dir()
+
 	// read Taskfile
-	tds := sub.ReadTaskDataSet(filename, flags)
+	tds := sub.ReadTaskDataSet(filename, flags.GetData("--make-cache").Exist)
 
 	// make lib
 	if fd := flags.GetData("--make-library"); fd.Exist {
-		cache.WriteLib(tds, filename.Dir(), fd.Value, int(nestsize))		
-		sub.MdtkExit(0)
+		cache.WriteLib(tds, dir, fd.Value, int(nestsize))		
+		base.MdtkExit(0)
 	}
+
+	all_task_flag := flags.GetData("--all-task").Exist
 
 	// show groups
 	if flags.GetData("--groups").Exist {
-		help.ShowGroups(filename, tds, flags.GetData("--all-task").Exist)
-		sub.MdtkExit(0)
+		help.ShowGroups(filename, tds, all_task_flag)
+		base.MdtkExit(0)
 	}
 	
 	// show task help
 	if help.ShouldShowHelp(gtname, tds) {
-		help.ShowHelp(filename, gtname, tds, flags.GetData("--all-task").Exist)
-		sub.MdtkExit(0)
+		help.ShowHelp(filename, gtname, tds, all_task_flag)
+		base.MdtkExit(0)
 	}
 
-	// check Private/Hidden Group
-	if td, err := tds.GetTaskData(gtname.Split()); err != nil {
+	// validation
+	if err := sub.Validate(gtname, task_args, tds, all_task_flag); err != nil {
 		fmt.Print(err)
-		sub.MdtkExit(1)
-	} else if td.HasAttr(taskset.ATTR_HIDDEN) && !flags.GetData("--all-task").Exist {
-		fmt.Println("Private/Hidden group cannot be executed directly.")
-		fmt.Printf("[group: %s | task: %s | path: %s]\n", td.Group, td.Task, td.FilePath)
-		sub.MdtkExit(1)
+		base.MdtkExit(1)
 	}
 	
-	code := tds.GetTaskStart(gtname, task_args, int(nestsize))
-
-	if checkOptionsAndWriteScriptToStdout(code, flags) {
-		sub.MdtkExit(0)
+	code, err := tds.GetTaskStart(gtname, task_args, int(nestsize))
+	if err != nil {
+		fmt.Print(err)
+		base.MdtkExit(1)
 	}
 
-	exec.Run(string(code), flags.GetData("--quiet").Exist)
-	sub.MdtkExit(0)
+	// td, err := tds.GetTaskData(gtname.Split())
+	// -> From the previous steps, we know there is no error, so remove it.
+	is_not_shell_langs := base.PairFirst(tds.GetTaskData(gtname.Split())).Lang != taskset.ShellLangs
+	if flags.GetData("--no-head-script").Exist || is_not_shell_langs {
+		fmt.Println(code.GetRawScript())
+		base.MdtkExit(0)
+	}
+
+	if flags.GetData("--script").Exist {
+		fmt.Println(code.GetRunnableScript())
+		base.MdtkExit(0)
+	}
+
+	if err := exec.Run(string(code), string(dir), 
+	                   flags.GetData("--quiet").Exist,
+					   flags.GetData("--run-in-filedir").Exist); err != nil {
+		fmt.Print(err)
+		base.MdtkExit(1)
+	}
+	base.MdtkExit(0)
 	
 }
 
-// ---------------------------------------------------------------------------------
-
-//go:embed version.txt
-var version string
-
-func getVersion() string {
-	_, v, _ := args.Arg(version).GetData()
-	return v
-}
-
-func checkOptionsThatDoNotRequireTaskFile(flags parse.Flag) bool {
-	// show command/md help
-	if flags.GetData("--version").Exist {
-		fmt.Println("mdtk version", getVersion())
-		return true
-	}
-
-	// show command/md help
-	if flags.GetData("--help").Exist {
-		help.ShowCommandHelp(flags, 26)
-		return true
-	}
-
-	if flags.GetData("--manual").Exist {
-		help.ShowManual()
-		return true
-	}
-
-	if flags.GetData("--write-configbase").Exist {
-		config.WriteDefaultConfig()
-		return true
-	}
-	
-
-	return false
-}
-
-
-func checkOptionsAndWriteScriptToStdout(codedata code.Code, flags parse.Flag) bool {
-	sb := flags.GetData("--script").Exist
-
-	if !(sb) {
-		return false
-	} 
-
-	c := codedata.RemoveEmbedDescComment().RemoveEmbedArgsComment()
-	h := fmt.Sprintln("#!" + exec.GetShell()) //shebang
-	h += fmt.Sprintln(exec.GetShHead())
-	h += fmt.Sprintln("")
-	c = code.Code(h) + c
-
-	fmt.Println(c)
-	return true
-}
 
 

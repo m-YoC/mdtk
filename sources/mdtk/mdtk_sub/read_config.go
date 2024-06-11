@@ -2,21 +2,28 @@ package sub
 
 import (
 	"fmt"
+	"mdtk/base"
 	"mdtk/parse"
 	"mdtk/path"
 	"mdtk/config"
 )
 
-func ReadConfig(flags parse.Flag) {
-	if fd := flags.GetData("--file"); fd.Exist {
-		if err := config.ReadConfig(string(path.Path(fd.Value).Dir())); err != nil {
+func ReadConfig(file_flag parse.FlagData) {
+	if file_flag.Exist {
+		dir := path.Path(file_flag.Value).Dir()
+		if err := config.ReadConfig(string(dir)); err != nil {
 			fmt.Print(err)
-			MdtkExit(1)
+			base.MdtkExit(1)
 		}
 	} else {
-		if err := config.ReadConfig(""); err != nil {
+		wd, err := path.GetWorkingDir[string]()
+		if err != nil {
 			fmt.Print(err)
-			MdtkExit(1)
+			base.MdtkExit(1)
+		}
+		if err := config.ReadConfig(wd); err != nil {
+			fmt.Print(err)
+			base.MdtkExit(1)
 		}
 	}
 }

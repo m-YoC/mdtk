@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"mdtk/config"
+	"mdtk/path"
 )
 
 func GetShell() string {
@@ -23,7 +24,16 @@ func GetShHead() string {
 	return config.Config.ScriptHeadSet
 }
 
-func Run(code string, quiet_mode bool) {
+func Run(code string, fdir string, quiet_mode bool, rfd bool) error {
+	if rfd {
+		prev, err := path.GetWorkingDir[string]()
+		if err != nil {
+			return err
+		}
+		defer os.Chdir(prev)
+		os.Chdir(fdir)
+	}
+	
 	cmd := exec.Command(GetShell(), append(GetShellOpt(), GetShHead() + "\n" + code)...)
 
 	if !quiet_mode {
@@ -34,8 +44,10 @@ func Run(code string, quiet_mode bool) {
 
 	if err := cmd.Run(); err != nil {	
 		errtext := "mdtk: Command exec error."
-		fmt.Println(errtext, "Error command was run in", os.Args)
-		os.Exit(1)
+		s := fmt.Sprintln(errtext, "Error command was run in", os.Args)
+		return fmt.Errorf("%s\n", s)
 	}
+
+	return nil
 }
 

@@ -2,7 +2,7 @@ package sub
 
 import (
 	"fmt"
-	"mdtk/parse"
+	"mdtk/base"
 	"mdtk/path"
 	"mdtk/read"
 	"mdtk/taskset"
@@ -12,31 +12,29 @@ import (
 )
 
 
-func ReadTaskDataSet(filename path.Path, flags parse.Flag) taskset.TaskDataSet {
+func ReadTaskDataSet(filename path.Path, has_make_cache_flag bool) taskset.TaskDataSet {
 	// check filename -> *.md / *.mdtklib
 	ext := filename.Ext()
 	switch ext {
 	case ".md":
-		return readTaskDataSetMdAsync(filename, flags)
+		return readTaskDataSetMdAsync(filename, has_make_cache_flag)
 	case ".mdtklib":
 		return readTaskDataSetLib(filename)
 	default:
 		fmt.Printf("Extension of [%s] is not '.md' or '.mdtklib'.\n", filename)
-		MdtkExit(1)
+		base.MdtkExit(1)
 	}
 
 	return taskset.TaskDataSet{}
 }
 
-func readTaskDataSetMd(filename path.Path, flags parse.Flag) taskset.TaskDataSet {
-	make_cache_flag := flags.GetData("--make-cache").Exist
-
+func readTaskDataSetMd(filename path.Path, make_cache_flag bool) taskset.TaskDataSet {
 	if cache.ExistCacheFile(filename) {
 		tds, err := cache.ReadCache(filename)
 		// fmt.Println("from cache")
 		if err != nil {
 			fmt.Print(err)
-			MdtkExit(1)
+			base.MdtkExit(1)
 		}
 
 		if cache.IsLatestCache(tds, filename) {
@@ -49,7 +47,7 @@ func readTaskDataSetMd(filename path.Path, flags parse.Flag) taskset.TaskDataSet
 	tds, err := read.ReadTask(filename)
 	if err != nil {
 		fmt.Print(err)
-		MdtkExit(1)
+		base.MdtkExit(1)
 	}
 
 	if make_cache_flag {
@@ -61,9 +59,21 @@ func readTaskDataSetMd(filename path.Path, flags parse.Flag) taskset.TaskDataSet
 }
 
 
+/**
+<<has cache>>
+main goroutine
+[read cache] -- <If: latest> _y_ {return: cache} 
+                            \_n_ [wait: read task] -- [get task] ---- {return: task}
+sub goroutine                                       /             \
+[read task ] ---------------------------------------               -- [write cache]
 
-func readTaskDataSetMdAsync(filename path.Path, flags parse.Flag) taskset.TaskDataSet {
-	make_cache_flag := flags.GetData("--make-cache").Exist
+<<no cache>>
+main goroutine
+[read task] ---- {return: task}
+sub goroutine  \
+                --<If: has make_flag> _y_ [write cache]
+*/
+func readTaskDataSetMdAsync(filename path.Path, make_cache_flag bool) taskset.TaskDataSet {
 	var res taskset.TaskDataSet
 
 	if cache.ExistCacheFile(filename) {
@@ -81,7 +91,7 @@ func readTaskDataSetMdAsync(filename path.Path, flags parse.Flag) taskset.TaskDa
 		tds, err := cache.ReadCache(filename)
 		if err != nil {
 			fmt.Print(err)
-			MdtkExit(1)
+			base.MdtkExit(1)
 		}
 
 		if cache.IsLatestCache(tds, filename) {
@@ -93,21 +103,21 @@ func readTaskDataSetMdAsync(filename path.Path, flags parse.Flag) taskset.TaskDa
 		err = <-cherr
 		if err != nil {
 			fmt.Print(err)
-			MdtkExit(1)
+			base.MdtkExit(1)
 		}
 	} else {
 		var err error
 		res, err = read.ReadTask(filename)
 		if err != nil {
 			fmt.Print(err)
-			MdtkExit(1)
+			base.MdtkExit(1)
 		}
 	}
 
 	if make_cache_flag {
 		var wg sync.WaitGroup
 		wg.Add(1)
-		AddFinalize(func() { wg.Wait() })
+		base.AddFinalize(func() { wg.Wait() })
 
 		go func() {
 			cache.WriteCache(res, filename)
@@ -123,7 +133,7 @@ func readTaskDataSetLib(filename path.Path) taskset.TaskDataSet {
 
 	if err != nil {
 		fmt.Println(err)
-		MdtkExit(1)
+		base.MdtkExit(1)
 	}
 
 	return tds

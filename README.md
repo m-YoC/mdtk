@@ -30,17 +30,18 @@ Download the appropriate binary for your environment and move it to $PATH direct
 ### * options
     --file, -f  [+value]      Select a task file.
     --nest, -n  [+value]      Set the nest maximum depth of embedded comment (embed/task).
-                              Default is 20.
+                               Default is 20.
+    --run-in-filedir, --rfd   Not run task in working directory, but run it in taskfile directory.
     --quiet, -q               Task output is not sent to standard output.
     --all-task, -a            Can select private groups and hidden tasks at the command.
-                              Or show all tasks that include private groups and hidden tasks  at task help.
+                               Or show all tasks that include private groups and hidden tasks at task help.
     --script, -s              Display script.
     --make-cache, -c          Make taskdata cache.
     --lib, -l  [+value]       Select a library file.
-                              This is a special version of --file option.
-                              No need to add an extension '.mdtklib'.
+                               This is a special version of --file option.
+                               No need to add an extension '.mdtklib'.
     --make-library  [+value]  Make taskdata library.
-                              Value is library name.
+                               Value is library name.
     --version, -v             Show version.
     --groups, -g              Show groups.
     --help, -h                Show command help.
@@ -64,7 +65,15 @@ In other words, you are merely writing a shell, bash, or other script within the
 ```
 ~~~
 
-It can also be written with language aliases added, as follows.
+\<group> and \<description> can be empty. (ex: ```task::\<task> ~)  
+'\_' group is as same as empty.  
+Group that first is '_' and the length is over two is a private group.   
+Private groups cannot run from command directly.
+
+'--' before \<description> is not necessary, but it is better for visibility.  
+Also, the number of '-' need not be two, but any number of one or more.
+
+It can also be written with language aliases added, as follows.  
 
 ~~~markdown
 ```bash  task:<group>:<task> -- <description>
@@ -74,26 +83,28 @@ It can also be written with language aliases added, as follows.
 ```
 ~~~
 
+#### ** Available Characters
 The characters that can be used in \<group> and \<task> are as follows.
 - Lower Alphabets, Upper Alphabets, Numbers, '_', '-' and '.'
 - First character is only Lower Alphabets, Upper Alphabets and '_'
 
-\<group> and \<description> can be empty. (ex: ```task::\<task> ~)  
-'\_' group is as same as empty.  
-Group that first is '_' and the length is over two is a private group.   
-Private groups cannot run from command directly.
 
-'--' before \<description> is not necessary, but it is better for visibility.  
-Also, the number of '-' need not be two, but any number of one or more.
 
 #### ** Attributes
 You can write attributes in the beginning of \<description> using '[...]'.  
-  - format: `[attr1 attr2 ...] description...`
+  - format: as follows
+
+~~~markdown
+```task:<group>:<task> -- [attr1 attr2 ...] <description>
+# Write your script...
+```
+~~~
+
   - Set space between each attribute
   - Attributes List
     - `hidden`: The task gets same effects as private group.
-    - `t`     : In the task help, the task will be written on the upper side of the group.
-    - `b`     : In the task help, the task will be written on the lower side of the group.
+    - `t`     : In the task help, the task will be written on the **upper side** of the group.
+    - `b`     : In the task help, the task will be written on the **lower side** of the group.
 
 
 #### example
@@ -113,28 +124,30 @@ The variables given in the command are expanded at the beginning of the script a
 You simply use the variable in your script.  
 
 In the command, as follows, write the variables and its values after '--'.
-- mdtk ... -- ARG1=value1 ARG2=value2 ARG3=value3 ...
+- mdtk \<group> \<task>  -- arg1=value1 arg2=value2 arg3=value3 ...
 
 mdtk does not check for the existence of variables during script generation.  
 It leaves this to the SHELL environment at runtime.
 
-{$} is a special variable for --script option, replaced by positional parameter $1...$9.  
-It cannot be used in normal task run.
+`arg={$}` (value is `{$}`) is a special variable for --script option, replaced by positional parameter `$1`...`$9`.  
+It cannot be used in normal task run (even if set, it cannot be read positional parameter).
 
 
 ### * Embedded Comments
-Some comments written as '#xxxx> comment' have a special behavior.
+Some comments written as '#xxxx> comment' have a special behavior.  
+You can also use '//' instead of '#'.
 
 ~~~
 #embed>  <group>:<task>                  : The selected task is directly embedded.
 #task>   <group>:<task> -- args          : The selected task is embedded as a subshell.
-#task> @ <group>:<task> -- args          : The config once flag is temporarily reset.
-                                           The rest is the same as without @.
+                                            Reset config-once flag temporarily.
+#task> @ <group>:<task> -- args          : The selected task is embedded as a subshell.
+                                            Do not reset config-once flag, unlike 'no @'.
 #func> <funcname> <group>:<task> -- args : The selected task is embedded as a subshell type function.
-                                           The config once flag is temporarily reset.
-                                           If you want the function to have arguments, 
-                                           pass positional parameters to the task with <args>.
-                                           (ex: #func> hello g:t -- arg1=$1 arg2=$2)
+                                            Reset config-once flag temporarily.
+                                            If you want the function to have arguments, 
+                                            pass positional parameters to the task with <args>.
+                                            (ex: #func> hello g:t -- arg1=$1 arg2=$2)
 #config> once                            : When called multiple times, it is called only the first time.
 #desc>   comments                        : Show comments as additional description in task help.
 #args>   comments                        : Show comments as arguments in task help.
@@ -146,7 +159,7 @@ mdtk uses Taskfile.md in the current directory unless you select a file path wit
 Instead of Taskfile.md, you can use *.taskrun.md.  
 In this case, however, only one *.taskrun.md file should be placed in the same directory. 
 
-Search Order: --file path -> Taskfile.md -> *.taskrun.md  
+Search Order: `--file path` > `Taskfile.md` > `*.taskrun.md`  
 
 
 ### * Sub Taskfile
@@ -180,6 +193,7 @@ In this configuration, only what is written to the root file is used.
 
 
 ### * Task Cache
+#### ** Cache
 You can make a taskdata cache by setting --make-cache option.  
 The cache 'may' speed up task reading.  
 If the cache already exists, it will be read automatically with no option.  
@@ -188,6 +202,7 @@ However, note that if taskfiles have some updates at this time, the cache will b
 Good to use for taskfiles that are being updated less frequently.  
 To disable the cache, simply delete the relevant cache.  
 
+#### ** Library
 You can also make a taskdata library. It is similar to cache and use --make-library option.  
 Differences of the library and the cache are as follows.  
 - The library is not read automatically and not remade automataically.  
