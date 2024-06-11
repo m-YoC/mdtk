@@ -38,6 +38,9 @@ Download the appropriate binary for your environment and move it to $PATH direct
     --all-task, -a            Can select private groups and hidden tasks at the command.
                                Or show all tasks that include private groups and hidden tasks at task help.
     --script, -s              Display script.
+    --no-head-script, -S      Display script (No shebang, etc.).
+    --path                    Get file path of selected task.
+    --dir                     Get directory of taskfile in which selected task is written.
     --make-cache, -c          Make taskdata cache.
     --lib, -l  [+value]       Select a library file.
                                This is a special version of --file option.
