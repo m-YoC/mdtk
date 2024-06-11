@@ -48,6 +48,9 @@ func GetFlag () parse.Flag {
 	
 	flags.Set("--script", []string{"-s"}).SetDescription("Display script.")
 	flags.Set("--no-head-script", []string{"-S"}).SetDescription("Display script (No shebang, etc.).")
+
+	flags.Set("--path", []string{}).SetDescription("Get file path of selected task.")
+	flags.Set("--dir", []string{}).SetDescription("Get directory of taskfile in which selected task is written.")
 	
 	// -------------------------------------------------------------------------
 
@@ -136,6 +139,26 @@ func main() {
 	if err := sub.Validate(gtname, task_args, tds, all_task_flag); err != nil {
 		fmt.Print(err)
 		base.MdtkExit(1)
+	}
+
+	if flags.GetData("--path").Exist {
+		if td, err := tds.GetTaskData(gtname.Split()); err != nil {
+			fmt.Print(err)
+			base.MdtkExit(1)
+		} else {
+			fmt.Println(string(td.FilePath))
+			base.MdtkExit(0)
+		}
+	}
+
+	if flags.GetData("--dir").Exist {
+		if td, err := tds.GetTaskData(gtname.Split()); err != nil {
+			fmt.Print(err)
+			base.MdtkExit(1)
+		} else {
+			fmt.Println(string(td.FilePath.Dir()))
+			base.MdtkExit(0)
+		}
 	}
 	
 	code, err := tds.GetTaskStart(gtname, task_args, int(nestsize))
