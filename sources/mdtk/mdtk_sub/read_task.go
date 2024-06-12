@@ -3,7 +3,7 @@ package sub
 import (
 	"fmt"
 	"mdtk/base"
-	"mdtk/path"
+	"mdtk/taskset/path"
 	"mdtk/taskset/read"
 	"mdtk/taskset"
 	"mdtk/cache"

@@ -6,7 +6,7 @@ import (
 	"mdtk/exec"
 	"mdtk/parse"
 	"mdtk/help"
-	"mdtk/path"
+	"mdtk/taskset/path"
 	"mdtk/taskset/read"
 	"mdtk/taskset/grtask"
 	"mdtk/taskset"

@@ -5,7 +5,7 @@ import (
 	"mdtk/taskset/group"
 	"mdtk/taskset/task"
 	"mdtk/taskset/code"
-	"mdtk/path"
+	"mdtk/taskset/path"
 )
 
 type TaskDataSet struct {

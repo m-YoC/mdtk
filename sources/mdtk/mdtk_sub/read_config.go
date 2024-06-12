@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"mdtk/base"
 	"mdtk/parse"
-	"mdtk/path"
+	"mdtk/taskset/path"
 	"mdtk/config"
 )
 

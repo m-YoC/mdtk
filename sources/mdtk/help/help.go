@@ -6,7 +6,7 @@ import (
 	"mdtk/lib"
 	"mdtk/taskset/grtask"
 	"mdtk/taskset"
-	"mdtk/path"
+	"mdtk/taskset/path"
 	"mdtk/config"
 )
 

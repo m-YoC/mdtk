@@ -3,7 +3,7 @@ package cache
 import (
 	"os"
 	"mdtk/lib"
-	"mdtk/path"
+	"mdtk/taskset/path"
 	"mdtk/taskset"
 )
 

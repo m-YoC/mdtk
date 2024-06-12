@@ -1,7 +1,7 @@
 package read
 
 import (
-	"mdtk/path"
+	"mdtk/taskset/path"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )

@@ -3,7 +3,7 @@ package read
 import (
 	"strings"
 	"regexp"
-	"mdtk/path"
+	"mdtk/taskset/path"
 )
 
 var taskfile_head_rex = regexp.MustCompile("(?m)^" + block_reg + "taskfile[ \t]*$")

@@ -9,7 +9,7 @@ import (
 	"mdtk/taskset/task"
 	"mdtk/taskset/code"
 	"mdtk/taskset"
-	"mdtk/path"
+	"mdtk/taskset/path"
 	"mdtk/config"
 )
 

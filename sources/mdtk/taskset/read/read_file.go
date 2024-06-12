@@ -4,7 +4,7 @@ import (
     "fmt"
     "os"
 	"path/filepath"
-	"mdtk/path"
+	"mdtk/taskset/path"
 )
 
 func ReadFile(path path.Path) Markdown {

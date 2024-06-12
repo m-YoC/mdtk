@@ -7,7 +7,7 @@ import (
 	"mdtk/taskset/grtask"
 	"mdtk/taskset"
 	"mdtk/args"
-	"mdtk/path"
+	"mdtk/taskset/path"
 	"path/filepath"
 )
 

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"mdtk/taskset/code"
 	"mdtk/taskset"
-	"mdtk/path"
+	"mdtk/taskset/path"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )

@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"mdtk/lib"
 	"mdtk/taskset"
-	"mdtk/path"
+	"mdtk/taskset/path"
 	"mdtk/config"
 )
 
