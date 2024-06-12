@@ -2,6 +2,7 @@ package cache
 
 import (
 	"os"
+	"mdtk/lib"
 	"mdtk/path"
 	"mdtk/taskset"
 )
@@ -32,9 +33,9 @@ func IsLatestCache(tds taskset.TaskDataSet, filename path.Path) bool {
 }
 
 func WriteCache(tds taskset.TaskDataSet, filename path.Path) error {
-	return writeBase(tds, toCacheName(filename))
+	return lib.WriteStruct[taskset.TaskDataSet](tds, toCacheName(filename))
 }
 
 func ReadCache(filename path.Path) (taskset.TaskDataSet, error) {
-	return readBase(toCacheName(filename))
+	return lib.ReadStruct[taskset.TaskDataSet](toCacheName(filename))
 }

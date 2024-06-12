@@ -3,6 +3,7 @@ package cache
 import (
 	"fmt"
 	"mdtk/base"
+	"mdtk/lib"
 	"mdtk/taskset/grtask"
 	"mdtk/taskset"
 	"mdtk/args"
@@ -57,9 +58,9 @@ func WriteLib(tds taskset.TaskDataSet, dir path.Path, output_namebase string, ne
 	tdsb := expandPublicGroupTask(tds, nestsize)
 	tdsb = removePrivateGroupTask(tdsb)
 	tdsb = cleanFilePath(tdsb, output_namebase)
-	return writeBase(tdsb, filepath.Join(string(dir), output_namebase + ".mdtklib"))
+	return lib.WriteStruct[taskset.TaskDataSet](tdsb, filepath.Join(string(dir), output_namebase + ".mdtklib"))
 }
 
 func ReadLib(filename path.Path) (taskset.TaskDataSet, error) {
-	return readBase(string(filename))
+	return lib.ReadStruct[taskset.TaskDataSet](string(filename))
 }
