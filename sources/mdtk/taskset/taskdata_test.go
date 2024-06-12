@@ -1,7 +1,7 @@
 package taskset
 
 import (
-	"mdtk/group"
+	"mdtk/taskset/group"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )

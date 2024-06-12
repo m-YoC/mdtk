@@ -2,8 +2,8 @@ package taskset
 
 import (
 	"fmt"
-	"mdtk/grtask"
-	"mdtk/code"
+	"mdtk/taskset/grtask"
+	"mdtk/taskset/code"
 	"mdtk/args"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"mdtk/lib"
-	"mdtk/grtask"
+	"mdtk/taskset/grtask"
 	"mdtk/taskset"
 	"mdtk/path"
 	"mdtk/config"

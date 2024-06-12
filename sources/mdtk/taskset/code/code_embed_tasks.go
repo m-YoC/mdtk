@@ -3,27 +3,34 @@ package code
 import (
 	"fmt"
 	"strings"
-	"mdtk/grtask"
+	"mdtk/taskset/grtask"
 	"mdtk/args"
 	"mdtk/parse"
 )
 
-func getEmbedCommentFuncsData(embed_comment string) (string, grtask.GroupTask, args.Args, error) {
+func getEmbedCommentTaskAndArgs(embed_comment string) (bool, grtask.GroupTask, args.Args, error) {
 	res := parse.MustLexArgString(embed_comment)
 	head, bottom := parse.SplitArgs(res)
 
-	if len(head) != 2 {
-		s := fmt.Sprintln("Parsing error: too many or too few words.")
-		s += fmt.Sprintln("Bad embed func comment.")
-		return "", "", args.Args{}, fmt.Errorf("%s", s)
+	head_idx := 0
+	has_at := false
+
+	if len(head) >= 1 && head[0] == "@" {
+		head_idx = 1
+		has_at = true
 	}
- 
-	fname := head[0]
-	return fname, grtask.GroupTask(head[1]), args.ToArgs(bottom...), nil
+
+	if len(head) != head_idx + 1 {
+		s := fmt.Sprintln("Parsing error: too many or too few words.")
+		s += fmt.Sprintln("Bad embed task comment.")
+		return has_at, "", args.Args{}, fmt.Errorf("%s", s)
+	}
+
+	return has_at, grtask.GroupTask(head[head_idx]), args.ToArgs(bottom...), nil
 }
 
-func (code Code) ApplyFuncs(tf TaskDataSetInterface, nestsize int) (Code, error) {
-	tasks := code.GetEmbedComment("func")
+func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, error) {
+	tasks := code.GetEmbedComment("task")
 
 	if len(tasks) == 0 {
 		return code, nil
@@ -33,15 +40,14 @@ func (code Code) ApplyFuncs(tf TaskDataSetInterface, nestsize int) (Code, error)
 
 	res := string(code)
 	for _, task := range tasks {
-		fname, gtname, args, err1 := getEmbedCommentFuncsData(task[1])
-		use_new_task_stack := true
-		head := "function " + fname + "() "
+		use_same_stack, gtname, args, err1 := getEmbedCommentTaskAndArgs(task[1])
+		head := ""
 
 		if err1 != nil {
 			return "", err1
 		}
 
-		subcode, err2 := tf.GetTask(gtname, args, false, use_new_task_stack, nestsize-1)
+		subcode, err2 := tf.GetTask(gtname, args, false, !use_same_stack, nestsize-1)
 		if err2 != nil {
 			return "", err2
 		}

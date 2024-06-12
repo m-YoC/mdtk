@@ -2,7 +2,7 @@ package taskset
 
 import (
 	"mdtk/path"
-	"mdtk/task"
+	"mdtk/taskset/task"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )

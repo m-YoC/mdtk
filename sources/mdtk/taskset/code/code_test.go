@@ -3,7 +3,7 @@ package code
 import (
 	"fmt"
 	"testing"
-	"mdtk/grtask"
+	"mdtk/taskset/grtask"
 	"mdtk/args"
 	"github.com/stretchr/testify/assert"
 )

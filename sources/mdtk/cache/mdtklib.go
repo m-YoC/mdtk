@@ -3,7 +3,7 @@ package cache
 import (
 	"fmt"
 	"mdtk/base"
-	"mdtk/grtask"
+	"mdtk/taskset/grtask"
 	"mdtk/taskset"
 	"mdtk/args"
 	"mdtk/path"

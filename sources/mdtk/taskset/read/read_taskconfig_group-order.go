@@ -4,7 +4,7 @@ import (
 	"strings"
 	"strconv"
 	"regexp"
-	"mdtk/group"
+	"mdtk/taskset/group"
 	"mdtk/base"
 )
 

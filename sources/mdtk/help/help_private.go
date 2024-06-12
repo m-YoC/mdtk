@@ -3,8 +3,8 @@ package help
 import (
 	"sort"
 	"math"
-	"mdtk/group"
-	"mdtk/grtask"
+	"mdtk/taskset/group"
+	"mdtk/taskset/grtask"
 	"mdtk/taskset"
 )
 

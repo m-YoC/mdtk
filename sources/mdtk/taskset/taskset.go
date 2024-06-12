@@ -2,9 +2,9 @@ package taskset
 
 import (
 	"fmt"
-	"mdtk/group"
-	"mdtk/task"
-	"mdtk/code"
+	"mdtk/taskset/group"
+	"mdtk/taskset/task"
+	"mdtk/taskset/code"
 	"mdtk/path"
 )
 

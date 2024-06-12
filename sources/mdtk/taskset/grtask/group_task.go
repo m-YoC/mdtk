@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"regexp"
 	"mdtk/base"
-	"mdtk/group"
-	"mdtk/task"
+	"mdtk/taskset/group"
+	"mdtk/taskset/task"
 )
 
 const group_and_task_name_reg = "(?:(?P<group>" + base.NameReg + "):)?(?P<task>" + base.NameReg + ")"

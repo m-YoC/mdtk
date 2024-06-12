@@ -2,7 +2,7 @@ package cache
 
 import (
 	"strings"
-	"mdtk/code"
+	"mdtk/taskset/code"
 	"mdtk/taskset"
 	"mdtk/path"
 	"testing"

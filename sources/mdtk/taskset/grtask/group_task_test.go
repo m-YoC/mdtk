@@ -2,8 +2,8 @@ package grtask
 
 import (
 	"fmt"
-	"mdtk/group"
-	"mdtk/task"
+	"mdtk/taskset/group"
+	"mdtk/taskset/task"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
