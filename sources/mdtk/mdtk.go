@@ -86,6 +86,25 @@ func main() {
 	RunGroupA(args)
 }
 
+/**
+<If: need TaskDataSet>
+|y        \n
+|          ---- Group A
+| 
+<If: need Selected TaskData>
+|y        \n
+|          ---- Group B
+|
+<If: need Selected Code>
+|y        \n
+|          ---- Group C
+|
+Group D
+--------------------------
+Priority: A > B > C > D
+Priorities within each group are in mdtk_sub/action_orders.go
+*/
+
 // ----------------------------------------------------------------------------
 
 type ArgsGroupA struct {
