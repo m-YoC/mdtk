@@ -6,10 +6,10 @@ import (
 	"mdtk/exec"
 	"mdtk/parse"
 	"mdtk/help"
+	"mdtk/taskset"
 	"mdtk/taskset/path"
 	"mdtk/taskset/read"
 	"mdtk/taskset/grtask"
-	"mdtk/taskset"
 	"mdtk/args"
 	"mdtk/taskset/cache"
 	"mdtk/config"
@@ -74,121 +74,131 @@ func GetFlag () parse.Flag {
 func main() {
 	gtname_str, flags, task_args_strarr := parse.Parse(os.Args, GetFlag())
 	flags = sub.LibToFile(flags)
+	
+	sub.ReadConfig(flags.GetData("--file"))
+
 	gtname := grtask.GroupTask(gtname_str)
 	task_args := args.ToArgs(task_args_strarr...)
-
-	sub.ReadConfig(flags.GetData("--file"))
 	nestsize := sub.GetNestSize(flags.GetData("--nest"))
 
-	if flags.GetData("--version").Exist {
+	args := ArgsGroupA{flags: flags, gtname: gtname, args: task_args, nestsize: nestsize}
+
+	RunGroupA(args)
+}
+
+// ----------------------------------------------------------------------------
+
+type ArgsGroupA struct {
+	flags parse.Flag
+	gtname grtask.GroupTask
+	args args.Args
+	nestsize uint
+}
+
+func RunGroupA(a ArgsGroupA) {
+	FlagHas := func(str string) bool { return a.flags.GetData(str).Exist }
+
+	switch sub.EnumGroupA(FlagHas("-v"), FlagHas("-h"), FlagHas("-m"), FlagHas("--write-configbase")) {
+	case sub.ACT_VERSION:
 		fmt.Println("mdtk version", getVersion())
-		base.MdtkExit(0)
-	}
-
-	// show command/md help
-	if flags.GetData("--help").Exist {
-		help.ShowCommandHelp(flags, 26)
-		base.MdtkExit(0)
-	}
-
-	if flags.GetData("--manual").Exist {
+	case sub.ACT_CMD_HELP:
+		help.ShowCommandHelp(a.flags, 26)
+	case sub.ACT_MANUAL:
 		help.ShowManual()
-		base.MdtkExit(0)
+	case sub.ACT_WRITE_CONFIG:
+		config.WriteDefaultConfig()
+	default:
+		RunGroupB(a)
 	}
 
-	if flags.GetData("--write-configbase").Exist {
-		config.WriteDefaultConfig()
-		base.MdtkExit(0)
-	}
+	base.MdtkExit(0)
+}
+
+// ----------------------------------------------------------------------------
+
+type ArgsGroupB struct {
+	filename path.Path
+	tds taskset.TaskDataSet
+}
+
+func RunGroupB(a ArgsGroupA) {
+	FlagHas := func(str string) bool { return a.flags.GetData(str).Exist }
 
 	// get Taskfile
 	filename := path.Path("")
-	if fd := flags.GetData("--file"); fd.Exist {
+	if fd := a.flags.GetData("--file"); fd.Exist {
 		filename = path.Path(fd.Value)
 	} else {
 		filename = read.SearchTaskfile()
 	}
 
-	// get directory of root Taskfile
-	dir := filename.Dir()
-
 	// read Taskfile
-	tds := sub.ReadTaskDataSet(filename, flags.GetData("--make-cache").Exist)
+	tds := sub.ReadTaskDataSet(filename, FlagHas("--make-cache"))
 
 	// make lib
-	if fd := flags.GetData("--make-library"); fd.Exist {
-		cache.WriteLib(tds, dir, fd.Value, int(nestsize))		
+	fdml := a.flags.GetData("--make-library")
+	switch sub.EnumGroupB(FlagHas("--groups"), help.ShouldShowHelp(a.gtname, tds), fdml.Exist) {
+	case sub.ACT_TASK_HELP:
+		help.ShowHelp(filename.String(), a.gtname, tds, FlagHas("--all-task"))
+	case sub.ACT_GROUPS:
+		help.ShowGroups(filename.String(), tds, FlagHas("--all-task"))
+	case sub.ACT_MAKE_LIB:
+		cache.WriteLib(tds, filename.Dir(), fdml.Value, int(a.nestsize))
+	default:
+		RunGroupC(a, ArgsGroupB{filename: filename, tds: tds})
+	}
+
+	base.MdtkExit(0)
+}
+
+// ----------------------------------------------------------------------------
+
+type ArgsGroupC struct {
+	td taskset.TaskData
+}
+
+func RunGroupC(a ArgsGroupA, b ArgsGroupB) {
+	FlagHas := func(str string) bool { return a.flags.GetData(str).Exist }
+
+	// validation, also check hidden attr, etc.
+	base.Exit1_IfHasError(sub.Validate(a.gtname, a.args, b.tds, FlagHas("--all-task")))
+
+	td, err := b.tds.GetTaskData(a.gtname.Split())
+	base.Exit1_IfHasError(err)
+
+	switch sub.EnumGroupC_WritePath(FlagHas("--path"), FlagHas("--dir")) {
+	case sub.ACT_PATH:
+		fmt.Println(string(td.FilePath))
 		base.MdtkExit(0)
-	}
-
-	all_task_flag := flags.GetData("--all-task").Exist
-
-	// show groups
-	if flags.GetData("--groups").Exist {
-		help.ShowGroups(filename.String(), tds, all_task_flag)
+	case sub.ACT_DIR:
+		fmt.Println(string(td.FilePath.Dir()))
 		base.MdtkExit(0)
-	}
-	
-	// show task help
-	if help.ShouldShowHelp(gtname, tds) {
-		help.ShowHelp(filename.String(), gtname, tds, all_task_flag)
-		base.MdtkExit(0)
+	default:
+		RunGroupD(a, b, ArgsGroupC{td: td})
 	}
 
-	// validation
-	if err := sub.Validate(gtname, task_args, tds, all_task_flag); err != nil {
-		fmt.Print(err)
-		base.MdtkExit(1)
-	}
+	base.MdtkExit(0)
+}
 
-	if flags.GetData("--path").Exist {
-		if td, err := tds.GetTaskData(gtname.Split()); err != nil {
-			fmt.Print(err)
-			base.MdtkExit(1)
-		} else {
-			fmt.Println(string(td.FilePath))
-			base.MdtkExit(0)
-		}
-	}
+// ----------------------------------------------------------------------------
 
-	if flags.GetData("--dir").Exist {
-		if td, err := tds.GetTaskData(gtname.Split()); err != nil {
-			fmt.Print(err)
-			base.MdtkExit(1)
-		} else {
-			fmt.Println(string(td.FilePath.Dir()))
-			base.MdtkExit(0)
-		}
-	}
-	
-	code, err := tds.GetTaskStart(gtname, task_args, int(nestsize))
-	if err != nil {
-		fmt.Print(err)
-		base.MdtkExit(1)
-	}
+func RunGroupD(a ArgsGroupA, b ArgsGroupB, c ArgsGroupC) {
+	FlagHas := func(str string) bool { return a.flags.GetData(str).Exist }
+
+	code, err := b.tds.GetTaskStart(a.gtname, a.args, int(a.nestsize))
+	base.Exit1_IfHasError(err)
 
 	// td, err := tds.GetTaskData(gtname.Split())
 	// -> From the previous steps, we know there is no error, so remove it.
-	is_not_shell_langs := base.PairFirst(tds.GetTaskData(gtname.Split())).Lang != taskset.ShellLangs
-	if flags.GetData("--no-head-script").Exist || is_not_shell_langs {
-		fmt.Println(code.GetRawScript())
-		base.MdtkExit(0)
-	}
-
-	if flags.GetData("--script").Exist {
+	switch sub.EnumGroupD_RunOrWriteScript(c.td.Lang, FlagHas("--script"), FlagHas("--no-head-script")) {
+	case sub.ACT_RUN:
+		err := exec.Run(string(code), string(b.filename.Dir()), FlagHas("--quiet"), FlagHas("--run-in-filedir"))
+		base.Exit1_IfHasError(err)
+	case sub.ACT_SCRIPT:
 		fmt.Println(code.GetRunnableScript(exec.GetShell(), exec.GetShHead()))
-		base.MdtkExit(0)
+	case sub.ACT_RAW_SCRIPT:
+		fmt.Println(code.GetRawScript())
 	}
-
-	if err := exec.Run(string(code), string(dir), 
-	                   flags.GetData("--quiet").Exist,
-					   flags.GetData("--run-in-filedir").Exist); err != nil {
-		fmt.Print(err)
-		base.MdtkExit(1)
-	}
-	base.MdtkExit(0)
 	
+	base.MdtkExit(0)	
 }
-
-
-

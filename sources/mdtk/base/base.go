@@ -1,6 +1,7 @@
 package base
 
 import (
+	"fmt"
 	"os"
 )
 
@@ -30,3 +31,11 @@ func MdtkExit(ecode int) {
 	}
 	os.Exit(ecode)
 }
+
+func Exit1_IfHasError(err error) {
+	if err != nil {
+		fmt.Print(err)
+		MdtkExit(1)
+	}
+}
+
