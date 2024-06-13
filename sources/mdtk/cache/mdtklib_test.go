@@ -4,7 +4,6 @@ import (
 	"strings"
 	"mdtk/taskset/code"
 	"mdtk/taskset"
-	"mdtk/taskset/path"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
@@ -47,10 +46,4 @@ func Test_removePrivateGroupTask(t *testing.T) {
 	assert.Equal(t, 1, len(removePrivateGroupTask(tds).Data))
 }
 
-func Test_cleanFilePath(t *testing.T) {
-	tds := taskset.TaskDataSet{Data: []taskset.TaskData{}, FilePath: map[path.Path]bool{"Taskfile.md": true}}
-	tds.Data = append(tds.Data, taskset.TaskData{Group: "_", Task: "task1", Code: code.Code(code1), FilePath: "Taskfile.md"})
-	tds = cleanFilePath(tds, "testlib")
-	assert.Equal(t, map[path.Path]bool{"testlib": true}, tds.FilePath)
-	assert.Equal(t, "testlib", string(tds.Data[0].FilePath))
-}
+

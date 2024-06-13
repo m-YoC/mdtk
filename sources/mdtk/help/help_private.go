@@ -18,6 +18,7 @@ const (
 	clear = "\033[0m"
 )
 
+
 func doNotExistExplicitDefaultTask(tds taskset.TaskDataSet) bool {
 	for _, task := range tds.Data {
 		if string(task.Group) == "_" && string(task.Task) == "default" {

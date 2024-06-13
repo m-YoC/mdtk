@@ -65,6 +65,21 @@ func Test_TaskDataSet(t *testing.T) {
 		}
 	})
 
+	t.Run("RemovePathData", func(t *testing.T) {
+		tds := createDataSet()
+		tds.Data[0].FilePath = "aaaaa"
+		tds.Data[1].FilePath = "bbbbb"
+		tds.Data[2].FilePath = "ccccc"
+
+		tds.RemovePathData("removed")
+
+		for _, v := range tds.Data {
+			assert.Equal(t, "removed", string(v.FilePath))
+		}
+		assert.Equal(t, 0, len(tds.FilePath))
+		
+	})
+
 	t.Run("GetCode", func(t *testing.T) {
 		const (
 			positive = iota

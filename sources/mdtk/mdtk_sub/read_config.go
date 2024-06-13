@@ -4,19 +4,19 @@ import (
 	"fmt"
 	"mdtk/base"
 	"mdtk/parse"
-	"mdtk/taskset/path"
+	"path/filepath"
 	"mdtk/config"
 )
 
 func ReadConfig(file_flag parse.FlagData) {
 	if file_flag.Exist {
-		dir := path.Path(file_flag.Value).Dir()
-		if err := config.ReadConfig(string(dir)); err != nil {
+		dir := filepath.Dir(file_flag.Value)
+		if err := config.ReadConfig(dir); err != nil {
 			fmt.Print(err)
 			base.MdtkExit(1)
 		}
 	} else {
-		wd, err := path.GetWorkingDir[string]()
+		wd, err := base.GetWorkingDir()
 		if err != nil {
 			fmt.Print(err)
 			base.MdtkExit(1)

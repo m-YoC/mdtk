@@ -1,20 +1,21 @@
 package path
 
 import (
-    "os"
 	"strings"
     "os/user"
     "path/filepath"
+    "mdtk/base"
 )
+
+func GetWorkingDir[T Path | string]() (T, error) {
+	p, err := base.GetWorkingDir()
+    return T(p), err
+}
 
 type Path string
 
-func GetWorkingDir[T Path | string]() (T, error) {
-	p, err := os.Getwd()
-	if err != nil {
-		return T(""), err
-	}
-	return T(p), nil
+func (path Path) String() string {
+    return string(path)
 }
 
 func (path Path) homeDirToAbs() Path {

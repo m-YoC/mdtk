@@ -5,11 +5,10 @@ import (
 	"strconv"
 	"mdtk/lib"
 	"mdtk/taskset"
-	"mdtk/taskset/path"
 	"mdtk/config"
 )
 
-func ShowGroups(filename path.Path, tds taskset.TaskDataSet, show_private bool) {
+func ShowGroups(filename string, tds taskset.TaskDataSet, show_private bool) {
 	group_map := getGroupMap(tds, "", show_private)
 	group_arr := getGroupArrAndSort(group_map, tds.GroupOrder)
 

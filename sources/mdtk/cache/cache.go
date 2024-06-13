@@ -3,12 +3,13 @@ package cache
 import (
 	"os"
 	"mdtk/lib"
-	"mdtk/taskset/path"
 	"mdtk/taskset"
+	"mdtk/taskset/path"
 )
 
+
 func toCacheName(filename path.Path) string {
-	return string(filename) + ".cache"
+	return filename.String() + ".cache"
 }
 
 func ExistCacheFile(filename path.Path) bool {
@@ -22,6 +23,7 @@ func IsLatestCache(tds taskset.TaskDataSet, filename path.Path) bool {
 		return false
 	}
 
+	// path.Path
 	for k, _ := range tds.FilePath {
 		substatus, err := os.Stat(string(k))
 		if err != nil || status.ModTime().Before(substatus.ModTime()) {

@@ -125,13 +125,13 @@ func main() {
 
 	// show groups
 	if flags.GetData("--groups").Exist {
-		help.ShowGroups(filename, tds, all_task_flag)
+		help.ShowGroups(filename.String(), tds, all_task_flag)
 		base.MdtkExit(0)
 	}
 	
 	// show task help
 	if help.ShouldShowHelp(gtname, tds) {
-		help.ShowHelp(filename, gtname, tds, all_task_flag)
+		help.ShowHelp(filename.String(), gtname, tds, all_task_flag)
 		base.MdtkExit(0)
 	}
 
