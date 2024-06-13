@@ -10,6 +10,14 @@ var validate_groupname_rex = regexp.MustCompile("^" + base.NameReg + "$")
 
 type Group string
 
+func (g *Group) Set(str string) {
+	if str == "" { 
+		*g = Group("_") 
+	} else {
+		*g = Group(str)
+	}
+}
+
 func (g Group) IsPrivate() bool {
 	return len(g) >= 2 && g[0:1] == "_"
 }

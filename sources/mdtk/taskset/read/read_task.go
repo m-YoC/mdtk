@@ -5,8 +5,6 @@ import (
 	"strings"
 	"regexp"
 	"mdtk/base"
-	"mdtk/taskset/group"
-	"mdtk/taskset/task"
 	"mdtk/taskset/code"
 	"mdtk/taskset"
 	"mdtk/taskset/path"
@@ -53,7 +51,6 @@ func (md Markdown) SimplifyNewline() Markdown {
 }
 
 func (md Markdown) ExtractCode(begin int, end_block string) (code.Code, error) {
-// 見つからなかった場合を考慮する
 	idx := strings.Index(string(md[begin:]), end_block)
 	if idx == -1 {
 		return code.Code(""), fmt.Errorf("Code block not closed.\n")
@@ -62,31 +59,29 @@ func (md Markdown) ExtractCode(begin int, end_block string) (code.Code, error) {
 	return code.Code(strings.Trim(string(md[begin : begin + idx]), "\n")), nil
 }
 
-func (md Markdown) GetTaskBlock() ([]taskset.TaskData, error) {
+func (md Markdown) GetTaskBlock(filepath path.Path) ([]taskset.TaskData, error) {
 	rex := GetTaskHeadRex()
 	heads := rex.FindAllStringSubmatch(string(md), -1)
 	indices := rex.FindAllStringIndex(string(md), -1)
 
 	res := []taskset.TaskData{}
 	for i, head := range heads {
+		// get fence (```, ~~~, ````, ~~~~, ...)
 		block := head[rex.SubexpIndex("block")]
+		// get code area
 		c, err := md.ExtractCode(indices[i][1], block)
 		if err != nil {
 			return []taskset.TaskData{}, err
 		}
 
+		// create TaskData
 		var task_data taskset.TaskData
-		gbuf := head[rex.SubexpIndex("group")]
-		if gbuf == "" { gbuf = "_" }
-		task_data.Group = group.Group(gbuf)
-		task_data.Task = task.Task(head[rex.SubexpIndex("task")])
-		task_data.Description = []string{head[rex.SubexpIndex("description")]}
+		task_data.SetLang(head[rex.SubexpIndex("lang")])
+		task_data.SetGroup(head[rex.SubexpIndex("group")])
+		task_data.SetTask(head[rex.SubexpIndex("task")])
+		task_data.SetDescription(head[rex.SubexpIndex("description")])
 		task_data.Code = c
-
-		task_data.Lang = head[rex.SubexpIndex("lang")]
-		if task_data.Lang == "" || task_data.LangIsContainedIn(config.Config.LangAlias) {
-			task_data.Lang = taskset.ShellLangs
-		}
+		task_data.FilePath = filepath
 
 		task_data.GetAttrsAndSet()
 
@@ -98,38 +93,28 @@ func (md Markdown) GetTaskBlock() ([]taskset.TaskData, error) {
 
 
 func ReadTask(filename path.Path) (taskset.TaskDataSet, error) {
+	nilset := taskset.TaskDataSet{}
+
 	readTaskImpl := func(filename path.Path, is_root_file bool) (taskset.TaskDataSet, error) {
-		tds := taskset.TaskDataSet{}
-		base_abs_path := filename.GetFileAbsPath()
-		base_dir := base_abs_path.Dir()
-
 		md := ReadFile(filename).SimplifyNewline()
-		tdarr, err1 := md.GetTaskBlock()
-		tfp, err2 := md.GetTaskfileBlockPath()
-		if err1 != nil {
-			return taskset.TaskDataSet{}, fmt.Errorf("%w%s\n", err1, base_abs_path)
-		}
-		if err2 != nil {
-			return taskset.TaskDataSet{}, fmt.Errorf("%w%s\n", err2, base_abs_path)
+		base_abs_path := filename.GetFileAbsPath()
+
+		tdarr, err := md.GetTaskBlock(base_abs_path)
+		if err != nil {
+			return nilset, fmt.Errorf("%w%s\n", err, base_abs_path)
 		}
 
-		tds.Data = tdarr
-
-		tds.FilePath = map[path.Path]bool{base_abs_path: true}
-		for path, _ := range tfp {
-			if f := base_dir.GetSubFilePath(path); f != base_abs_path {
-				tds.FilePath[f] = false
-			}
+		tfp, err := md.GetTaskfileBlockPath(base_abs_path)
+		if err != nil {
+			return nilset, fmt.Errorf("%w%s\n", err, base_abs_path)
 		}
 
-		for i, _ := range tds.Data {
-			tds.Data[i].FilePath = base_abs_path
-		}
+		tds := taskset.TaskDataSet{Data: tdarr, FilePath: tfp}
 
 		if is_root_file {
 			tdgo, err := md.GetTaskConfigGroupOrder()
 			if err != nil {
-				return taskset.TaskDataSet{}, fmt.Errorf("%w%s\n", err, base_abs_path)
+				return nilset, fmt.Errorf("%w%s\n", err, base_abs_path)
 			}
 			tds.GroupOrder = tdgo
 		}
@@ -139,21 +124,21 @@ func ReadTask(filename path.Path) (taskset.TaskDataSet, error) {
 
 	tds, err := readTaskImpl(filename, true)
 	if err != nil {
-		return taskset.TaskDataSet{}, err
+		return nilset, err
 	}
 
 	// Add Taskfile
 	for !tds.HasOnlyFilePathsAlreadyRead() {
 		for k, v := range tds.FilePath {
-			if !v {
-				sub_tds, errr := readTaskImpl(k, false)
-				if errr != nil {
-					return taskset.TaskDataSet{}, errr
-				}
+			if v { continue }
 
-				tds.Merge(&sub_tds)
-				tds.FilePath[k] = true
+			sub_tds, err := readTaskImpl(k, false)
+			if err != nil {
+				return nilset, err
 			}
+
+			tds.Merge(&sub_tds)
+			tds.FilePath[k] = true
 		}
 	}
 

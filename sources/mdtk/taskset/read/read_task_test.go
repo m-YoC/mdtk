@@ -16,7 +16,7 @@ echo test2
 
 ~~~taskfile
 go/test/file.md
-  /markdown/read/data.md  
+  markdown/read/data.md  
 ~~~
 
 ~~~taskconfig:group-order
@@ -62,7 +62,7 @@ func Test_Markdown(t *testing.T) {
 
 	t.Run("GetTaskBlock", func(t *testing.T) {
 		t.Run("positive", func(t *testing.T) {
-			tdarr, err := Markdown(md_sample).GetTaskBlock()
+			tdarr, err := Markdown(md_sample).GetTaskBlock("path")
 
 			if assert.NoError(t, err) {
 				for i, s := range [][]string{{"_", "task", "echo test"}, {"group", "task", "echo test2"}} {

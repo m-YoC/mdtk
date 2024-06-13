@@ -37,6 +37,8 @@ func Test_TaskData(t *testing.T) {
 		} {
 			{"ok", "[attr1 attr2 attr3] description", []string{"attr1", "attr2", "attr3"}, "description"},
 			{"rest is trimed space", "[attr1 attr2 attr3]   description    ", []string{"attr1", "attr2", "attr3"}, "description"},
+			{"many spaces", "[attr1  attr2   attr3 ] description", []string{"attr1", "attr2", "attr3"}, "description"},
+			{"アルファベット以外もちゃんと取り出せる", "[attr1 属性２ attr3] description", []string{"attr1", "属性２", "attr3"}, "description"},
 			{"no attrs", "description", []string{}, "description"},
 			{"no attrs but has bracket", "[] description", []string{}, "description"},
 			{"no description", "[attr1 attr2 attr3] ", []string{"attr1", "attr2", "attr3"}, ""},

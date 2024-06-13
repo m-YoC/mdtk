@@ -9,10 +9,18 @@ import (
 var taskfile_head_rex = regexp.MustCompile("(?m)^" + block_reg + "taskfile[ \t]*$")
 
 
-func (md Markdown) GetTaskfileBlockPath() (map[path.Path]bool, error) {
-	return getTaskConfigBase[path.Path, bool](md, taskfile_head_rex, func(res *map[path.Path]bool, v string ) {
+func (md Markdown) GetTaskfileBlockPath(base_abs_path path.Path) (map[path.Path]bool, error) {
+	bdir := base_abs_path.Dir()
+
+	path, err := getTaskConfigBase[path.Path, bool](md, taskfile_head_rex, func(res *map[path.Path]bool, v string ) {
 		if tv := strings.TrimSpace(v); tv != "" {
-			(*res)[path.Path(tv)] = false
+			abspath := bdir.GetSubFilePath(path.Path(tv))
+			(*res)[abspath] = false
 		}
 	})
+	if err != nil {
+		return path, err
+	}
+	path[base_abs_path] = true
+	return path, nil
 }
