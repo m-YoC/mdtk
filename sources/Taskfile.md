@@ -21,7 +21,9 @@ echo ion
 #desc> hello mdtk
 echo hello mdtk! wd:`pwd`
 
+#embed> sub:subtest
 #task> sub:subtest
+#task> @ sub:subtest
 
 #func> ttt sub:subtest
 ttt

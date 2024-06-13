@@ -5,28 +5,21 @@ import (
 	"strings"
 	"mdtk/taskset/grtask"
 	"mdtk/args"
-	"mdtk/parse"
+	"mdtk/lib"
 )
 
-func getEmbedCommentTaskAndArgs(embed_comment string) (bool, grtask.GroupTask, args.Args, error) {
-	res := parse.MustLexArgString(embed_comment)
-	head, bottom := parse.SplitArgs(res)
-
-	head_idx := 0
-	has_at := false
-
-	if len(head) >= 1 && head[0] == "@" {
-		head_idx = 1
-		has_at = true
+func taskCmdsConstraint(cmds []string, args args.Args, errstr string, err error) (bool, grtask.GroupTask, args.Args, error) {
+	if err != nil {
+		return false, grtask.GroupTask(""), args, err
 	}
 
-	if len(head) != head_idx + 1 {
-		s := fmt.Sprintln("Parsing error: too many or too few words.")
-		s += fmt.Sprintln("Bad embed task comment.")
-		return has_at, "", args.Args{}, fmt.Errorf("%s", s)
-	}
+	has_at := len(cmds) >= 1 && cmds[0] == "@"
+	head_idx := lib.Btoi[int](has_at)
 
-	return has_at, grtask.GroupTask(head[head_idx]), args.ToArgs(bottom...), nil
+	if len(cmds) != head_idx + 1 {
+		return has_at, grtask.GroupTask(""), args, fmt.Errorf("%s", errstr)
+	}
+	return has_at, grtask.GroupTask(cmds[head_idx]), args, nil
 }
 
 func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, error) {
@@ -40,16 +33,15 @@ func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, err
 
 	res := string(code)
 	for _, task := range tasks {
-		use_same_stack, gtname, args, err1 := getEmbedCommentTaskAndArgs(task[1])
+		use_same_stack, gtname, args, err := taskCmdsConstraint(extractSubCmds(task[1]))
+		if err != nil {
+			return "", fmt.Errorf("%s-> %s\n", err, task[0])
+		}
 		head := ""
 
-		if err1 != nil {
-			return "", err1
-		}
-
-		subcode, err2 := tf.GetTask(gtname, args, false, !use_same_stack, nestsize-1)
-		if err2 != nil {
-			return "", err2
+		subcode, err := tf.GetTask(gtname, args, false, !use_same_stack, nestsize-1)
+		if err != nil {
+			return "", err
 		}
 		subcode = subcode.RemoveEmbedDescComment().RemoveEmbedArgsComment()
 		rsubcode := indent + strings.Replace(string(subcode), "\n", "\n" + indent, -1)

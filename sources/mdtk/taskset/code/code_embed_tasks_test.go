@@ -1,44 +1,44 @@
 package code
 
 import (
+	"regexp"
+	"mdtk/lib"
 	"mdtk/args"
 	"testing"
-	"regexp"
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_getEmbedCommentTaskAndArgs(t *testing.T) {
-	const (
-		positive = iota
-		negative
-	)
+func Test_taskCmdsConstraint(t *testing.T) {
+	type E struct {
+		PN string
+		HasAt bool
+		Gtname string
+		Args args.Args
+	}
 
-	tests := []struct {
-		expected_e int
-		name string
-		comment string
-		expected_b bool
-		expected_gt string
-		expected_a args.Args
-	} {
-		{positive, "no args", "group:task", false, "group:task", args.Args{}},
-		{positive, "has args", "group:task -- k1=v1  k2=v2", false, "group:task", args.ToArgs("k1=v1", "k2=v2")},
-		{positive, "no args (with @)", "@ group:task", true, "group:task", args.Args{}},
-		{positive, "has args (with @)", "@ group:task -- k1=v1  k2=v2", true, "group:task", args.ToArgs("k1=v1", "k2=v2")},
-		{negative, "head has more than 1", "group task -- k1=v1  k2=v2", false, "", args.Args{}},
-		{negative, "head has more than 2 (with @)", "@ group task -- k1=v1  k2=v2", true, "", args.Args{}},
-		{negative, "no head", "-- k1=v1  k2=v2", false, "", args.Args{}},
-		{negative, "head has only @", "@ -- k1=v1  k2=v2", false, "", args.Args{}},
+	tests := lib.TestCases[string, E] {
+		{Name: "no args", TestArg: "group:task", 
+		Expected: E{ lib.Positive, false, "group:task", args.Args{}}},
+		{Name: "has args", TestArg: "group:task -- k1=v1  k2=v2", 
+		Expected: E{ lib.Positive, false, "group:task", args.ToArgs("k1=v1", "k2=v2")}},
+		{Name: "no args (with @)", TestArg: "@ group:task", 
+		Expected: E{ lib.Positive, true, "group:task", args.Args{}}},
+		{Name: "has args (with @)", TestArg: "@ group:task -- k1=v1  k2=v2", 
+		Expected: E{ lib.Positive, true, "group:task", args.ToArgs("k1=v1", "k2=v2")}},
+		{Name: "head has more than 1", TestArg: "group task -- k1=v1  k2=v2", Expected: E{ PN: lib.Negative }},
+		{Name: "head has more than 2 (with @)", TestArg: "@ group task -- k1=v1  k2=v2", Expected: E{ PN: lib.Negative }},
+		{Name: "no head", TestArg: "-- k1=v1  k2=v2", Expected: E{ PN: lib.Negative }},
+		{Name: "head has only @", TestArg: "@ -- k1=v1  k2=v2", Expected: E{ PN: lib.Negative }},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			b, gt, a, err := getEmbedCommentTaskAndArgs(tt.comment)
-			if tt.expected_e == positive {
+		t.Run(tt.Name, func(t *testing.T) {
+			b, gt, a, err := taskCmdsConstraint(extractSubCmds(tt.TestArg))
+			if tt.Expected.PN == lib.Positive {
 				if assert.NoError(t, err) {
-					assert.Equal(t, tt.expected_b, b)
-					assert.Equal(t, tt.expected_gt, string(gt))
-					assert.Equal(t, tt.expected_a, a)
+					assert.Equal(t, tt.Expected.HasAt, b)
+					assert.Equal(t, tt.Expected.Gtname, string(gt))
+					assert.Equal(t, tt.Expected.Args, a)
 				}
 			} else {
 				assert.Error(t, err)

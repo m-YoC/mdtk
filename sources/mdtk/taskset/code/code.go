@@ -1,10 +1,12 @@
 package code
 
 import (
+	"fmt"
 	"strings"
     "regexp"
 	"mdtk/taskset/grtask"
 	"mdtk/args"
+	"mdtk/parse"
 )
 
 var embed_comment_rex_map = map[string]*regexp.Regexp{}
@@ -75,4 +77,16 @@ func (code Code) RemoveEmbedComment(key string) Code {
 	return Code(res)
 }
 
+
+func extractSubCmds(str string) ([]string, args.Args, string, error) {
+	res, err := parse.LexArgString(str)
+	if err != nil {
+		return []string{}, args.Args{}, "", err
+	}
+
+	head, bottom := parse.SplitArgs(res)
+	s := fmt.Sprintln("Parsing error: too many or too few words.")
+
+	return head, args.ToArgs(bottom...), s, nil
+}
 
