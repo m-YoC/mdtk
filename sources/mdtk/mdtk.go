@@ -169,10 +169,8 @@ func RunGroupC(a ArgsGroupA, b ArgsGroupB) {
 	switch sub.EnumGroupC_WritePath(FlagHas("--path"), FlagHas("--dir")) {
 	case sub.ACT_PATH:
 		fmt.Println(string(td.FilePath))
-		base.MdtkExit(0)
 	case sub.ACT_DIR:
 		fmt.Println(string(td.FilePath.Dir()))
-		base.MdtkExit(0)
 	default:
 		RunGroupD(a, b, ArgsGroupC{td: td})
 	}
