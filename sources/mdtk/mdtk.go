@@ -176,7 +176,7 @@ func main() {
 	}
 
 	if flags.GetData("--script").Exist {
-		fmt.Println(code.GetRunnableScript())
+		fmt.Println(code.GetRunnableScript(exec.GetShell(), exec.GetShHead()))
 		base.MdtkExit(0)
 	}
 

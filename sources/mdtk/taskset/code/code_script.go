@@ -2,15 +2,14 @@ package code
 
 import (
 	"fmt"
-	"mdtk/exec"
 )
 
-func (code Code) GetRunnableScript() string {
-	h := fmt.Sprintln("#!" + exec.GetShell()) //shebang
-	h += fmt.Sprintln(exec.GetShHead())
+func (code Code) GetRunnableScript(shpath string, head string) string {
+	h := fmt.Sprintln("#!" + shpath) //shebang
+	h += fmt.Sprintln(head)
 	h += fmt.Sprintln("")
 
-	return h + string(code.RemoveEmbedDescComment().RemoveEmbedArgsComment())
+	return h + code.GetRawScript()
 }
 
 func (code Code) GetRawScript() string {
