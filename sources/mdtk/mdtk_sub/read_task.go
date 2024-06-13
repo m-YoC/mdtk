@@ -6,7 +6,7 @@ import (
 	"mdtk/taskset/path"
 	"mdtk/taskset/read"
 	"mdtk/taskset"
-	"mdtk/cache"
+	"mdtk/taskset/cache"
 	_ "embed"
 	"sync"
 )

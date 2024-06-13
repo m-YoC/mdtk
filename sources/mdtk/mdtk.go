@@ -11,7 +11,7 @@ import (
 	"mdtk/taskset/grtask"
 	"mdtk/taskset"
 	"mdtk/args"
-	"mdtk/cache"
+	"mdtk/taskset/cache"
 	"mdtk/config"
 	"mdtk/mdtk_sub"
 	"os"
