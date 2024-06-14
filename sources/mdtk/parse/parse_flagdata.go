@@ -88,7 +88,7 @@ func (f *Flag) Back() *FlagData {
 	return &(*f)[len(*f)-1]
 }
 
-func (f *Flag) Set(name string, alias []string) *FlagData {
+func (f *Flag) Set(name string, alias ...string) *FlagData {
 	fd := FlagData{Name: name, Alias: alias, HasValue: false, Exist: false}
 	*f = append(*f, fd)
 	return f.Back()

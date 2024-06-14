@@ -60,9 +60,9 @@ func Test_MatchOp(t *testing.T) {
 	)
 
 	f := Flag{}
-	f.Set("--flag1", []string{"-f"}).SetHasValue("default1")
-	f.Set("--flag2", []string{"-g"})
-	f.Set("--flag3", []string{"-h"}).SetHasValue("default3")
+	f.Set("--flag1", "-f").SetHasValue("default1")
+	f.Set("--flag2", "-g")
+	f.Set("--flag3", "-h").SetHasValue("default3")
 
 	tests := []struct {
 		name string

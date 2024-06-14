@@ -52,7 +52,7 @@ func Test_FlagData(t *testing.T) {
 func Test_Flag(t *testing.T) {
 	t.Run("Set", func(t *testing.T) {
 		f := Flag{}
-		f.Set("--flag", []string{"-f"}).SetHasValue("default")
+		f.Set("--flag", "-f").SetHasValue("default")
 
 		assert.Equal(t, 1, len(f))
 		assert.Equal(t, "--flag", f[0].Name)
@@ -64,9 +64,9 @@ func Test_Flag(t *testing.T) {
 
 	t.Run("GetIndex", func(t *testing.T) {
 		f := Flag{}
-		f.Set("--flag1", []string{"-f1"}).SetHasValue("default1")
-		f.Set("--flag2", []string{"-f2"})
-		f.Set("--flag3", []string{"-f3"}).SetHasValue("default3")
+		f.Set("--flag1", "-f1").SetHasValue("default1")
+		f.Set("--flag2")
+		f.Set("--flag3", "-f3").SetHasValue("default3")
 
 		assert.Equal(t, 0, f.GetIndex("-f1"))
 		assert.Equal(t, 1, f.GetIndex("--flag2"))
@@ -76,9 +76,9 @@ func Test_Flag(t *testing.T) {
 
 	t.Run("GetData", func(t *testing.T) {
 		f := Flag{}
-		f.Set("--flag1", []string{"-f1"}).SetHasValue("default1")
-		f.Set("--flag2", []string{"-f2"})
-		f.Set("--flag3", []string{"-f3"}).SetHasValue("default3")
+		f.Set("--flag1", "-f1").SetHasValue("default1")
+		f.Set("--flag2", "-f2")
+		f.Set("--flag3", "-f3").SetHasValue("default3")
 
 		assert.True(t, f.GetData("-f1").HasValue)
 		assert.Equal(t, "--flag1", f.GetData("-f1").Name)
