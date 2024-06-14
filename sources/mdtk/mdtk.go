@@ -31,49 +31,62 @@ func GetFlag () parse.Flag {
 	nestsizestr := strconv.FormatUint(uint64(config.Config.NestMaxDepth), 10)
 
 	flags := parse.Flag{}
-	flags.Set("--file", []string{"-f"}).SetHasValue("")
-	flags.Back().SetDescription("Select a task file.")
+	flags.Set("--file", "-f").SetHasValue("")
+	flags.Back().SetDescription("Select a task file. Task is run in working directory.")
+	flags.Set("--File", "-F").SetHasValue("")
+	flags.Back().SetDescription("Select a task file. Task is run in taskfile directory.")
 
-	flags.Set("--nest", []string{"-n"}).SetHasValue(nestsizestr)
+	flags.Set("--nest", "-n").SetHasValue(nestsizestr)
 	flags.Back().SetDescription("Set the nest maximum depth of embedded comment (embed/task).\nDefault is " + nestsizestr + ".")
 	
-	flags.Set("--run-in-filedir", []string{"--rfd"})
-	flags.Back().SetDescription("Not run task in working directory, but run it in taskfile directory.")
-	
-	flags.Set("--quiet", []string{"-q"})
+	flags.Set("--quiet", "-q")
 	flags.Back().SetDescription("Task output is not sent to standard output.")
 	
-	flags.Set("--all-task", []string{"-a"})
+	flags.Set("--all-task", "-a")
 	flags.Back().SetDescription("Can select private groups and hidden tasks at the command.\nOr show all tasks that include private groups and hidden tasks at task help.")
 	
-	flags.Set("--script", []string{"-s"}).SetDescription("Display script.")
-	flags.Set("--no-head-script", []string{"-S"}).SetDescription("Display script (No shebang, etc.).")
+	flags.Set("--script", "-s").SetDescription("Display script.")
+	flags.Set("--no-head-script", "-S").SetDescription("Display script (No shebang, etc.).")
 
-	flags.Set("--path", []string{}).SetDescription("Get file path of selected task.")
-	flags.Set("--dir", []string{}).SetDescription("Get directory of taskfile in which selected task is written.")
+	flags.Set("--path").SetDescription("Get file path of selected task.")
+	flags.Set("--dir").SetDescription("Get directory of taskfile in which selected task is written.")
 	
 	// -------------------------------------------------------------------------
 
-	flags.Set("--make-cache", []string{"-c"}).SetDescription("Make taskdata cache.")
-	flags.Set("--lib", []string{"-l"}).SetHasValue("")
+	flags.Set("--make-cache", "-c").SetDescription("Make taskdata cache.")
+	flags.Set("--lib", "-l").SetHasValue("")
 	flags.Back().SetDescription("Select a library file.\nThis is a special version of --file option.\nNo need to add an extension '.mdtklib'.")
-	flags.Set("--make-library", []string{}).SetHasValue("")
+	flags.Set("--make-library").SetHasValue("")
 	flags.Back().SetDescription("Make taskdata library.\nValue is library name.")
 
 	// -------------------------------------------------------------------------
 
-	flags.Set("--version", []string{"-v"}).SetDescription("Show version.")
-	flags.Set("--groups", []string{"-g"}).SetDescription("Show groups.")
-	flags.Set("--help", []string{"-h"}).SetDescription("Show command help.")
-	flags.Set("--manual", []string{"-m"}).SetDescription("Show mdtk manual.")
-	flags.Set("--write-configbase", []string{}).SetDescription("Write config base file to current directory.")
+	flags.Set("--version", "-v").SetDescription("Show version.")
+	flags.Set("--groups", "-g").SetDescription("Show groups.")
+	flags.Set("--help", "-h").SetDescription("Show command help.")
+	flags.Set("--manual", "-m").SetDescription("Show mdtk manual.")
+	flags.Set("--write-configbase").SetDescription("Write config base file to current directory.")
 	return flags
+}
+
+func CheckConflict(flags parse.Flag) {
+	var fclist parse.FlagConflictList
+	fclist.Conflict("--file", "--File", "--lib")
+	fclist.Conflict("--script", "--no-head-script", "--path", "--dir", "--make-library", "--version", "--groups", "--help", "--manual", "--write-configbase")
+	
+	if err := fclist.Check(flags); err != nil {
+		fmt.Print(err)
+		base.MdtkExit(1)
+	}
 }
 
 
 func main() {
 	gtname_str, flags, task_args_strarr := parse.Parse(os.Args, GetFlag())
-	flags = sub.LibToFile(flags)
+	CheckConflict(flags)
+
+	var oflags sub.OtherFlags
+	flags, oflags = sub.FixFlags(flags)
 	
 	sub.ReadConfig(flags.GetData("--file"))
 
@@ -81,7 +94,7 @@ func main() {
 	task_args := args.ToArgs(task_args_strarr...)
 	nestsize := sub.GetNestSize(flags.GetData("--nest"))
 
-	args := ArgsGroupA{flags: flags, gtname: gtname, args: task_args, nestsize: nestsize}
+	args := ArgsGroupA{flags: flags, oflags: oflags, gtname: gtname, args: task_args, nestsize: nestsize}
 
 	RunGroupA(args)
 }
@@ -109,6 +122,7 @@ Priorities within each group are in mdtk_sub/action_orders.go
 
 type ArgsGroupA struct {
 	flags parse.Flag
+	oflags sub.OtherFlags
 	gtname grtask.GroupTask
 	args args.Args
 	nestsize uint
@@ -209,7 +223,7 @@ func RunGroupD(a ArgsGroupA, b ArgsGroupB, c ArgsGroupC) {
 	// -> From the previous steps, we know there is no error, so remove it.
 	switch sub.EnumGroupD_RunOrWriteScript(c.td.Lang, FlagHas("--script"), FlagHas("--no-head-script")) {
 	case sub.ACT_RUN:
-		err := exec.Run(string(code), string(b.filename.Dir()), FlagHas("--quiet"), FlagHas("--run-in-filedir"))
+		err := exec.Run(string(code), string(b.filename.Dir()), FlagHas("--quiet"), a.oflags.RunInTaskFileDir)
 		base.Exit1_IfHasError(err)
 	case sub.ACT_SCRIPT:
 		fmt.Println(code.GetRunnableScript(exec.GetShell(), exec.GetShHead()))

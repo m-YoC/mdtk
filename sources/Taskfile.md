@@ -21,14 +21,20 @@ echo ion
 #desc> hello mdtk
 echo hello mdtk! wd:`pwd`
 
+echo embed
 #embed> sub:subtest
+echo task
 #task> sub:subtest
+echo task @
 #task> @ sub:subtest
 
+echo func
 #func> ttt sub:subtest
 ttt
 
+echo mdtk in mdtk
 mdtk -f ./SubTaskfiles/Taskfile.md sub subtest
+mdtk -F ./SubTaskfiles/Taskfile.md sub subtest
 ```
 
 ```taskfile
