@@ -3,8 +3,8 @@ package help
 import (
 	"sort"
 	"math"
-	"mdtk/group"
-	"mdtk/grtask"
+	"mdtk/taskset/group"
+	"mdtk/taskset/grtask"
 	"mdtk/taskset"
 )
 
@@ -17,6 +17,7 @@ const (
 	blue = "\033[34m"
 	clear = "\033[0m"
 )
+
 
 func doNotExistExplicitDefaultTask(tds taskset.TaskDataSet) bool {
 	for _, task := range tds.Data {

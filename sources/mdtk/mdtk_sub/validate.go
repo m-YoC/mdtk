@@ -2,7 +2,7 @@ package sub
 
 import (
 	"fmt"
-	"mdtk/grtask"
+	"mdtk/taskset/grtask"
 	"mdtk/args"
 	"mdtk/taskset"
 )

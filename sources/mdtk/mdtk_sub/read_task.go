@@ -3,10 +3,10 @@ package sub
 import (
 	"fmt"
 	"mdtk/base"
-	"mdtk/path"
-	"mdtk/read"
+	"mdtk/taskset/path"
+	"mdtk/taskset/read"
 	"mdtk/taskset"
-	"mdtk/cache"
+	"mdtk/taskset/cache"
 	_ "embed"
 	"sync"
 )

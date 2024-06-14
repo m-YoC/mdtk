@@ -2,10 +2,11 @@ package taskset
 
 import (
 	"strings"
-	"mdtk/group"
-	"mdtk/task"
-	"mdtk/code"
-	"mdtk/path"
+	"mdtk/config"
+	"mdtk/taskset/group"
+	"mdtk/taskset/task"
+	"mdtk/taskset/code"
+	"mdtk/taskset/path"
 )
 
 const (
@@ -28,6 +29,7 @@ type TaskData struct {
 	FilePath path.Path
 }
 
+
 func (td TaskData) LangIsContainedIn(l []string) bool {
 	for _, d := range l {
 		if d == td.Lang { return true }
@@ -35,47 +37,49 @@ func (td TaskData) LangIsContainedIn(l []string) bool {
 	return false
 }
 
+func (td *TaskData) SetLang(str string) {
+	td.Lang = str
+	if td.Lang == "" || td.LangIsContainedIn(config.Config.LangAlias) {
+		td.Lang = ShellLangs
+	}
+}
+
+func (td *TaskData) SetGroup(str string) {
+	td.Group.Set(str)
+}
+
+func (td *TaskData) SetTask(str string) {
+	td.Task.Set(str)
+}
+
+func (td *TaskData) SetDescription(str string) {
+	td.Description = []string{str}
+}
+
+func (td *TaskData) AppendDescription(strs ...string) {
+	td.Description = append(td.Description, strs...)
+}
+
+
 // return: (attrs, desc_that_removed_attrs)
 func (td TaskData) getAttributesFromDesc() ([]string, string) {
 	// Description size is guaranteed to at least 1.
 	str := td.Description[0] 
 	runes := []rune(str)
 	// Must have at least '[', ']' and one letter attribute.
-	if len(runes) < 3 {
+	// And must begin with '['.
+	if len(runes) < 3 || runes[0] != '[' {
 		return []string{}, str
 	}
 
-	// Must begin with '['.
-	if runes[0] != '[' {
+	end_idx := strings.Index(str, "]")
+	if end_idx == -1 {
 		return []string{}, str
 	}
-
-	attrs := []string{}
-	buf := []rune{}
-	attrs_end_idx := -1
-
-	for i, v := range runes[1:] {
-		// If ']' is found, attrs exists. 
-		if v == ']' || v == ' ' {
-			if len(buf) != 0 {
-				attrs = append(attrs, strings.ToLower(string(buf)))
-				buf = []rune{}
-			}
-			if v == ']' {
-				attrs_end_idx = i + 1
-				break
-			}
-		} else {
-			buf = append(buf, v)
-		}		
-	}
-
-	if attrs_end_idx < 0 {
-		return []string{}, str
-	}
+	attrs := strings.Fields(str[1:end_idx])
 
 	// return attrs, str
-	return attrs, strings.TrimSpace(string(runes[attrs_end_idx+1:]))
+	return attrs, strings.TrimSpace(str[end_idx+1:])
 }
 
 func (td *TaskData) GetAttrsAndSet() {

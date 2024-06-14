@@ -6,7 +6,7 @@ script_head_set: set -uo pipefail
 acceptable_langs: shell sh bash
 acceptable_sub_langs: markdown md dockerfile go golang
 
-# Maximum depth at which tasks can be deployed with embedded comment
+# Maximum depth at which embedded comment of task can be replaced recursively 
 nest_max_depth: 20
 
 # Settings of pager

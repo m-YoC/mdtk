@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"mdtk/lib"
-	"mdtk/grtask"
+	"mdtk/taskset/grtask"
 	"mdtk/taskset"
-	"mdtk/path"
 	"mdtk/config"
 )
 
@@ -15,7 +14,7 @@ func ShouldShowHelp(gtname grtask.GroupTask, tds taskset.TaskDataSet) bool {
 	return string(t) == "help" || (string(gtname) == "default" && doNotExistExplicitDefaultTask(tds))
 }
 
-func ShowHelp(filename path.Path, gtname grtask.GroupTask, tds taskset.TaskDataSet, show_private bool) {
+func ShowHelp(filename string, gtname grtask.GroupTask, tds taskset.TaskDataSet, show_private bool) {
 	tds = getEmbedDescTexts(tds)
 	tds = getEmbedArgsTexts(tds)
 

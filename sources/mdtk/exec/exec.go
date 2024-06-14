@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"mdtk/config"
-	"mdtk/path"
+	"mdtk/taskset/path"
 )
 
 func GetShell() string {
