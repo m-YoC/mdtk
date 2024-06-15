@@ -2,6 +2,7 @@ package taskset
 
 import (
 	"fmt"
+	"mdtk/taskset/lang"
 	"mdtk/taskset/group"
 	"mdtk/taskset/task"
 	"mdtk/taskset/code"
@@ -76,7 +77,7 @@ func (tds TaskDataSet) GetTaskData(gname group.Group, tname task.Task, err error
 }
 
 
-func (tds TaskDataSet) GetCode(gname group.Group, tname task.Task, err error) (code.Code, string, error) {
+func (tds TaskDataSet) GetCode(gname group.Group, tname task.Task, err error) (code.Code, lang.Lang, error) {
 	td, err := tds.GetTaskData(gname, tname, err)
 	if err != nil {
 		return "", "", err

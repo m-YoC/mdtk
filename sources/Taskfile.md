@@ -6,6 +6,13 @@ embed: 1
 
 ## Base Test
 
+```powershell task::hello
+$aaa = "Hello"
+$bbb = 'World'
+echo $aaa
+Write-Host $bbb -ForegroundColor Red
+```
+
 ```bash task::hello_world  -- aaa
 #desc> hello world
 #desc> test sample

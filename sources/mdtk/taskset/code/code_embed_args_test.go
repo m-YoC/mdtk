@@ -24,7 +24,7 @@ func Test_escapeQuoteAndEnclose(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := escapeQuoteAndEnclose(tt.str, tt.quote)
+			s := escapeQuoteAndEnclose(tt.str, tt.quote, `\`)
 			assert.Equal(t, tt.expected, s)
 		})
 	}

@@ -1,11 +1,11 @@
 package help
 
 import (
-	"fmt"
 	"strconv"
 	"mdtk/lib"
 	"mdtk/taskset"
 	"mdtk/config"
+	"github.com/gookit/color"
 )
 
 func ShowGroups(filename string, tds taskset.TaskDataSet, show_private bool) {
@@ -19,13 +19,13 @@ func ShowGroups(filename string, tds taskset.TaskDataSet, show_private bool) {
 	gwidth := max(10, maxlen + 2)
 	unit := [2]string{" task", " tasks"}
 
-	s := fmt.Sprintf(bgray + "[%s groups]" + clear + "\n", filename)
+	s := color.Style{color.FgGray, color.OpBold}.Sprintf("[%s groups]\n", filename)
 
 	for _, kk := range group_arr {
 		k := kk.Name
 		tasknum := len(group_map[k])
-		s += fmt.Sprintf(cyan + "%-" + strconv.Itoa(gwidth) + "s", k)
-		s += fmt.Sprintf(gray + ": " + strconv.Itoa(tasknum) + unit[lib.Btoi[int](tasknum > 1)] + clear + "\n")
+		s += color.Cyan.Sprintf("%-" + strconv.Itoa(gwidth) + "s", k)
+		s += color.Gray.Sprintf(": " + strconv.Itoa(tasknum) + unit[lib.Btoi[int](tasknum > 1)]) + "\n"
 	}
 
 	PagerOutput(s, config.Config.PagerMinLimit)

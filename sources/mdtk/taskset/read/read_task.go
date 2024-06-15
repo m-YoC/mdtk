@@ -31,7 +31,7 @@ func getTaskHeadReg() string {
 }
 
 func getProgTypeReg() string {
-	progs := append(config.Config.LangAlias, config.Config.LangAliasSub...)
+	progs := config.GetMergedLangAlias()
 	prog_reg := "(?:(?P<lang>" + strings.Join(progs, "|") + ")[ \t]+)?"
 	return prog_reg
 }

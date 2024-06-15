@@ -2,7 +2,7 @@ package taskset
 
 import (
 	"strings"
-	"mdtk/config"
+	"mdtk/taskset/lang"
 	"mdtk/taskset/group"
 	"mdtk/taskset/task"
 	"mdtk/taskset/code"
@@ -15,11 +15,9 @@ const (
 	AttrBottom = "b"
 )
 
-// Inclusive name of shell languanses
-const ShellLangs = "SHELL"
 
 type TaskData struct {
-	Lang string
+	Lang lang.Lang
 	Group group.Group
 	Task task.Task
 	Code code.Code
@@ -30,18 +28,8 @@ type TaskData struct {
 }
 
 
-func (td TaskData) LangIsContainedIn(l []string) bool {
-	for _, d := range l {
-		if d == td.Lang { return true }
-	}
-	return false
-}
-
 func (td *TaskData) SetLang(str string) {
-	td.Lang = str
-	if td.Lang == "" || td.LangIsContainedIn(config.Config.LangAlias) {
-		td.Lang = ShellLangs
-	}
+	td.Lang.Set(str)
 }
 
 func (td *TaskData) SetGroup(str string) {
@@ -84,7 +72,7 @@ func (td TaskData) getAttributesFromDesc() ([]string, string) {
 
 func (td *TaskData) GetAttrsAndSet() {
 	attrs, desc := td.getAttributesFromDesc()
-	if td.Group.IsPrivate() || td.Lang != ShellLangs {
+	if td.Group.IsPrivate() || td.Lang.IsSub() {
 		attrs = append(attrs, AttrHidden)
 	}
 

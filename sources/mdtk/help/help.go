@@ -7,6 +7,7 @@ import (
 	"mdtk/taskset/grtask"
 	"mdtk/taskset"
 	"mdtk/config"
+	"github.com/gookit/color"
 )
 
 func ShouldShowHelp(gtname grtask.GroupTask, tds taskset.TaskDataSet) bool {
@@ -27,46 +28,50 @@ func ShowHelp(filename string, gtname grtask.GroupTask, tds taskset.TaskDataSet,
 	taskname_width := max(20, taskNameMaxLength + 7)
 
 	getTaskNameFormatStr := func(head_str string) string {
-		return gray + head_str + cyan + "%-" + strconv.Itoa(taskname_width - len(head_str)) + "s" + clear
+		s := color.Gray.Sprint(head_str)
+		s += color.Cyan.Sprint("%-" + strconv.Itoa(taskname_width - len(head_str)) + "s")
+		return s
 	}
 
 	// For displaying validation error
 	getTaskNameFormatStr2 := func(head_str string) string {
-		return gray + head_str + bmagenta + "! %-" + strconv.Itoa(taskname_width - len(head_str) - 2) + "s" + clear
+		s := color.Gray.Sprint(head_str)
+		s += color.Style{color.FgMagenta, color.OpBold}.Sprint("! %-" + strconv.Itoa(taskname_width - len(head_str) - 2) + "s")
+		return s
 	}
 
-	getDescFormatStr :=func(color string, head string) string {
-		return color + head + "%s" + clear
+	getDescFormatStr :=func(cstyle color.Color, head string) string {
+		return cstyle.Sprint(head + "%s")
 	}
 
-	group_format_str := getDescFormatStr(gray, "") + "\n"
-	plane_task_format_str := getTaskNameFormatStr("") + getDescFormatStr(clear, "") + "\n"
-	group_task_format_str := getTaskNameFormatStr("\\_ ") + getDescFormatStr(clear, "") + "\n"
+	group_format_str := getDescFormatStr(color.Gray, "") + "\n"
+	plane_task_format_str := getTaskNameFormatStr("") + getDescFormatStr(color.Normal, "") + "\n"
+	group_task_format_str := getTaskNameFormatStr("\\_ ") + getDescFormatStr(color.Normal, "") + "\n"
 	task_format_str := [2]string{plane_task_format_str, group_task_format_str}
 
 	// For displaying validation error
-	plane_task_format_str2 := getTaskNameFormatStr2("") + getDescFormatStr(magenta, "path: ") + "\n"
-	group_task_format_str2 := getTaskNameFormatStr2("\\_ ") + getDescFormatStr(magenta, "path: ") + "\n"
+	plane_task_format_str2 := getTaskNameFormatStr2("") + getDescFormatStr(color.Magenta, "path: ") + "\n"
+	group_task_format_str2 := getTaskNameFormatStr2("\\_ ") + getDescFormatStr(color.Magenta, "path: ") + "\n"
 	task_format_str2 := [2]string{plane_task_format_str2, group_task_format_str2}
 
-	desc_format_str1 := getTaskNameFormatStr("") + getDescFormatStr(clear, "") + "\n"
-	desc_format_str2 := getTaskNameFormatStr("|") + getDescFormatStr(clear, "") + "\n"
+	desc_format_str1 := getTaskNameFormatStr("") + getDescFormatStr(color.Normal, "") + "\n"
+	desc_format_str2 := getTaskNameFormatStr("|") + getDescFormatStr(color.Normal, "") + "\n"
 	desc_format_str := [2]string{desc_format_str1, desc_format_str2}
 
-	args_format_str1 := getTaskNameFormatStr("") + getDescFormatStr(gray, "args: ") + "\n"
-	args_format_str2 := getTaskNameFormatStr("|") + getDescFormatStr(gray, "args: ") + "\n"
+	args_format_str1 := getTaskNameFormatStr("") + getDescFormatStr(color.Gray, "args: ") + "\n"
+	args_format_str2 := getTaskNameFormatStr("|") + getDescFormatStr(color.Gray, "args: ") + "\n"
 	args_format_str := [2]string{args_format_str1, args_format_str2}
 
 	// ------ Print -------------------------------------
 
-	s := fmt.Sprintf(bgray + "[%s help]" + clear + "\n", filename)
+	s := color.Style{color.FgGray, color.OpBold}.Sprintf("[%s help]\n", filename)
 
 	for _, kk := range group_arr {
 		k := kk.Name
 		n := 0
 		if k != "_" {
 			n = 1
-			s += fmt.Sprintf(group_format_str, k)
+			s += color.Gray.Sprintf(group_format_str, k)
 		}
 		
 		for i, t := range group_map[k] {

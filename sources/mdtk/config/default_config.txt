@@ -1,10 +1,20 @@
 # shell to be used (also used for shebang of --script option)
-# shell: /bin/bash -c
+shell: /bin/bash -c
 script_head_set: set -uo pipefail
+
+
+# Check powershell version. Over v6 is pwsh.
+# On powershell, run $PSVersionTable
+powershell: pwsh -c
+powershell_head_set: Set-PSDebug -Strict
+
 
 # List of languages that can be written at beginning of fenced code block
 acceptable_langs: shell sh bash
+powershell_langs: powershell pwsh
 acceptable_sub_langs: markdown md dockerfile go golang
+
+
 
 # Maximum depth at which embedded comment of task can be replaced recursively 
 nest_max_depth: 20

@@ -17,12 +17,7 @@ func (tds TaskDataSet) GetTask(gtname grtask.GroupTask, args args.Args, args_enc
 		return "", err
 	}
 
-	switch l {
-	case ShellLangs:
-		return c.GetRunnableShellCode(tds, gtname, args, args_enclose_with_quotes, use_new_task_stack, nestsize)
-	default:
-		return c.GetRunnableSubCode(tds, gtname, nestsize)
-	}
+	return c.WithLang(l).GetRunnableCode(tds, gtname, args, args_enclose_with_quotes, use_new_task_stack, nestsize)
 }
 
 
