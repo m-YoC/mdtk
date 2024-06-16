@@ -2,7 +2,7 @@ package parse
 
 import (
 	"fmt"
-	"os"
+	"mdtk/base"
 )
 
 // 文字列をスペースで分割する. ただし括弧やクォート系で閉じられているスペースなどは除外する
@@ -23,7 +23,7 @@ func LexArgString(str string) ([]string, error) {
 		case '\\':
 			if i+1 == len(runes) || runes[i+1] == ' ' {
 				s := fmt.Sprintln("Lexical error: escape sequence not written correctly.")
-				s += fmt.Sprintf("%s\033[4;1;35m%s\033[0m%s\n", string(runes[:i]), "\\", string(runes[i+1:]))
+				// s += fmt.Sprintf("%s\033[4;1;35m%s\033[0m%s\n", string(runes[:i]), "\\", string(runes[i+1:]))
         		return i, buf, fmt.Errorf("%s", s)
 			}
 			buf += string(runes[i:i+2])
@@ -114,11 +114,6 @@ func LexArgString(str string) ([]string, error) {
 
 func MustLexArgString(str string) []string {
 	s, err := LexArgString(str)
-
-	if err != nil {
-		fmt.Print(err)
-		os.Exit(1)
-	}
-
+	base.Exit1_IfHasError(err)
 	return s
 }

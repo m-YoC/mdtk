@@ -17,7 +17,7 @@ func (tds TaskDataSet) GetTask(gtname grtask.GroupTask, args args.Args, args_enc
 		return "", err
 	}
 
-	return c.WithLang(l).GetRunnableCode(tds, gtname, args, args_enclose_with_quotes, use_new_task_stack, nestsize)
+	return l.LangX().GetRunnableCode(c, tds, gtname, args, args_enclose_with_quotes, use_new_task_stack, nestsize)
 }
 
 

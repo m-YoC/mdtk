@@ -2,7 +2,7 @@ package parse
 
 import (
 	"fmt"
-	"os"
+	"mdtk/base"
 )
 
 // 最初の -- で分割する
@@ -85,20 +85,20 @@ func Parse(args []string, flags Flag) (string, Flag, []string) {
 		fis, err := MatchOp(commands[i], flags)
 		if err != nil {
 			fmt.Printf("Parsing error: %v", err)
-			os.Exit(1)
+			base.MdtkExit(1)
 		}
 
 		c := 0
 		for _, j := range fis {
 			if flags[j].HasValue {
-				if c > 1 {
-					fmt.Printf("Parsing error: %s includes 2 or more options with a value\n", commands[i])
-					os.Exit(1)
+				if c >= 1 {
+					fmt.Printf("Parsing error: %s includes 2 or more options with a value\n", commands[i-1])
+					base.MdtkExit(1)
 				}
 
 				if i+1 >= len(commands) || GetOpType(commands[i+1]) != notOp {
 					fmt.Printf("Parsing error: option %s is not set correctly.\n", flags[j].Name)
-					os.Exit(1)
+					base.MdtkExit(1)
 				}
 
 				flags[j].Exist = true
@@ -122,7 +122,7 @@ func Parse(args []string, flags Flag) (string, Flag, []string) {
 	default:
 		fmt.Println("Parsing error: too many words (excluding options).")
 		fmt.Println(taskname)
-        os.Exit(1)
+        base.MdtkExit(1)
 	}
 
 	return res_taskname, flags, task_args

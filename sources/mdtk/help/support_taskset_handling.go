@@ -2,7 +2,7 @@ package help
 
 import (
 	"mdtk/taskset"
-	"github.com/gookit/color"
+	// "github.com/gookit/color"
 )
 
 func getEmbedDescTexts(tds taskset.TaskDataSet) taskset.TaskDataSet {
@@ -19,15 +19,8 @@ func getEmbedDescTexts(tds taskset.TaskDataSet) taskset.TaskDataSet {
 			tds.Data[i].Description = append(tds.Data[i].Description, desc...)
 		}
 
-		if task.Lang.IsPwSh() {
-			s := color.Green.Sprint( "<" + task.Lang.String() + "> ")
-			tds.Data[i].Description[0] = s + tds.Data[i].Description[0]
-		}
-
-		if task.Lang.IsSub() {
-			s := color.Blue.Sprint( "<" + task.Lang.String() + "> ")
-			tds.Data[i].Description[0] = s + tds.Data[i].Description[0]
-		}
+		s := task.Lang.LangX().GetScriptNameColor()
+		tds.Data[i].Description[0] = s + tds.Data[i].Description[0]
 	}
 	
 	return res

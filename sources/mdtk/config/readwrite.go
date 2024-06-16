@@ -87,6 +87,9 @@ func setConfig(data []string) error {
 		if err != nil {
 			continue
 		}
+		if strings.TrimSpace(v) == "" {
+			return fmt.Errorf("%s: [%s] has empty value.\n", configName, k)
+		}
 
 		switch k {
 		case "shell":

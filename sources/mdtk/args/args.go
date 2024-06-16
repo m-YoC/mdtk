@@ -12,6 +12,7 @@ var validate_arg_rex = arg_rex
 
 
 type Arg string
+
 type Args []Arg
 
 func (arg Arg) Validate() error {
@@ -28,6 +29,17 @@ func (arg Arg) GetData() (string, string, error) {
 
 	res := arg_rex.FindStringSubmatch(string(arg))
 	return res[arg_rex.SubexpIndex("name")], res[arg_rex.SubexpIndex("value")], nil
+}
+
+func (arg Arg) HasValue(value ...string) bool {
+	_, v, err := arg.GetData()
+	if err != nil { return false }
+
+	f := false
+	for _, vv := range value {
+		f = f || v == vv
+	}
+	return f
 }
 
 
@@ -48,5 +60,11 @@ func ToArgs(strs ...string) Args {
 	return args
 }
 
-
+func (args Args) HasValue(value ...string) bool {
+	f := false
+	for _, arg := range args {
+		f = f || arg.HasValue(value...)
+	}
+	return f
+}
 

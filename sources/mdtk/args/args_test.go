@@ -63,6 +63,26 @@ func Test_Arg(t *testing.T) {
 
 	})
 
+	t.Run("HasValue", func(t *testing.T) {
+		type ArgsT struct {
+			Arg string
+			SearchValue string
+		}
+
+		tests := lib.TestCases[ArgsT, bool] {
+			{Name: "Basic: found", TestArg: ArgsT{"key=value", "value"}, Expected: true},
+			{Name: "Basic: not found", TestArg: ArgsT{"key=value", "values"}, Expected: false},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.Name, func(t *testing.T) {
+				b := Arg(tt.TestArg.Arg).HasValue(tt.TestArg.SearchValue)
+				assert.Equal(t, tt.Expected, b)
+			})
+		}
+
+	})
+
 }
 
 
@@ -84,6 +104,28 @@ func Test_Args(t *testing.T) {
 				}
 			})
 		}
+	})
+
+	t.Run("HasValue", func(t *testing.T) {
+		type ArgsT struct {
+			Args []string
+			SearchValue string
+		}
+
+		args := []string{"key1=value1", "key2=value2", "key3=value3"}
+
+		tests := lib.TestCases[ArgsT, bool] {
+			{Name: "Basic: found", TestArg: ArgsT{args, "value2"}, Expected: true},
+			{Name: "Basic: not found", TestArg: ArgsT{args, "values2"}, Expected: false},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.Name, func(t *testing.T) {
+				b := ToArgs(tt.TestArg.Args...).HasValue(tt.TestArg.SearchValue)
+				assert.Equal(t, tt.Expected, b)
+			})
+		}
+
 	})
 
 }

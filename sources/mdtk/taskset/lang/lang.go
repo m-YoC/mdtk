@@ -3,6 +3,9 @@ package lang
 import (
 	"mdtk/config"
 	"mdtk/lib"
+	"mdtk/args"
+	"mdtk/taskset/grtask"
+	"mdtk/taskset/code"
 )
 
 // Inclusive name of shell languanses
@@ -36,6 +39,30 @@ func (l Lang) String() string {
 	return string(l)
 }
 
+func splitFirstAndOther(strs []string) (string, []string) {
+	switch len(strs) {
+	case 0:
+		return "echo", []string{"Bad Exec Command"}
+	case 1:
+		return strs[0], []string{}
+	default:
+		return strs[0], strs[1:]
+	}
+}
+
+// ----------------------------------------------------------------
+
+// The part where the behavior changes with the language is written here.
+
+type LangXInterface interface {
+	GetCmd(string) (string, []string)
+	GetScriptData() (string, string)
+
+	GetRunnableCode(code.Code, code.TaskDataSetInterface, grtask.GroupTask, args.Args, bool, bool, int) (code.Code, error)
+	
+	GetScriptNameColor() string
+}
+
 func (l Lang) IsShell() bool {
 	return l == ShellLangs
 }
@@ -48,53 +75,14 @@ func (l Lang) IsSub() bool {
 	return !(l.IsShell() || l.IsPwSh())
 }
 
-func (l Lang) GetId() int {
+func (l Lang) LangX() LangXInterface {
 	switch {
 	case l.IsShell():
-		return LANG_SHELL
+		return LangShell(l)
 	case l.IsPwSh():
-		return LANG_PWSH
+		return LangPwSh(l)
 	default:
-		return LANG_SUB
-	}
-}
-
-func splitFirstAndOther(strs []string) (string, []string) {
-	switch len(strs) {
-	case 0:
-		return "echo", []string{"Bad Exec Command"}
-	case 1:
-		return strs[0], []string{}
-	default:
-		return strs[0], strs[1:]
-	}
-}
-
-func (l Lang) GetCmd(code string) (string, []string) {
-	switch {
-	case l.IsShell():
-		s, ss := splitFirstAndOther(config.Config.Shell)
-		execcode := config.Config.ScriptHeadSet + "\n" + code
-		return s, append(ss, execcode)
-	case l.IsPwSh():
-		s, ss := splitFirstAndOther(config.Config.PowerShell)
-		execcode := config.Config.PwShHeadSet + "\n" + code
-		return s, append(ss, execcode)
-	default:
-		return "echo", []string{"Bad Exec Command"}
-	}
-}
-
-func (l Lang) GetScriptData() (string, string) {
-	switch {
-	case l.IsShell():
-		s, _ := splitFirstAndOther(config.Config.Shell)
-		return s, config.Config.ScriptHeadSet
-	case l.IsPwSh():
-		s, _ := splitFirstAndOther(config.Config.PowerShell)
-		return s, config.Config.PwShHeadSet
-	default:
-		return "nothing", "Bad Script Head"
+		return LangSub(l)
 	}
 }
 

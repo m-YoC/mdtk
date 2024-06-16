@@ -24,6 +24,10 @@ echo ion
 #embed> test
 ```
 
+```bash task::tt -- [t] 最もシンプルなテスト
+echo hello mdtk!
+```
+
 ```bash task::test -- [t] mdtk first test 日本語のテキストサンプルです
 #desc> hello mdtk
 echo hello mdtk! wd:`pwd`

@@ -223,10 +223,10 @@ func RunGroupD(a ArgsGroupA, b ArgsGroupB, c ArgsGroupC) {
 	// -> From the previous steps, we know there is no error, so remove it.
 	switch sub.EnumGroupD_RunOrWriteScript(c.td.Lang.IsSub(), FlagHas("--script"), FlagHas("--no-head-script")) {
 	case sub.ACT_RUN:
-		err := exec.Run(c.td.Lang, string(code), FlagHas("--quiet"), a.oflags.RunInTaskFileDir, string(b.filename.Dir()))
+		err := exec.Run(c.td.Lang.LangX(), string(code), FlagHas("--quiet"), a.oflags.RunInTaskFileDir, string(b.filename.Dir()))
 		base.Exit1_IfHasError(err)
 	case sub.ACT_SCRIPT:
-		fmt.Print(code.GetRunnableScript(c.td.Lang.GetScriptData()) + "\n")
+		fmt.Print(code.GetRunnableScript(c.td.Lang.LangX().GetScriptData()) + "\n")
 	case sub.ACT_RAW_SCRIPT:
 		fmt.Print(code.GetRawScript() + "\n")
 	}

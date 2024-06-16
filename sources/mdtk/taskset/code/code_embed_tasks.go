@@ -20,7 +20,10 @@ func taskCmdsConstraint(cmds []string, args args.Args, errstr string, err error)
 		return has_at, grtask.GroupTask(""), args, fmt.Errorf("%s", errstr)
 	}
 
-	// TODO: check args. <$>, {$} are bad.
+	if args.HasValue("{$}", "<$>") {
+		return has_at, grtask.GroupTask(""), args, fmt.Errorf("%s\n", "Args of '#task>' contains a value that cannot be used ({$}, <$>).")
+	}
+
 	return has_at, grtask.GroupTask(cmds[head_idx]), args, nil
 }
 
