@@ -49,9 +49,9 @@ func WriteLib(tds taskset.TaskDataSet, dir path.Path, output_namebase string, ne
 	tdsb := expandPublicGroupTask(tds, nestsize)
 	tdsb = removePrivateGroupTask(tdsb)
 	tdsb.RemovePathData(output_namebase)
-	return lib.WriteStruct[taskset.TaskDataSet](tdsb, filepath.Join(dir.String(), output_namebase + ".mdtklib"))
+	return lib.WriteStruct[taskset.TaskDataSet](tdsb, filepath.Join(dir.FromSlash().String(), output_namebase + ".mdtklib"))
 }
 
 func ReadLib(filename path.Path) (taskset.TaskDataSet, error) {
-	return lib.ReadStruct[taskset.TaskDataSet](filename.String())
+	return lib.ReadStruct[taskset.TaskDataSet](filename.FromSlash().String())
 }

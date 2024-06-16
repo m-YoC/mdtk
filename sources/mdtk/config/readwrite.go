@@ -67,6 +67,7 @@ func getConfigPath(dir string) string {
 	}
 
 	usr, _ := user.Current()
+	// fmt.Println(usr.HomeDir)
 	if _, err := os.Stat(filepath.Join(usr.HomeDir, configName)); err == nil {
 		return filepath.Join(usr.HomeDir, configName)
 	}
@@ -163,7 +164,7 @@ func ReadConfig(dir string) error {
 
 
 func WriteDefaultConfig() {
-	if _, err := os.Stat(filepath.Join("./", configName)); err == nil {
+	if _, err := os.Stat(filepath.Join(".", configName)); err == nil {
 		return
 	}
 

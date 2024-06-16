@@ -47,7 +47,7 @@ func GetTaskHeadRex() *regexp.Regexp {
 type Markdown string
 
 func (md Markdown) SimplifyNewline() Markdown {
-	return Markdown(strings.Replace(string(md), "\r\n", "\n", -1))
+	return Markdown(base.ToLF(string(md)))
 }
 
 func (md Markdown) ExtractCode(begin int, end_block string) (code.Code, error) {

@@ -14,7 +14,7 @@ func (md Markdown) GetTaskfileBlockPath(base_abs_path path.Path) (map[path.Path]
 
 	path, err := getTaskConfigBase[path.Path, bool](md, taskfile_head_rex, func(res *map[path.Path]bool, v string ) {
 		if tv := strings.TrimSpace(v); tv != "" {
-			abspath := bdir.GetSubFilePath(path.Path(tv))
+			abspath := bdir.GetSubFilePath(path.Path(tv).ToSlash())
 			(*res)[abspath] = false
 		}
 	})

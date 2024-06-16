@@ -160,7 +160,7 @@ func RunGroupB(a ArgsGroupA) {
 	// get Taskfile
 	filename := path.Path("")
 	if fd := a.flags.GetData("--file"); fd.Exist {
-		filename = path.Path(fd.Value)
+		filename = path.Path(fd.Value).ToSlash()
 	} else {
 		filename = read.SearchTaskfile()
 	}
@@ -201,9 +201,9 @@ func RunGroupC(a ArgsGroupA, b ArgsGroupB) {
 
 	switch sub.EnumGroupC_WritePath(FlagHas("--path"), FlagHas("--dir")) {
 	case sub.ACT_PATH:
-		fmt.Println(string(td.FilePath))
+		fmt.Println(string(td.FilePath.FromSlash()))
 	case sub.ACT_DIR:
-		fmt.Println(string(td.FilePath.Dir()))
+		fmt.Println(string(td.FilePath.Dir().FromSlash()))
 	default:
 		RunGroupD(a, b, ArgsGroupC{td: td})
 	}
@@ -226,9 +226,9 @@ func RunGroupD(a ArgsGroupA, b ArgsGroupB, c ArgsGroupC) {
 		err := exec.Run(c.td.Lang, string(code), FlagHas("--quiet"), a.oflags.RunInTaskFileDir, string(b.filename.Dir()))
 		base.Exit1_IfHasError(err)
 	case sub.ACT_SCRIPT:
-		fmt.Println(code.GetRunnableScript(c.td.Lang.GetScriptData()))
+		fmt.Print(code.GetRunnableScript(c.td.Lang.GetScriptData()) + "\n")
 	case sub.ACT_RAW_SCRIPT:
-		fmt.Println(code.GetRawScript())
+		fmt.Print(code.GetRawScript() + "\n")
 	}
 	
 	base.MdtkExit(0)	

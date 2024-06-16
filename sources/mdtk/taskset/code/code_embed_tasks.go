@@ -19,6 +19,8 @@ func taskCmdsConstraint(cmds []string, args args.Args, errstr string, err error)
 	if len(cmds) != head_idx + 1 {
 		return has_at, grtask.GroupTask(""), args, fmt.Errorf("%s", errstr)
 	}
+
+	// TODO: check args. <$>, {$} are bad.
 	return has_at, grtask.GroupTask(cmds[head_idx]), args, nil
 }
 

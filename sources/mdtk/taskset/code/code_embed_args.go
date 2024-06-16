@@ -20,7 +20,7 @@ type applyArgsConfig struct {
 	count_first int
 	count_max int
 	escape string
-	param_style_arr []string
+	param_alias_arr []string
 	set_var_func func(string, string) string
 	to_param_func func(string) string
 }
@@ -39,7 +39,7 @@ func (code Code) applyArgsBase(args args.Args, quotes bool, cfg applyArgsConfig)
 		if err != nil {
 			return "", err
 		}
-		if lib.Var(value).IsContainedIn(cfg.param_style_arr) {
+		if lib.Var(value).IsContainedIn(cfg.param_alias_arr) {
 			if count > cfg.count_max {
 				return "", fmt.Errorf("you set too many special variable ( > %d).", cfg.count_max)
 			}
@@ -56,7 +56,7 @@ func (code Code) applyArgsBase(args args.Args, quotes bool, cfg applyArgsConfig)
 
 func (code Code) ApplyArgsShell(args args.Args, enclose_with_quotes bool) (Code, error) {
 	cfg := applyArgsConfig{count_first: 1, count_max: 9, escape: `\`}
-	cfg.param_style_arr = []string{"{$}", "<$>"}
+	cfg.param_alias_arr = []string{"{$}", "<$>"}
 	cfg.set_var_func = func(name string, value string) string {
 		return name + "=" + value + "; "
 	}
@@ -69,7 +69,7 @@ func (code Code) ApplyArgsShell(args args.Args, enclose_with_quotes bool) (Code,
 
 func (code Code) ApplyArgsPwSh(args args.Args, enclose_with_quotes bool) (Code, error) {
 	cfg := applyArgsConfig{count_first: 0, count_max: 99, escape: `'`}
-	cfg.param_style_arr = []string{"<$>"}
+	cfg.param_alias_arr = []string{"<$>"}
 	cfg.set_var_func = func(name string, value string) string {
 		return "$" + name + " = " + value + "; "
 	}
