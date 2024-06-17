@@ -29,6 +29,8 @@ func Test_taskCmdsConstraint(t *testing.T) {
 		{Name: "head has more than 2 (with @)", TestArg: "@ group task -- k1=v1  k2=v2", Expected: E{ PN: lib.Negative }},
 		{Name: "no head", TestArg: "-- k1=v1  k2=v2", Expected: E{ PN: lib.Negative }},
 		{Name: "head has only @", TestArg: "@ -- k1=v1  k2=v2", Expected: E{ PN: lib.Negative }},
+		{Name: "has bad args (1)", TestArg: "group:task -- k1=v1  k2={$}", Expected: E{ PN: lib.Negative }},
+		{Name: "has bad args (2)", TestArg: "group:task -- k1=v1  k2=<$>", Expected: E{ PN: lib.Negative }},
 	}
 
 	for _, tt := range tests {

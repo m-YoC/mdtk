@@ -1,7 +1,6 @@
 package sub
 
 import (
-	"mdtk/taskset"
 )
 
 const (
@@ -67,14 +66,15 @@ func EnumGroupC_WritePath(path_flag bool, dir_flag bool) int {
 	return ACT_NIL
 }
 
-func EnumGroupD_RunOrWriteScript(lang string, script_flag bool, raw_script_flag bool) int {
-	if lang != taskset.ShellLangs {
+func EnumGroupD_RunOrWriteScript(lang_is_sub bool, script_flag bool, raw_script_flag bool) int {
+	if lang_is_sub {
 		return ACT_RAW_SCRIPT
 	}
 	
 	if raw_script_flag {
 		return ACT_RAW_SCRIPT
 	}
+	
 	if script_flag {
 		return ACT_SCRIPT
 	}

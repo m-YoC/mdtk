@@ -31,7 +31,7 @@ func getTaskHeadReg() string {
 }
 
 func getProgTypeReg() string {
-	progs := append(config.Config.LangAlias, config.Config.LangAliasSub...)
+	progs := config.GetMergedLangAlias()
 	prog_reg := "(?:(?P<lang>" + strings.Join(progs, "|") + ")[ \t]+)?"
 	return prog_reg
 }
@@ -47,7 +47,7 @@ func GetTaskHeadRex() *regexp.Regexp {
 type Markdown string
 
 func (md Markdown) SimplifyNewline() Markdown {
-	return Markdown(strings.Replace(string(md), "\r\n", "\n", -1))
+	return Markdown(base.ToLF(string(md)))
 }
 
 func (md Markdown) ExtractCode(begin int, end_block string) (code.Code, error) {

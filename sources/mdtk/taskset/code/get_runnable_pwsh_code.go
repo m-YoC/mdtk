@@ -5,11 +5,11 @@ import (
 	"mdtk/taskset/grtask"
 )
 
-func (c Code) GetRunnableShellCode(tf TaskDataSetInterface, gtname grtask.GroupTask, args args.Args, args_enclose_with_quotes bool, use_new_task_stack bool, nestsize int) (Code, error) {
+func (c Code) GetRunnablePwShCode(tf TaskDataSetInterface, gtname grtask.GroupTask, args args.Args, args_enclose_with_quotes bool, use_new_task_stack bool, nestsize int) (Code, error) {
 	if err := args.Validate(); err != nil {
 		return "", err
 	}
-
+	
 	if f:= false; !use_new_task_stack {
 		if c, f = c.ApplyConfigOnce(gtname); f {
 			return c, nil
@@ -17,10 +17,10 @@ func (c Code) GetRunnableShellCode(tf TaskDataSetInterface, gtname grtask.GroupT
 	} else {
 		c, f = c.CheckAndRemoveConfigOnce()
 	}
-	
+
 	var err error
 	if len(args) != 0 {
-		c, err = c.ApplyArgsShell(args, args_enclose_with_quotes)
+		c, err = c.ApplyArgsPwSh(args, args_enclose_with_quotes)
 		if err != nil {
 			return "", err
 		}
@@ -34,12 +34,13 @@ func (c Code) GetRunnableShellCode(tf TaskDataSetInterface, gtname grtask.GroupT
 			return "", err
 		}
 
+		/*
 		res, err = res.ApplySubTasks(tf, nestsize)
 		if err != nil {
 			return "", err
-		}
+		}*/
 		
-		return res.ApplyFuncs(tf, ParenTheses, nestsize)
+		return res.ApplyFuncs(tf, CurlyBrackets, nestsize)
 	}
 
 	if use_new_task_stack {
@@ -51,7 +52,6 @@ func (c Code) GetRunnableShellCode(tf TaskDataSetInterface, gtname grtask.GroupT
 	if err != nil {
 		return "", err
 	}
-
 	return c, nil
 }
 

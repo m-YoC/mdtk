@@ -2,6 +2,8 @@ package parse
 
 import (
 	"fmt"
+	"mdtk/base"
+	"mdtk/lib"
 	"testing"
 	"github.com/stretchr/testify/assert"
 )
@@ -90,5 +92,81 @@ func Test_MatchOp(t *testing.T) {
 			}
 		})
 	}
+	
+}
+
+func Test_Parse(t *testing.T) {
+	
+	GetFlag := func() Flag {
+		var flags Flag
+		flags.Set("--flag1", "-x").SetHasValue("314")
+		flags.Set("--flag2", "-f")
+		flags.Set("--flag3", "-g").SetHasValue("314")
+		flags.Set("--flag4", "-h")
+		return flags
+	}
+
+	type FE =  map[string]bool
+	type ExpectedT struct {
+		gtname string
+		flags_exist FE
+		args_size int
+	}
+
+	tests := lib.TestCases[[]string, ExpectedT] {
+		{Name: "Array has nothing (except arr[0])", TestArg: []string{}, 
+		Expected: ExpectedT{"default", FE{"--flag1": false, "--flag2": false, "--flag3": false, "--flag4": false}, 0}},
+		{Name: "Only gtname", TestArg: []string{"group:hello"}, 
+		Expected: ExpectedT{"group:hello", FE{"--flag1": false, "--flag2": false, "--flag3": false, "--flag4": false}, 0}},
+		{Name: "Group and task are split", TestArg: []string{"group", "hello"}, 
+		Expected: ExpectedT{"group:hello", FE{"--flag1": false, "--flag2": false, "--flag3": false, "--flag4": false}, 0}},
+		{Name: "Has one option", TestArg: []string{"group", "hello", "-f"}, 
+		Expected: ExpectedT{"group:hello", FE{"--flag1": false, "--flag2": true, "--flag3": false, "--flag4": false}, 0}},
+		{Name: "Has two options", TestArg: []string{"group", "hello", "-f", "-h"}, 
+		Expected: ExpectedT{"group:hello", FE{"--flag1": false, "--flag2": true, "--flag3": false, "--flag4": true}, 0}},
+		{Name: "Has two options (multi)", TestArg: []string{"group", "hello", "-fh"}, 
+		Expected: ExpectedT{"group:hello", FE{"--flag1": false, "--flag2": true, "--flag3": false, "--flag4": true}, 0}},
+		{Name: "Has one option and value", TestArg: []string{"group", "hello", "-g", "777"}, 
+		Expected: ExpectedT{"group:hello", FE{"--flag1": false, "--flag2": false, "--flag3": true, "--flag4": false}, 0}},
+		{Name: "Has Args", TestArg: []string{"group:hello", "--", "arg1=value1", "arg2=value2"}, 
+		Expected: ExpectedT{"group:hello", FE{"--flag1": false, "--flag2": false, "--flag3": false, "--flag4": false}, 2}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.Name, func(t *testing.T) {
+			gtname, flags, args := Parse(append([]string{"mdtk"}, tt.TestArg...), GetFlag())
+	
+			assert.Equal(t, tt.Expected.gtname, string(gtname))
+			for k, v := range tt.Expected.flags_exist {
+				assert.Equal(t, v, flags.GetData(k).Exist)
+			}
+			assert.Equal(t, tt.Expected.args_size, len(args))
+		})
+	}
+
+	t.Run("Negative Cases", func(t *testing.T){
+		tests := lib.TestCases[[]string, bool] {
+			{Name: "Too many words", TestArg: []string{"group", "hello", "world"}},
+			{Name: "Invalid option", TestArg: []string{"group", "hello", "-p"}},
+			{Name: "Multi type option includes over 2 options that need value", TestArg: []string{"group", "hello", "-xg", "777", "777"}},
+			{Name: "Option do not have value", TestArg: []string{"group", "hello", "-g"}},
+			{Name: "Option do not have value (2)", TestArg: []string{"group", "hello", "-g", "-h"}},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.Name, func(t *testing.T) {
+				test_status := -1
+				defer base.NewExit(func(status int) { 
+					test_status = status
+					panic("")
+				})()
+				assert.Panics(t, func(){ Parse(append([]string{"mdtk"}, tt.TestArg...), GetFlag()) })
+				
+				assert.Equal(t, 1, test_status)
+			})
+		}
+	})
+	
+	
 	
 }

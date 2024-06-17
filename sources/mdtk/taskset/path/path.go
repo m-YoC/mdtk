@@ -7,6 +7,7 @@ import (
     "mdtk/base"
 )
 
+
 func GetWorkingDir[T Path | string]() (T, error) {
 	p, err := base.GetWorkingDir()
     return T(p), err
@@ -28,7 +29,7 @@ func (path Path) homeDirToAbs() Path {
 
 func (path Path) GetFileAbsPath() Path {
     x, _ := filepath.Abs(string(path.homeDirToAbs()))
-    return Path(x)
+    return Path(x).ToSlash()
 }
 
 func (path Path) Dir() Path {
@@ -41,10 +42,18 @@ func (base_dir Path) GetSubFilePath(path Path) Path {
         return p
     }
     x, _ := filepath.Abs(filepath.Clean(filepath.Join(string(base_dir), string(path))))
-    return Path(x)
+    return Path(x).ToSlash()
 }
 
 
 func (path Path) Ext() string {
     return filepath.Ext(string(path))
+}
+
+func (path Path) ToSlash() Path {
+    return Path(filepath.ToSlash(string(path)))
+}
+
+func (path Path) FromSlash() Path {
+    return Path(filepath.FromSlash(string(path)))
 }

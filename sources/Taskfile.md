@@ -6,6 +6,13 @@ embed: 1
 
 ## Base Test
 
+```powershell task::hello
+$aaa = "Hello"
+$bbb = 'World'
+echo $aaa
+Write-Host $bbb -ForegroundColor Red
+```
+
 ```bash task::hello_world  -- aaa
 #desc> hello world
 #desc> test sample
@@ -15,6 +22,10 @@ read num
 echo $num
 echo ion
 #embed> test
+```
+
+```bash task::tt -- [t] 最もシンプルなテスト
+echo hello mdtk!
 ```
 
 ```bash task::test -- [t] mdtk first test 日本語のテキストサンプルです

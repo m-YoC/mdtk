@@ -7,6 +7,9 @@ import (
 	"mdtk/args"
 )
 
+var ParenTheses = []string{"(", ")"}
+var CurlyBrackets = []string{"{", "}"}
+
 func funcCmdsConstraint(cmds []string, args args.Args, errstr string, err error) (string, grtask.GroupTask, args.Args, error) {
 	if err != nil {
 		return "", grtask.GroupTask(""), args, err
@@ -17,7 +20,7 @@ func funcCmdsConstraint(cmds []string, args args.Args, errstr string, err error)
 	return cmds[0], grtask.GroupTask(cmds[1]), args, nil
 }
 
-func (code Code) ApplyFuncs(tf TaskDataSetInterface, nestsize int) (Code, error) {
+func (code Code) ApplyFuncs(tf TaskDataSetInterface, brackets []string, nestsize int) (Code, error) {
 	tasks := code.GetEmbedComment("func")
 
 	if len(tasks) == 0 {
@@ -41,7 +44,7 @@ func (code Code) ApplyFuncs(tf TaskDataSetInterface, nestsize int) (Code, error)
 		}
 		subcode = subcode.RemoveEmbedDescComment().RemoveEmbedArgsComment()
 		rsubcode := indent + strings.Replace(string(subcode), "\n", "\n" + indent, -1)
-		execsubcode := head + "(  # " + string(gtname) + "\n" + rsubcode + "\n)"
+		execsubcode := head + brackets[0] + "  # " + string(gtname) + "\n" + rsubcode + "\n" + brackets[1]
 		res = strings.Replace(res, task[0], execsubcode, 1)
 	}
 

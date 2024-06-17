@@ -8,16 +8,6 @@ import (
 	"mdtk/taskset"
 )
 
-const (
-	gray = "\033[30m"
-	bgray = "\033[1;30m"
-	cyan = "\033[36m"
-	magenta = "\033[35m"
-	bmagenta = "\033[1;35m"
-	blue = "\033[34m"
-	clear = "\033[0m"
-)
-
 
 func doNotExistExplicitDefaultTask(tds taskset.TaskDataSet) bool {
 	for _, task := range tds.Data {

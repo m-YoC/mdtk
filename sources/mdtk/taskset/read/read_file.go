@@ -8,7 +8,7 @@ import (
 )
 
 func ReadFile(path path.Path) Markdown {
-    b, err := os.ReadFile(string(path))
+    b, err := os.ReadFile(path.FromSlash().String())
     if err != nil {
         fmt.Println("File could not be read.")
         fmt.Println(path)

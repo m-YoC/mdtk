@@ -35,9 +35,9 @@ func IsLatestCache(tds taskset.TaskDataSet, filename path.Path) bool {
 }
 
 func WriteCache(tds taskset.TaskDataSet, filename path.Path) error {
-	return lib.WriteStruct[taskset.TaskDataSet](tds, toCacheName(filename))
+	return lib.WriteStruct[taskset.TaskDataSet](tds, toCacheName(filename.FromSlash()))
 }
 
 func ReadCache(filename path.Path) (taskset.TaskDataSet, error) {
-	return lib.ReadStruct[taskset.TaskDataSet](toCacheName(filename))
+	return lib.ReadStruct[taskset.TaskDataSet](toCacheName(filename.FromSlash()))
 }

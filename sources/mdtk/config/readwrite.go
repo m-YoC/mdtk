@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"os/user"
 	"strings"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 
 const configName = ".mdtkconfig"
 
+
 //go:embed default_config.txt
 var dflt string
 
@@ -21,7 +23,13 @@ type cfg struct {
 	Shell []string
 	ScriptHeadSet string
 	LangAlias []string
+
+	PowerShell []string
+	PwShHeadSet string
+	LangAliasPwSh []string
+
 	LangAliasSub []string
+
 	NestMaxDepth uint
 	Pager []string
 	PagerMinLimit uint
@@ -36,10 +44,18 @@ func init() {
 		Config.Shell = []string{os.Getenv("SHELL"), "-c"}
 	}
 
+	if runtime.GOOS == "windows" {
+		Config.PowerShell = []string{"powershell", "-c"}
+	}
+
 	if os.Getenv("PAGER") != "" {
 		Config.Pager = []string{os.Getenv("PAGER")}
 	}
 	
+}
+
+func GetMergedLangAlias() []string {
+	return append(append(Config.LangAlias, Config.LangAliasPwSh...), Config.LangAliasSub...)
 }
 
 // ------------------------------------------------------------------------------
@@ -51,6 +67,7 @@ func getConfigPath(dir string) string {
 	}
 
 	usr, _ := user.Current()
+	// fmt.Println(usr.HomeDir)
 	if _, err := os.Stat(filepath.Join(usr.HomeDir, configName)); err == nil {
 		return filepath.Join(usr.HomeDir, configName)
 	}
@@ -70,6 +87,9 @@ func setConfig(data []string) error {
 		if err != nil {
 			continue
 		}
+		if strings.TrimSpace(v) == "" {
+			return fmt.Errorf("%s: [%s] has empty value.\n", configName, k)
+		}
 
 		switch k {
 		case "shell":
@@ -85,6 +105,20 @@ func setConfig(data []string) error {
 				return err
 			} else {
 				Config.LangAlias = s
+			}
+		case "powershell":
+			if s, err := parse.LexArgString(v); err != nil {
+				return err
+			} else {
+				Config.PowerShell = s
+			}
+		case "powershell_head_set":
+			Config.PwShHeadSet = strings.TrimSpace(v)
+		case "powershell_langs":
+			if s, err := parse.LexArgString(v); err != nil {
+				return err
+			} else {
+				Config.LangAliasPwSh = s
 			}
 		case "acceptable_sub_langs":
 			if s, err := parse.LexArgString(v); err != nil {
@@ -133,7 +167,7 @@ func ReadConfig(dir string) error {
 
 
 func WriteDefaultConfig() {
-	if _, err := os.Stat(filepath.Join("./", configName)); err == nil {
+	if _, err := os.Stat(filepath.Join(".", configName)); err == nil {
 		return
 	}
 
