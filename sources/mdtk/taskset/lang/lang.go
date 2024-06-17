@@ -1,11 +1,16 @@
 package lang
 
 import (
+	"strings"
 	"mdtk/config"
 	"mdtk/lib"
 	"mdtk/args"
 	"mdtk/taskset/grtask"
 	"mdtk/taskset/code"
+	"time"
+	"strconv"
+	"path/filepath"
+	"os"
 )
 
 // Inclusive name of shell languanses
@@ -50,12 +55,44 @@ func splitFirstAndOther(strs []string) (string, []string) {
 	}
 }
 
+func removeOpC(strs []string) []string {
+	if len(strs) == 0 {
+		return []string{}
+	}
+
+	back_id := len(strs) - 1
+	back := strs[back_id]
+
+	if back == "-c" || back == "-Command" {
+		strs = strs[0:back_id]
+	} else if lib.Var('c').IsContainedIn([]rune(back)) {
+		back := strings.Replace(back, "c", "", 1)
+		strs[back_id] = back
+	}
+	return strs
+}
+
+func writeTmpFileAndGetName(code string, ext string) (string, func()) {
+	r := int(time.Now().UnixNano())
+	fpath := "./mdtk_exec_tmp_" + strconv.Itoa(r) + ext
+
+	abs_fpath, _ := filepath.Abs(fpath)
+	abs_fpath = filepath.ToSlash(abs_fpath)
+
+	os.WriteFile(fpath, []byte(code), 0666)
+	// In WSL Bash environment on Windows PwSh Terminal, 
+	// absolute path of the working directory changes temporarily at runtime, 
+	// so relative path must be returned.
+	// ex: ( D:\dir\task => /mnt/d/dir/task )
+	return fpath, func() { os.Remove(abs_fpath) }
+}
+
 // ----------------------------------------------------------------
 
 // The part where the behavior changes with the language is written here.
 
 type LangXInterface interface {
-	GetCmd(string) (string, []string)
+	GetCmd(string, bool) (string, []string, func())
 	GetScriptData() (string, string)
 
 	GetRunnableCode(code.Code, code.TaskDataSetInterface, grtask.GroupTask, args.Args, bool, bool, int) (code.Code, error)

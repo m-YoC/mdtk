@@ -10,8 +10,8 @@ import (
 
 type LangSub Lang
 
-func (l LangSub) GetCmd(code string) (string, []string) {
-	return "echo", []string{"Bad Exec Command"}
+func (l LangSub) GetCmd(code string, use_tmpfile bool) (string, []string, func()) {
+	return "echo", []string{"Bad Exec Command"}, func(){}
 }
 
 func (l LangSub) GetScriptData() (string, string) {

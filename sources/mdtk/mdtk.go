@@ -39,6 +39,8 @@ func GetFlag () parse.Flag {
 	flags.Set("--nest", "-n").SetHasValue(nestsizestr)
 	flags.Back().SetDescription("Set the nest maximum depth of embedded comment (embed/task).\nDefault is " + nestsizestr + ".")
 	
+	flags.Set("--use-tmp-file", "-t")
+	flags.Back().SetDescription("When run task, make tmp file temporarily.")
 	flags.Set("--quiet", "-q")
 	flags.Back().SetDescription("Task output is not sent to standard output.")
 	
@@ -221,9 +223,9 @@ func RunGroupD(a ArgsGroupA, b ArgsGroupB, c ArgsGroupC) {
 
 	// td, err := tds.GetTaskData(gtname.Split())
 	// -> From the previous steps, we know there is no error, so remove it.
-	switch sub.EnumGroupD_RunOrWriteScript(c.td.Lang.IsSub(), FlagHas("--script"), FlagHas("--no-head-script")) {
+	switch sub.EnumGroupD_RunOrWriteScript(c.td.Lang.IsSub(), FlagHas("-s"), FlagHas("-S")) {
 	case sub.ACT_RUN:
-		err := exec.Run(c.td.Lang.LangX(), string(code), FlagHas("--quiet"), a.oflags.RunInTaskFileDir, string(b.filename.Dir()))
+		err := exec.Run(c.td.Lang.LangX(), string(code), FlagHas("-t"), FlagHas("-q"), a.oflags.RunInTaskFileDir, string(b.filename.Dir()))
 		base.Exit1_IfHasError(err)
 	case sub.ACT_SCRIPT:
 		fmt.Print(code.GetRunnableScript(c.td.Lang.LangX().GetScriptData()) + "\n")

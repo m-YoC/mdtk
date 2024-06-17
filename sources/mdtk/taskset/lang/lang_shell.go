@@ -10,10 +10,25 @@ import (
 
 type LangShell Lang
 
-func (l LangShell) GetCmd(code string) (string, []string) {
+func (l LangShell) GetCmd(basecode string, use_tmpfile bool) (string, []string, func()) {
+	if use_tmpfile {
+		return l.GetCmdUsingTmp(basecode)
+	} else {
+		return l.GetCmdDirect(basecode)
+	}
+}
+
+func (l LangShell) GetCmdDirect(basecode string) (string, []string, func()) {
 	s, ss := splitFirstAndOther(config.Config.Shell)
-	execcode := config.Config.ScriptHeadSet + "\n" + code
-	return s, append(ss, execcode)
+	execcode := config.Config.ScriptHeadSet + "\n" + basecode
+	return s, append(ss, execcode), func(){}
+}
+
+func (l LangShell) GetCmdUsingTmp(basecode string) (string, []string, func()) {
+	s, ss := splitFirstAndOther(config.Config.Shell)
+	execcode := config.Config.ScriptHeadSet + "\n" + basecode
+	fname, rmf := writeTmpFileAndGetName(execcode, ".sh")
+	return s, append(removeOpC(ss), fname), rmf
 }
 
 func (l LangShell) GetScriptData() (string, string) {

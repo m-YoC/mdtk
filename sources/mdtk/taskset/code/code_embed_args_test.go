@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_escapeQuoteAndEnclose(t *testing.T) {
+func Test_EscapeQuoteAndEnclose(t *testing.T) {
 	tests := []struct {
 		name string
 		quote string
@@ -23,7 +23,7 @@ func Test_escapeQuoteAndEnclose(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := escapeQuoteAndEnclose(tt.str, tt.quote, `\`)
+			s := EscapeQuoteAndEnclose(tt.str, tt.quote, `\`)
 			assert.Equal(t, tt.expected, s)
 		})
 	}

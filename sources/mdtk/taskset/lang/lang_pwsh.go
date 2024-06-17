@@ -10,10 +10,25 @@ import (
 
 type LangPwSh Lang
 
-func (l LangPwSh) GetCmd(code string) (string, []string) {
+func (l LangPwSh) GetCmd(basecode string, use_tmpfile bool) (string, []string, func()) {
+	if use_tmpfile {
+		return l.GetCmdUsingTmp(basecode)
+	} else {
+		return l.GetCmdDirect(basecode)
+	}
+}
+
+func (l LangPwSh) GetCmdDirect(basecode string) (string, []string, func()) {
 	s, ss := splitFirstAndOther(config.Config.PowerShell)
-	execcode := config.Config.PwShHeadSet + "\n" + code
-	return s, append(ss, execcode)
+	execcode := config.Config.PwShHeadSet + "\n" + basecode
+	return s, append(ss, execcode), func(){}
+}
+
+func (l LangPwSh) GetCmdUsingTmp(basecode string) (string, []string, func()) {
+	s, ss := splitFirstAndOther(config.Config.PowerShell)
+	execcode := config.Config.PwShHeadSet + "\n" + basecode
+	fname, rmf := writeTmpFileAndGetName(execcode, ".ps1")
+	return s, append(removeOpC(ss), fname), rmf
 }
 
 func (l LangPwSh) GetScriptData() (string, string) {

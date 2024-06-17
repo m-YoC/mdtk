@@ -9,11 +9,11 @@ import (
 )
 
 type LangInterface interface {
-	GetCmd(string) (string, []string)
+	GetCmd(string, bool) (string, []string, func())
 }
 
 
-func Run(lang LangInterface, code string, quiet_mode bool, rfd bool, fdir string) error {
+func Run(lang LangInterface, code string, use_tmpfile_mode bool, quiet_mode bool, rfd bool, fdir string) error {
 	if rfd {
 		prev, err := path.GetWorkingDir[string]()
 		if err != nil {
@@ -23,8 +23,9 @@ func Run(lang LangInterface, code string, quiet_mode bool, rfd bool, fdir string
 		os.Chdir(fdir)
 	}
 
-	cmd := GetCommand(lang.GetCmd(code))
-
+	cmd, rmf := GetCommand(lang.GetCmd(code, use_tmpfile_mode))
+	defer rmf()
+	
 	if !quiet_mode {
 		cmd.Stdout = os.Stdout
 	}
@@ -41,8 +42,7 @@ func Run(lang LangInterface, code string, quiet_mode bool, rfd bool, fdir string
 	return nil
 }
 
-func GetCommand(first string, other []string) *exec.Cmd {
-	return exec.Command(first, other...)
+func GetCommand(first string, other []string, rmf func()) (*exec.Cmd, func()) {
+	return exec.Command(first, other...), rmf
 }
-
 

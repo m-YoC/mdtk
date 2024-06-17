@@ -8,7 +8,7 @@ import (
 	"mdtk/args"
 )
 
-func escapeQuoteAndEnclose(s string, q string, esc string) string {
+func EscapeQuoteAndEnclose(s string, q string, esc string) string {
 	if q == "" {
 		return s
 	}
@@ -46,7 +46,7 @@ func (code Code) applyArgsBase(args args.Args, quotes bool, cfg ApplyArgsConfig)
 			argstr += cfg.set_var_func(name, cfg.id_to_param_func(strconv.Itoa(count)))
 			count++
 		} else {
-			argstr += cfg.set_var_func(name, escapeQuoteAndEnclose(value, q, cfg.escape))
+			argstr += cfg.set_var_func(name, EscapeQuoteAndEnclose(value, q, cfg.escape))
 		}
 		
 	}
