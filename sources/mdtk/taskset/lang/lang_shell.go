@@ -10,6 +10,10 @@ import (
 
 type LangShell Lang
 
+func (l LangShell) Iam() int {
+	return LANG_SHELL
+}
+
 func (l LangShell) GetCmd(basecode string, use_tmpfile bool) (string, []string, func()) {
 	if use_tmpfile {
 		return l.GetCmdUsingTmp(basecode)

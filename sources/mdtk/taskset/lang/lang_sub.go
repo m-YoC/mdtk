@@ -10,6 +10,10 @@ import (
 
 type LangSub Lang
 
+func (l LangSub) Iam() int {
+	return LANG_SUB
+}
+
 func (l LangSub) GetCmd(code string, use_tmpfile bool) (string, []string, func()) {
 	return "echo", []string{"Bad Exec Command"}, func(){}
 }

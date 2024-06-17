@@ -55,6 +55,12 @@ func splitFirstAndOther(strs []string) (string, []string) {
 	}
 }
 
+/*
+1.  If get empty slice, do nothing.
+2. -c (-Command) option must be at the end of all options. 
+3. If -c or -Command exists the end of slice as it is, it will return all the options without the last value. 
+4. If -c used such as -cx, only c is removed and return slice.
+*/
 func removeOpC(strs []string) []string {
 	if len(strs) == 0 {
 		return []string{}
@@ -92,6 +98,7 @@ func writeTmpFileAndGetName(code string, ext string) (string, func()) {
 // The part where the behavior changes with the language is written here.
 
 type LangXInterface interface {
+	Iam() int
 	GetCmd(string, bool) (string, []string, func())
 	GetScriptData() (string, string)
 

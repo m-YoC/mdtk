@@ -39,7 +39,7 @@ func GetFlag () parse.Flag {
 	flags.Set("--nest", "-n").SetHasValue(nestsizestr)
 	flags.Back().SetDescription("Set the nest maximum depth of embedded comment (embed/task).\nDefault is " + nestsizestr + ".")
 	
-	flags.Set("--use-tmp-file", "-t")
+	flags.Set("--use-tmp", "-t")
 	flags.Back().SetDescription("When run task, make tmp file temporarily.")
 	flags.Set("--quiet", "-q")
 	flags.Back().SetDescription("Task output is not sent to standard output.")
