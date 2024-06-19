@@ -227,4 +227,4 @@ Please use PowerShell.
 
 
 ### *PowerShell
-Cannot use `{$}` in a PowerShell script. Use `<$>`.
+Cannot use special arg `{$}` in a PowerShell script. Use `<$>`.
