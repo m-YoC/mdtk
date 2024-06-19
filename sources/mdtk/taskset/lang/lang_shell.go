@@ -1,10 +1,14 @@
 package lang
 
 import (
+	"fmt"
+	"strings"
+	"mdtk/base"
 	"mdtk/config"
 	"mdtk/args"
 	"mdtk/taskset/grtask"
 	"mdtk/taskset/code"
+	"os/exec"
 	// "github.com/gookit/color"
 )
 
@@ -17,7 +21,11 @@ func (l LangShell) Iam() int {
 func (l LangShell) GetCmd(basecode string, use_tmpfile bool) (string, []string, func()) {
 	if use_tmpfile {
 		return l.GetCmdUsingTmp(basecode)
+	} else if CanRunSh() {
+		return l.GetCmdDirect(basecode)
 	} else {
+		// In powershell environment, the following replaces are required.
+		basecode = strings.Replace(basecode, "$", "\\$", -1)
 		return l.GetCmdDirect(basecode)
 	}
 }
@@ -53,5 +61,21 @@ func (l LangShell) GetRunnableCode(c code.Code, tf code.TaskDataSetInterface,
 func (l LangShell) GetScriptNameColor() string {
 	return ""
 }
+
+// ------------------------------------------------------------------------------
+
+func CanRunSh() bool {
+	s, _ := splitFirstAndOther(config.Config.Shell)
+	res, err := exec.Command(s, "-c", "x=ok; echo $x").Output()
+	if err != nil {
+		fmt.Println("Could not run test shell script.")
+		base.MdtkExit(1)
+	}
+	if string(res) == "ok\n" {
+		return true
+	}
+	return false
+}
+
 
 

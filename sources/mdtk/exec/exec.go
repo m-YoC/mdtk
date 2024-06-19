@@ -12,6 +12,9 @@ type LangInterface interface {
 	GetCmd(string, bool) (string, []string, func())
 }
 
+func GetCommand(first string, other []string, rmf func()) (*exec.Cmd, func()) {
+	return exec.Command(first, other...), rmf
+}
 
 func Run(lang LangInterface, code string, use_tmpfile_mode bool, quiet_mode bool, rfd bool, fdir string) error {
 	if rfd {
@@ -40,9 +43,5 @@ func Run(lang LangInterface, code string, use_tmpfile_mode bool, quiet_mode bool
 	}
 
 	return nil
-}
-
-func GetCommand(first string, other []string, rmf func()) (*exec.Cmd, func()) {
-	return exec.Command(first, other...), rmf
 }
 
