@@ -84,3 +84,7 @@ This makes it easier to understand when displaying the preview.
 cd ./sources/mdtk_bin/linux_amd64
 ls -lh
 ~~~
+
+~~~bash task:utils:mv-credits -- 
+mv -fi ./sources/CREDITS ./CREDITS
+~~~
