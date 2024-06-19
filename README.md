@@ -27,13 +27,14 @@ Download the appropriate binary for your environment and move it to $PATH direct
         - empty     : If 'default' task is defined, run it. Otherwise, run 'help'.
 - args       -> arg_name=arg_value
     - Write after two hyphens.
-    - {$} is a special variable for --script option, replaced by positional parameter $1...$9.
+    - `{$}` and `<$>` are special variables, replaced by positional parameter `$1`...`$9`.
 
 ### * options
-    --file, -f  [+value]      Select a task file.
+    --file, -f  [+value]      Select a task file. Task is run in working directory.
+    --File, -F  [+value]      Select a task file. Task is run in taskfile directory.
     --nest, -n  [+value]      Set the nest maximum depth of embedded comment (embed/task).
                                Default is 20.
-    --run-in-filedir, --rfd   Not run task in working directory, but run it in taskfile directory.
+    --use-tmp, -t             When run task, make tmp file temporarily.
     --quiet, -q               Task output is not sent to standard output.
     --all-task, -a            Can select private groups and hidden tasks at the command.
                                Or show all tasks that include private groups and hidden tasks at task help.
@@ -134,8 +135,7 @@ In the command, as follows, write the variables and its values after '--'.
 mdtk does not check for the existence of variables during script generation.  
 It leaves this to the SHELL environment at runtime.
 
-`arg={$}` (value is `{$}`) is a special variable for --script option, replaced by positional parameter `$1`...`$9`.  
-It cannot be used in normal task run (even if set, it cannot be read positional parameter).
+`arg={$}`, `arg=<$>` (value is `{$}`/`<$>`) is a special variable, replaced by positional parameter `$1`...`$9`.
 
 
 ### * Embedded Comments
@@ -219,3 +219,12 @@ Differences of the library and the cache are as follows.
 
 In 'taskfile' code block, you cannot read the cache/library.  
 Please use mdtk command in task when you use them at outside.  
+
+
+### *For Windows
+Cannot run in Command Prompt environment.  
+Please use PowerShell.
+
+
+### *PowerShell
+Cannot use `{$}` in a PowerShell script. Use `<$>`.

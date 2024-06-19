@@ -17,5 +17,5 @@ mdtk is a markdown task-runner using codeblock.
                                     Otherwise, run 'help'.
     args       -> arg_name=arg_value
                    Write after two hyphens.
-                   {$} is a special variable for --script option, 
+                   {$} and <$> are special variables, 
                    replaced by positional parameter $1...$9.

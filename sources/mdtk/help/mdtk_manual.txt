@@ -58,8 +58,7 @@ In the command, as follows, write the variables and its values after '--'.
 mdtk does not check for the existence of variables during script generation.
 It leaves this to the SHELL environment at runtime.
 
-arg={$} (value is {$}) is a special variable for --script option, replaced by positional parameter $1...$9.
-It cannot be used in normal task run (even if set, it cannot be read positional parameter).
+arg={$}, arg=<$> (value is {$}/<$>) is a special variable, replaced by positional parameter $1...$9.
 
 
 * Embedded Comments
@@ -136,3 +135,13 @@ Differences of the library and the cache are as follows.
 
 In 'taskfile' code block, you cannot read the cache/library.
 Please use mdtk command in task when you use them at outside.
+
+
+*For Windows
+Cannot run in Command Prompt environment.
+Please use PowerShell.
+
+
+*PowerShell
+Cannot use {$} in a PowerShell script. Use <$>.
+
