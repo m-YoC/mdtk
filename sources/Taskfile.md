@@ -66,6 +66,23 @@ mdtk -F ./SubTaskfiles/Taskfile.md sub subtest
 echo "hello mdtk! (config once)"
 ```
 
+```powershell task::pwsh-hello
+$aaa="Hello"; $bbb='世界''です';
+echo $aaa
+Write-Host $bbb -ForegroundColor Red
+try {
+Write-Host $ccc -ForegroundColor Cyan
+} catch {
+    Write-Host ccc is invalid!
+    $ccc = "invalid"
+}
+
+echo $aaa
+
+$r = Read-Host "Hahaha"
+echo $r
+```
+
 ## Embedded Comment Test
 
 ```task:embed:embed_test   mdtk embed test
