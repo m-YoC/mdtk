@@ -2,6 +2,8 @@ package taskset
 
 import (
 	"strings"
+	"strconv"
+	"mdtk/lib"
 	"mdtk/taskset/lang"
 	"mdtk/taskset/group"
 	"mdtk/taskset/task"
@@ -13,6 +15,12 @@ const (
 	AttrHidden = "hidden"
 	AttrTop    = "t"
 	AttrBottom = "b"
+	AttrPriorityPrefix = "priority:"
+)
+
+const (
+	AttrPriorityMin = -9
+	AttrPriorityMax =  9
 )
 
 
@@ -81,9 +89,22 @@ func (td *TaskData) GetAttrsAndSet() {
 }
 
 func (td TaskData) HasAttr(attr string) bool {
-	for _, v := range td.Attributes {
-		if v == attr { return true }
-	}
-	return false
+	return lib.Slice(td.Attributes).Have(attr)
 }
 
+func (td TaskData) HasAttrThatPrefixIs(attrprefix string) (string, bool) {
+	return lib.Slice(td.Attributes).HaveFunc(func(d string)bool { return strings.HasPrefix(d, attrprefix) })
+}
+
+
+func (td TaskData) GetPriority() int {
+	d, b := td.HasAttrThatPrefixIs(AttrPriorityPrefix)
+	if !b { return 0 }
+	d, _ = strings.CutPrefix(d, AttrPriorityPrefix)
+	i, err := strconv.Atoi(d)
+	if err != nil { return 0 }
+
+	if i < AttrPriorityMin || AttrPriorityMax < i { return 0 }
+
+	return i
+}

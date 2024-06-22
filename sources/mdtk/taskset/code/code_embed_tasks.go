@@ -3,6 +3,7 @@ package code
 import (
 	"fmt"
 	"strings"
+	"mdtk/base"
 	"mdtk/taskset/grtask"
 	"mdtk/args"
 	"mdtk/lib"
@@ -37,20 +38,23 @@ func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, err
 	indent := strings.Repeat(" ", 2)
 
 	res := string(code)
-	for _, task := range tasks {
+	for i, task := range tasks {
 		use_same_stack, gtname, args, err := taskCmdsConstraint(extractSubCmds(task[1]))
 		if err != nil {
 			return "", fmt.Errorf("%s-> %s\n", err, task[0])
 		}
 		head := ""
 
+		base.DebugLogGreen(nestsize-1, fmt.Sprintf("#task(%d)>\n", i+1))
 		subcode, err := tf.GetTask(gtname, args, false, !use_same_stack, nestsize-1)
 		if err != nil {
 			return "", err
 		}
 		subcode = subcode.RemoveEmbedDescComment().RemoveEmbedArgsComment()
 		rsubcode := indent + strings.Replace(string(subcode), "\n", "\n" + indent, -1)
-		execsubcode := head + "(  # " + string(gtname) + "\n" + rsubcode + "\n)"
+		execsubcode := head + "(\n"// + string(gtname) + "\n"
+		execsubcode += indent + ":" + " '" + string(gtname) + "'\n"
+		execsubcode += rsubcode + "\n)"
 		res = strings.Replace(res, task[0], execsubcode, 1)
 	}
 

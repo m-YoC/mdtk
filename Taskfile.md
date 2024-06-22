@@ -41,13 +41,21 @@ git push origin :$t
 ## Compress to .tar.gz and Decompress
 
 ~~~bash task:tar.gz:compress -- Compress binary files
+#task> tar.gz:cp-licenses -- dst=linux_amd64
+#task> tar.gz:cp-licenses -- dst=linux_arm64
 cd sources
 source ./mdtk/version.txt
+exit 0
 tar -zcvf ../mdtk_bin_v${VERSION}_amd64.tar.gz ./mdtk_bin/linux_amd64
 tar -zcvf ../mdtk_bin_v${VERSION}_arm64.tar.gz ./mdtk_bin/linux_arm64
 ~~~
 ~~~bash task:tar.gz:decompress -- Decompress binary files
 echo 'run command: tar -zxvf ./mdtk_bin_VERSION_ARCH.tar.gz'
+~~~
+~~~bash task:tar.gz:cp-licenses -- [hidden]
+#args> dst: dst directory
+sudo cp ./LICENSE ./sources/mdtk_bin/$dst/
+sudo cp ./CREDITS ./sources/mdtk_bin/$dst/
 ~~~
 
 ## Install Guide

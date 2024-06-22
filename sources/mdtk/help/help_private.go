@@ -1,6 +1,7 @@
 package help
 
 import (
+	"fmt"
 	"sort"
 	"math"
 	"mdtk/taskset/group"
@@ -112,18 +113,55 @@ func getGroupArrAndSort(group_map map[string][]taskset.TaskData, group_order map
 	return append(garr_pub, garr_prv...)
 }
 
-func countGroupTaskName(tds taskset.TaskDataSet) map[string]int {
-	res := map[string]int{}
+
+type GroupTaskIntData map[string]int
+
+func gtKey(td taskset.TaskData) string {
+	return string(td.Group) + ":" + string(td.Task)
+}
+
+func gtpKey(td taskset.TaskData) string {
+	return fmt.Sprintf("%s:%s:%d", string(td.Group), string(td.Task), td.GetPriority()) 
+}
+
+func getGroupTaskMaxPriority(tds taskset.TaskDataSet) GroupTaskIntData {
+	res := GroupTaskIntData{}
 
 	for _, t := range tds.Data {
-		key := string(t.Group) + ":" + string(t.Task)
+		key := gtKey(t)
+		p := t.GetPriority()
 		if v, ok := res[key]; ok {
-			res[key] = v + 1
+			if p > v {
+				res[key] = p
+			}
 		} else {
-			res[key] = 1
+			res[key] = p
 		}
 	}
 
 	return res
 }
+
+func countGroupTaskName(tds taskset.TaskDataSet) GroupTaskIntData {
+	max_priorities := getGroupTaskMaxPriority(tds)
+	res := GroupTaskIntData{}
+
+	for _, t := range tds.Data {
+		p := t.GetPriority()
+		maxp := max_priorities[gtKey(t)]
+		if p == maxp {
+			key := gtpKey(t)
+			if v, ok := res[key]; ok {
+				res[key] = v + 1
+			} else {
+				res[key] = 1
+			}
+		}
+		
+	}
+
+	return res
+}
+
+
 

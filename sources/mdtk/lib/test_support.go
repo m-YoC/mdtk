@@ -18,16 +18,27 @@ type TestCase[TA, TE any] struct {
 
 type TestCases[TA, TE any] []TestCase[TA, TE]
 
+func (tests TestCases[TA, TE]) Get(i int) TestCase[TA, TE] {
+	return tests[i]
+}
+
+func (tests TestCases[TA, TE]) Run(t *testing.T, f func(int)) {
+	for i, tt := range tests {
+		t.Run(tt.Name, func(t *testing.T) {
+			f(i)
+		})
+	}
+}
+
 func Test_Example(t *testing.T) {
 	t.Run("desc", func(t *testing.T) {
 		tests := TestCases[string, string] {
 			{Name: "test", TestArg: "hello", Expected: "hello"},
 		}
-		
-		for _, tt := range tests {
-			t.Run(tt.Name, func(t *testing.T) {
-				assert.Equal(t, tt.Expected, tt.TestArg)
-			})
-		}
+
+		tests.Run(t, func(i int) {
+			tt := tests.Get(i)
+			assert.Equal(t, tt.Expected, tt.TestArg)
+		})
 	})
 }

@@ -2,6 +2,7 @@ package code
 
 import (
 	"mdtk/args"
+	"mdtk/base"
 	"mdtk/taskset/grtask"
 )
 
@@ -12,6 +13,7 @@ func (c Code) GetRunnableShellCode(tf TaskDataSetInterface, gtname grtask.GroupT
 
 	if f:= false; !use_new_task_stack {
 		if c, f = c.ApplyConfigOnce(gtname); f {
+			base.DebugLogGray(nestsize, "[config once] Passed because already loaded.\n")
 			return c, nil
 		}
 	} else {
@@ -39,7 +41,7 @@ func (c Code) GetRunnableShellCode(tf TaskDataSetInterface, gtname grtask.GroupT
 			return "", err
 		}
 		
-		return res.ApplyFuncs(tf, ParenTheses, nestsize)
+		return res.ApplyFuncs(tf, ParenTheses, ":", nestsize)
 	}
 
 	if use_new_task_stack {

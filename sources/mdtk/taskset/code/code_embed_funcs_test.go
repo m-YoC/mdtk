@@ -51,7 +51,7 @@ func Test_CodeEmbedFuncs(t *testing.T) {
 		t.Run("No extra space", func(t *testing.T) {
 			code := Code("#TestString\n#func> f aaaaa\n#func> g mdtk\n") 
 	
-			res, _ := code.ApplyFuncs(TestTaskDataSet1{}, ParenTheses, 1)
+			res, _ := code.ApplyFuncs(TestTaskDataSet1{}, ParenTheses, ":", 1)
 			rex := regexp.MustCompile("(?s)function f\\(.*\n.*#TestString1.*\n\\)\nfunction g\\(.*\n.*#TestString2.*\n\\)")
 			assert.Regexp(t, rex, string(res))
 		})
@@ -59,7 +59,7 @@ func Test_CodeEmbedFuncs(t *testing.T) {
 		t.Run("Has extra space", func(t *testing.T) {
 			code := Code("#TestString\n#func>   f    	aaaaa   \n#func> g  mdtk   	\n") 
 	
-			res, _ := code.ApplyFuncs(TestTaskDataSet1{}, ParenTheses, 1)
+			res, _ := code.ApplyFuncs(TestTaskDataSet1{}, ParenTheses, ":", 1)
 			rex := regexp.MustCompile("(?s)function f\\(.*\n.*#TestString1.*\n\\)\nfunction g\\(.*\n.*#TestString2.*\n\\)")
 			assert.Regexp(t, rex, string(res))
 		})

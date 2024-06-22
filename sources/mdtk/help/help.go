@@ -66,23 +66,23 @@ func ShowHelp(filename string, gtname grtask.GroupTask, tds taskset.TaskDataSet,
 
 	s := color.Style{color.FgGray, color.OpBold}.Sprintf("[%s help]\n", filename)
 
-	for _, kk := range group_arr {
-		k := kk.Name
+	for _, gg := range group_arr {
+		g := gg.Name
 		n := 0
-		if k != "_" {
+		if g != "_" {
 			n = 1
-			s += color.Gray.Sprintf(group_format_str, k)
+			s += color.Gray.Sprintf(group_format_str, g)
 		}
 		
-		for i, t := range group_map[k] {
-			if counts[k + ":" + string(t.Task)] > 1 {
+		for i, t := range group_map[g] {
+			if counts[gtpKey(t)] > 1 {
 				s += fmt.Sprintf(task_format_str2[n], t.Task, t.FilePath)
 				continue
 			}
 
 			s += fmt.Sprintf(task_format_str[n], t.Task, t.Description[0])
 
-			idx := lib.Btoi[int](n == 1 && (i + 1) < len(group_map[k]))
+			idx := lib.Btoi[int](n == 1 && (i + 1) < len(group_map[g]))
 
 			if len(t.Description) > 1 {
 				for _, d := range t.Description[1:] {
@@ -95,7 +95,7 @@ func ShowHelp(filename string, gtname grtask.GroupTask, tds taskset.TaskDataSet,
 			
 		}
 		
-		back := group_map[k][len(group_map[k])-1]
+		back := group_map[g][len(group_map[g])-1]
 		if len(back.Description) < 2 && len(back.ArgsTexts) == 0 {
 			s += fmt.Sprintln("")
 		} 

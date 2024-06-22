@@ -3,6 +3,7 @@ package code
 import (
 	"fmt"
 	"strings"
+	"mdtk/base"
 	"mdtk/taskset/grtask"
 	"mdtk/args"
 )
@@ -26,12 +27,13 @@ func (code Code) ApplyEmbedCodes(tf TaskDataSetInterface, nestsize int) (Code, e
 	}
 
 	res := string(code)
-	for _, embed := range embeds {
+	for i, embed := range embeds {
 		gtname, err := embedCmdsConstraint(extractSubCmds(embed[1]))
 		if err != nil {
 			return "", fmt.Errorf("%s-> %s\n", err, embed[0])
 		}
 
+		base.DebugLogGreen(nestsize-1, fmt.Sprintf("#embed(%d)>\n", i+1))
 		subcode, err := tf.GetTask(grtask.GroupTask(gtname), args.Args{}, false, false, nestsize-1)
 		if err != nil {
 			return "", err

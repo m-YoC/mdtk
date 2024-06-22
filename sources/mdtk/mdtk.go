@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"mdtk/base"
 	"mdtk/exec"
 	"mdtk/parse"
@@ -63,6 +64,7 @@ func GetFlag () parse.Flag {
 
 	// -------------------------------------------------------------------------
 
+	flags.Set("--debug", "-d").SetDescription("View debug log of task embedding.")
 	flags.Set("--version", "-v").SetDescription("Show version.")
 	flags.Set("--groups", "-g").SetDescription("Show groups.")
 	flags.Set("--help", "-h").SetDescription("Show command help.")
@@ -95,6 +97,12 @@ func main() {
 	gtname := grtask.GroupTask(gtname_str)
 	task_args := args.ToArgs(task_args_strarr...)
 	nestsize := sub.GetNestSize(flags.GetData("--nest"))
+
+	if flags.GetData("--debug").Exist {
+		base.UseDebugLog(func(i int)string {
+			return strings.Repeat("-", (int(nestsize) - i)*2 + 1) + "+"
+		})
+	}
 
 	args := ArgsGroupA{flags: flags, oflags: oflags, gtname: gtname, args: task_args, nestsize: nestsize}
 
@@ -221,10 +229,12 @@ func RunGroupD(a ArgsGroupA, b ArgsGroupB, c ArgsGroupC) {
 	code, err := b.tds.GetTaskStart(a.gtname, a.args, int(a.nestsize))
 	base.Exit1_IfHasError(err)
 
+	base.DebugLogNoLayer("\n")
 	// td, err := tds.GetTaskData(gtname.Split())
 	// -> From the previous steps, we know there is no error, so remove it.
 	switch sub.EnumGroupD_RunOrWriteScript(c.td.Lang.IsSub(), FlagHas("-s"), FlagHas("-S")) {
 	case sub.ACT_RUN:
+		base.DebugLogExit()
 		err := exec.Run(c.td.Lang.LangX(), string(code), FlagHas("-t"), FlagHas("-q"), a.oflags.RunInTaskFileDir, string(b.filename.Dir()))
 		base.Exit1_IfHasError(err)
 	case sub.ACT_SCRIPT:

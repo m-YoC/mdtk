@@ -1,6 +1,7 @@
 package code
 
 import (
+	"mdtk/base"
 	"mdtk/args"
 	"mdtk/taskset/grtask"
 )
@@ -12,6 +13,7 @@ func (c Code) GetRunnablePwShCode(tf TaskDataSetInterface, gtname grtask.GroupTa
 	
 	if f:= false; !use_new_task_stack {
 		if c, f = c.ApplyConfigOnce(gtname); f {
+			base.DebugLogGray(nestsize, "[config once] Passed because already loaded.\n")
 			return c, nil
 		}
 	} else {
@@ -40,7 +42,8 @@ func (c Code) GetRunnablePwShCode(tf TaskDataSetInterface, gtname grtask.GroupTa
 			return "", err
 		}*/
 		
-		return res.ApplyFuncs(tf, CurlyBrackets, nestsize)
+		// ? is alias of Where-Object
+		return res.ApplyFuncs(tf, CurlyBrackets, "? .", nestsize)
 	}
 
 	if use_new_task_stack {

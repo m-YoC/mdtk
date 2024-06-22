@@ -50,11 +50,23 @@ func (tds TaskDataSet) GetTaskData(gname group.Group, tname task.Task, err error
 
 	found := []TaskData{}
 
+	max_priority := -9999
 	for _, t := range tds.Data {
+		if t.Group.Match(gname) && t.Task.Match(tname) {
+			if p := t.GetPriority(); p > max_priority {
+				max_priority = p
+				found = []TaskData{t}
+			} else if p == max_priority {
+				found = append(found, t)
+			}
+		}
+	}
+
+	/*for _, t := range tds.Data {
 		if t.Group.Match(gname) && t.Task.Match(tname) {
 			found = append(found, t)
 		}
-	}
+	}*/
 
 	if len(found) == 0 {
 		s := fmt.Sprintln("Do not find task.")
@@ -63,8 +75,9 @@ func (tds TaskDataSet) GetTaskData(gname group.Group, tname task.Task, err error
 	}
 
 	if len(found) > 1 {
-		s := fmt.Sprintln("Task cannot be identified.")
+		s := fmt.Sprintln("Task of max priority cannot be identified.")
 		s += fmt.Sprintln("wanted =>", "group:", gname, "/ task:", tname)
+		s += fmt.Sprintf("Max priority: %d\n", max_priority)
 		s += fmt.Sprintf("  %-10s  %-10s  %s\n", "[group]", "[task]", "[filepath]")
 		for _, v := range found {
 			s += fmt.Sprintf("- %-10s  %-10s  %s\n", v.Group, v.Task, v.FilePath)

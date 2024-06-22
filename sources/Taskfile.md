@@ -24,7 +24,15 @@ echo ion
 #embed> test
 ```
 
-```bash task::tt -- [t] 最もシンプルなテスト
+```bash task::tt -- [t priority:5] 最もシンプルなテスト
+echo hello mdtk!
+```
+
+```bash task::tt -- [t priority:-4] 最もシンプルなテスト
+echo hello mdtk!
+```
+
+```bash task::tt -- [t priority:-4] 最もシンプルなテスト
 echo hello mdtk!
 ```
 
@@ -52,7 +60,7 @@ mdtk -F ./SubTaskfiles/Taskfile.md sub subtest
 ./SubTaskfiles/Taskfile.md
 ```
 
-```md task::test2 -- [t]
+```task::test2 -- [t]
 #desc> hello
 #config> once
 echo "hello mdtk! (config once)"
@@ -74,14 +82,17 @@ echo "- subtask test -"
 echo "- config once test -"
 #embed>  test2
 #embed>  test2
+#task>  test2
 ```
 
 ```task:embed:configonce_test2   mdtk config once test2 (task)
 echo "- config once test -"
 #embed>  test2
-#task>   test2
-#task>   test2
+#task>  @ test2
+#task>  configonce_test
 #embed>  test2
+#func> hello test2
+hello
 ```
 
 ```task:embed:embed_args_test   embedded coment args is used at help

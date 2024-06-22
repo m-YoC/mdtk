@@ -2,6 +2,7 @@ package taskset
 
 import (
 	"fmt"
+	"mdtk/base"
 	"mdtk/taskset/grtask"
 	"mdtk/taskset/code"
 	"mdtk/args"
@@ -12,12 +13,16 @@ func (tds TaskDataSet) GetTask(gtname grtask.GroupTask, args args.Args, args_enc
 		return "", fmt.Errorf("Nest of embed/task comments is too deep.\n")
 	}
 
-	c, l, err := tds.GetCode(gtname.Split())
+	base.DebugLog(nestsize, fmt.Sprintf("%s / args: %v\n", gtname, args))
+
+	td, err := tds.GetTaskData(gtname.Split())
 	if err != nil {
 		return "", err
 	}
 
-	return l.LangX().GetRunnableCode(c, tds, gtname, args, args_enclose_with_quotes, use_new_task_stack, nestsize)
+	base.DebugLogGray(nestsize, fmt.Sprintf("lang: %s / path: %s\n",  td.Lang, td.FilePath))
+
+	return td.Lang.LangX().GetRunnableCode(td.Code, tds, gtname, args, args_enclose_with_quotes, use_new_task_stack, nestsize)
 }
 
 
