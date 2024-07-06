@@ -2,6 +2,7 @@ package lang
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"mdtk/base"
 	"mdtk/config"
@@ -68,7 +69,7 @@ func CanRunSh() bool {
 	s, _ := splitFirstAndOther(config.Config.Shell)
 	res, err := exec.Command(s, "-c", "x=ok; echo $x").Output()
 	if err != nil {
-		fmt.Println("Could not run test shell script.")
+		fmt.Fprintln(os.Stderr, "Could not run test shell script.")
 		base.MdtkExit(1)
 	}
 	if string(res) == "ok\n" {

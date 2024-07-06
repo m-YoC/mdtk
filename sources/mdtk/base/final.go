@@ -22,7 +22,7 @@ func MdtkExit(ecode int) {
 
 func Exit1_IfHasError(err error) {
 	if err != nil {
-		fmt.Print(err)
+		fmt.Fprint(os.Stderr, err)
 		MdtkExit(1)
 	}
 }

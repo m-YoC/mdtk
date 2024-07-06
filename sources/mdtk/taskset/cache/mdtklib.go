@@ -2,6 +2,7 @@ package cache
 
 import (
 	"fmt"
+	"os"
 	"mdtk/base"
 	"mdtk/lib"
 	"mdtk/taskset"
@@ -22,7 +23,7 @@ func expandPublicGroupTask(tds taskset.TaskDataSet, nestsize int) taskset.TaskDa
 		}
 		code, err := tds.GetTaskStart(grtask.Create(data.Group, data.Task), args.Args{}, nestsize)
 		if err != nil {
-			fmt.Print(err)
+			fmt.Fprint(os.Stderr, err)
 			base.MdtkExit(1)
 		}
 		tds.Data[i].Code = code

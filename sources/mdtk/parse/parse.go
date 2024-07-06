@@ -2,6 +2,7 @@ package parse
 
 import (
 	"fmt"
+	"os"
 	"mdtk/base"
 )
 
@@ -84,7 +85,7 @@ func Parse(args []string, flags Flag) (string, Flag, []string) {
 
 		fis, err := MatchOp(commands[i], flags)
 		if err != nil {
-			fmt.Printf("Parsing error: %v", err)
+			fmt.Fprintf(os.Stderr, "Parsing error: %v", err)
 			base.MdtkExit(1)
 		}
 
@@ -92,12 +93,12 @@ func Parse(args []string, flags Flag) (string, Flag, []string) {
 		for _, j := range fis {
 			if flags[j].HasValue {
 				if c >= 1 {
-					fmt.Printf("Parsing error: %s includes 2 or more options with a value\n", commands[i-1])
+					fmt.Fprintf(os.Stderr, "Parsing error: %s includes 2 or more options with a value\n", commands[i-1])
 					base.MdtkExit(1)
 				}
 
 				if i+1 >= len(commands) || GetOpType(commands[i+1]) != notOp {
-					fmt.Printf("Parsing error: option %s is not set correctly.\n", flags[j].Name)
+					fmt.Fprintf(os.Stderr, "Parsing error: option %s is not set correctly.\n", flags[j].Name)
 					base.MdtkExit(1)
 				}
 
@@ -120,8 +121,8 @@ func Parse(args []string, flags Flag) (string, Flag, []string) {
 	case 2: // groupname and taskname
 		res_taskname = taskname[0] + ":" + taskname[1]
 	default:
-		fmt.Println("Parsing error: too many words (excluding options).")
-		fmt.Println(taskname)
+		fmt.Fprintln(os.Stderr, "Parsing error: too many words (excluding options).")
+		fmt.Fprintln(os.Stderr, taskname)
         base.MdtkExit(1)
 	}
 

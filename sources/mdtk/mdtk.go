@@ -79,7 +79,7 @@ func CheckConflict(flags parse.Flag) {
 	fclist.Conflict("--script", "--no-head-script", "--path", "--dir", "--make-library", "--version", "--groups", "--help", "--manual", "--write-configbase")
 	
 	if err := fclist.Check(flags); err != nil {
-		fmt.Print(err)
+		fmt.Fprint(os.Stderr, err)
 		base.MdtkExit(1)
 	}
 }

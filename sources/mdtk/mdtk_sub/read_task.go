@@ -2,6 +2,7 @@ package sub
 
 import (
 	"fmt"
+	"os"
 	"mdtk/base"
 	"mdtk/taskset/path"
 	"mdtk/taskset/read"
@@ -21,7 +22,7 @@ func ReadTaskDataSet(filename path.Path, has_make_cache_flag bool) taskset.TaskD
 	case ".mdtklib":
 		return readTaskDataSetLib(filename)
 	default:
-		fmt.Printf("Extension of [%s] is not '.md' or '.mdtklib'.\n", filename)
+		fmt.Fprintf(os.Stderr, "Extension of [%s] is not '.md' or '.mdtklib'.\n", filename)
 		base.MdtkExit(1)
 	}
 
@@ -33,7 +34,7 @@ func readTaskDataSetMd(filename path.Path, make_cache_flag bool) taskset.TaskDat
 		tds, err := cache.ReadCache(filename)
 		// fmt.Println("from cache")
 		if err != nil {
-			fmt.Print(err)
+			fmt.Fprint(os.Stderr, err)
 			base.MdtkExit(1)
 		}
 
@@ -46,7 +47,7 @@ func readTaskDataSetMd(filename path.Path, make_cache_flag bool) taskset.TaskDat
 
 	tds, err := read.ReadTask(filename)
 	if err != nil {
-		fmt.Print(err)
+		fmt.Fprint(os.Stderr, err)
 		base.MdtkExit(1)
 	}
 
@@ -90,7 +91,7 @@ func readTaskDataSetMdAsync(filename path.Path, make_cache_flag bool) taskset.Ta
 
 		tds, err := cache.ReadCache(filename)
 		if err != nil {
-			fmt.Print(err)
+			fmt.Fprint(os.Stderr, err)
 			base.MdtkExit(1)
 		}
 
@@ -102,14 +103,14 @@ func readTaskDataSetMdAsync(filename path.Path, make_cache_flag bool) taskset.Ta
 		res = <-ch
 		err = <-cherr
 		if err != nil {
-			fmt.Print(err)
+			fmt.Fprint(os.Stderr, err)
 			base.MdtkExit(1)
 		}
 	} else {
 		var err error
 		res, err = read.ReadTask(filename)
 		if err != nil {
-			fmt.Print(err)
+			fmt.Fprint(os.Stderr, err)
 			base.MdtkExit(1)
 		}
 	}
@@ -132,7 +133,7 @@ func readTaskDataSetLib(filename path.Path) taskset.TaskDataSet {
 	tds, err := cache.ReadLib(filename)
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		base.MdtkExit(1)
 	}
 
