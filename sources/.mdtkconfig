@@ -5,8 +5,8 @@ script_head_set: set -uo pipefail
 
 # Check powershell version. Over v6 is pwsh.
 # On powershell, run $PSVersionTable
-powershell: pwsh -c
-powershell_head_set: Set-PSDebug -Strict
+powershell: /bin/pwsh -c
+powershell_head_set: Set-StrictMode -Version Latest; $ErrorActionPreference = 'Stop';
 
 
 # List of languages that can be written at beginning of fenced code block
