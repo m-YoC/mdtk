@@ -9,6 +9,7 @@ embed: 1
 ```powershell task::hello
 $aaa = "Hello"
 $bbb = 'World'
+echo v:$ccc
 echo $aaa
 Write-Host $bbb -ForegroundColor Red
 ```
@@ -32,7 +33,7 @@ echo hello mdtk!
 echo hello mdtk!
 ```
 
-```bash task::tt -- [t priority:-4] 最もシンプルなテスト
+```bash task::tt -- [t priority:-4 weak] 最もシンプルなテスト
 echo hello mdtk!
 ```
 
@@ -50,15 +51,8 @@ echo task @
 echo func
 #func> ttt sub:subtest
 ttt
-
-echo mdtk in mdtk
-mdtk -f ./SubTaskfiles/Taskfile.md sub subtest
-mdtk -F ./SubTaskfiles/Taskfile.md sub subtest
 ```
 
-```taskfile
-./SubTaskfiles/Taskfile.md
-```
 
 ```task::test2 -- [t]
 #desc> hello

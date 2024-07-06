@@ -129,4 +129,15 @@
     - [x] bugfix: taskやfuncの埋め込み時にconfig onceでスクリプトが削除されたとき、空の場合にエラーが返るのを対処
         - shの場合は`:`
         - pwshの場合は`? .`
+    - xxx
     - [ ] taskの@モードを除去する(config onceとの兼ね合いでバグが出そうなため)
+    - [x] bugfix: taskset/read packageのReadFileでホームディレクトリ`~`を変換してなかったのを修正
+    - [x] `weak`属性を追加する
+        - GetPriority()関数で`priority:Min-1`を出す
+        - `priority`属性に優先する
+    - [x] 位置パラメータの設定に`{?}`, `<?>`モード追加
+        - Optionalなモード
+    - [ ] エラーに関する出力が標準出力の方に出されてしまっていたので、標準エラー出力に出るように修正する
+
+
+    
