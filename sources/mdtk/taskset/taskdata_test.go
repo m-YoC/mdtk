@@ -132,6 +132,9 @@ func Test_TaskData(t *testing.T) {
 			{Name: "ok", 
 			TestArg: A{attr: []string{"attr1", "attr:2", "attr3"}, want: "attr:"}, 
 			Expected: E{attr: "attr:2", has: true}},
+			{Name: "If has over 2 data, get first one", 
+			TestArg: A{attr: []string{"attr1", "attr:2", "attr:3", "attr4"}, want: "attr:"}, 
+			Expected: E{attr: "attr:2", has: true}},
 			{Name: "bad", 
 			TestArg: A{attr: []string{"attr1", "attr:2", "attr3"}, want: "yahoooooooo:"}, 
 			Expected: E{has: false}},
@@ -152,10 +155,13 @@ func Test_TaskData(t *testing.T) {
 			{Name: "No priority attr", TestArg: []string{}, Expected: 0},
 			{Name: "Has positive priority attr", TestArg: []string{"priority:5"}, Expected: 5},
 			{Name: "Has negative priority attr", TestArg: []string{"priority:-5"}, Expected: -5},
+			{Name: "If has over 2 priority attrs, return first one", TestArg: []string{"priority:-5", "priority: 5"}, Expected: -5},
 			{Name: "Overflow", TestArg: []string{"priority:10"}, Expected: 0},
 			{Name: "Underflow", TestArg: []string{"priority:-10"}, Expected: 0},
 			{Name: "Bad priority, not number", TestArg: []string{"priority:abc"}, Expected: 0},
 			{Name: "Bad priority, empty", TestArg: []string{"priority:"}, Expected: 0},
+			{Name: "Has attribute 'weak', return priority Min", TestArg: []string{"weak"}, Expected: AttrPriorityWeak},
+			{Name: "Has attribute 'weak'and priority, return priority Min", TestArg: []string{"priority:4", "weak"}, Expected: AttrPriorityWeak},
 		}
 
 		tests.Run(t, func(i int) {
