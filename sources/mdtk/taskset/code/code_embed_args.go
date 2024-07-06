@@ -20,9 +20,13 @@ type ApplyArgsConfig struct {
 	arg_id_first int
 	arg_id_max int
 	escape string
-	param_alias_arr []string
 	set_var_func func(string, string) string
+
+	param_alias_arr []string
 	id_to_param_func func(string) string
+
+	op_param_alias_arr []string
+	id_to_op_param_func func(string) string
 }
 
 func (code Code) applyArgsBase(args args.Args, quotes bool, cfg ApplyArgsConfig) (Code, error) {
@@ -44,6 +48,12 @@ func (code Code) applyArgsBase(args args.Args, quotes bool, cfg ApplyArgsConfig)
 				return "", fmt.Errorf("you set too many special variable ( > %d).", cfg.arg_id_max)
 			}
 			argstr += cfg.set_var_func(name, cfg.id_to_param_func(strconv.Itoa(count)))
+			count++
+		} else if lib.Var(value).IsContainedIn(cfg.op_param_alias_arr) { 
+			if count > cfg.arg_id_max {
+				return "", fmt.Errorf("you set too many special variable ( > %d).", cfg.arg_id_max)
+			}
+			argstr += cfg.set_var_func(name, cfg.id_to_op_param_func(strconv.Itoa(count)))
 			count++
 		} else {
 			argstr += cfg.set_var_func(name, EscapeQuoteAndEnclose(value, q, cfg.escape))

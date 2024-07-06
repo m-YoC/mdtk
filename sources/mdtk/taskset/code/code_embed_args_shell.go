@@ -6,13 +6,20 @@ import (
 
 func GetArgsConfigShell() ApplyArgsConfig {
 	cfg := ApplyArgsConfig{arg_id_first: 1, arg_id_max: 9, escape: `\`}
-	cfg.param_alias_arr = []string{"{$}", "<$>"}
 	cfg.set_var_func = func(name string, value string) string {
 		return name + "=" + value + "; "
 	}
+
+	cfg.param_alias_arr = []string{"{$}", "<$>"}
 	cfg.id_to_param_func = func(id string) string {
 		return "$" + id
 	}
+
+	cfg.op_param_alias_arr = []string{"{?}", "<?>"}
+	cfg.id_to_op_param_func = func(id string) string {
+		return "${" + id + "-''}"
+	}
+
 	return cfg
 }
 
