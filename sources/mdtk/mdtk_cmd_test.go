@@ -89,6 +89,18 @@ func Test_Command(t *testing.T) {
 		tt := tests2.Get(i)
 		lib.AssertStringContains(t, tt.Expected, lib.RemoveANSIColor(lib.CmdTest(tt.TestArg.cmd + file)))
 	})
+
+
+	// embed-replace-sample.task.md
+	tests3 := lib.TestCases[A, string] {
+		{Name: "replacable", TestArg: A{cmd: "mdtk ebrp embed-replace-test"}, 
+		Expected: "Already replaced."},
+	}
+
+	tests3.Run(t, func(i int) {
+		tt := tests3.Get(i)
+		lib.AssertStringContains(t, tt.Expected, lib.RemoveANSIColor(lib.CmdTest(tt.TestArg.cmd + file)))
+	})
 	
 }
 
