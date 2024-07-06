@@ -43,11 +43,12 @@ git push origin :$t
 ~~~bash task:tar.gz:compress -- Compress binary files
 #task> tar.gz:cp-licenses -- dst=linux_amd64
 #task> tar.gz:cp-licenses -- dst=linux_arm64
+#task> tar.gz:cp-licenses -- dst=win_amd64
 cd sources
 source ./mdtk/version.txt
-exit 0
 tar -zcvf ../mdtk_bin_v${VERSION}_amd64.tar.gz ./mdtk_bin/linux_amd64
 tar -zcvf ../mdtk_bin_v${VERSION}_arm64.tar.gz ./mdtk_bin/linux_arm64
+zip -rq ../mdtk_bin_v${VERSION}_win_amd64.zip ./mdtk_bin/win_amd64
 ~~~
 ~~~bash task:tar.gz:decompress -- Decompress binary files
 echo 'run command: tar -zxvf ./mdtk_bin_VERSION_ARCH.tar.gz'

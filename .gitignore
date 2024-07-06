@@ -1,2 +1,3 @@
 *.tar.gz
+*_amd64.zip
 install.sh
