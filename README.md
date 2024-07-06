@@ -48,6 +48,7 @@ Download the appropriate binary for your environment and move it to $PATH direct
                                No need to add an extension '.mdtklib'.
     --make-library  [+value]  Make taskdata library.
                                Value is library name.
+    --debug, -d               View debug log of task embedding.
     --version, -v             Show version.
     --groups, -g              Show groups.
     --help, -h                Show command help.
@@ -108,10 +109,12 @@ You can write attributes in the beginning of \<description> using '[...]'.
 
   - Set space between each attribute
   - Attributes List
-    - `hidden`: The task gets same effects as private group.
-    - `t`     : In the task help, the task will be written on the **upper side** of the group.
-    - `b`     : In the task help, the task will be written on the **lower side** of the group.
-
+    - `hidden`   : The task gets same effects as private group.
+    - `t`        : In the task help, the task will be written on the **upper side** of the group.
+    - `b`        : In the task help, the task will be written on the **lower side** of the group.
+    - `weak`     : Attach to task that may be replaced later.
+    - `priority` : Set selection priority in case of name conflicts. Write as `priority:x`.
+        - Value `x` is integer and its range is -9 ~ +9. Default priority is 0.
 
 #### example
 ~~~markdown
@@ -135,7 +138,10 @@ In the command, as follows, write the variables and its values after '--'.
 mdtk does not check for the existence of variables during script generation.  
 It leaves this to the SHELL environment at runtime.
 
-`arg={$}`, `arg=<$>` (value is `{$}`/`<$>`) is a special variable, replaced by positional parameter `$1`...`$9`.
+`arg={$}`, `arg=<$>` (value is `{$}`/`<$>`) are special variables, replaced by positional parameter `$1`...`$9`.  
+It may not work depending on the environment, so please use the one that is available.  
+(ex: shell environment -> use `{$}`, pwsh emvironment -> use `<$>`)  
+`{?}`, `<?>` are the optional version. Use after `{$}`/`<$>`.
 
 
 ### * Embedded Comments
@@ -225,6 +231,3 @@ Please use mdtk command in task when you use them at outside.
 Cannot run in Command Prompt environment.  
 Please use PowerShell.
 
-
-### *PowerShell
-Cannot use special arg `{$}` in a PowerShell script. Use `<$>`.
