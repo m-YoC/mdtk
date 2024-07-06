@@ -15,6 +15,7 @@ func (s ArraySlice[T]) Have(e T) bool {
 	return false
 }
 
+// Get first data
 func (s ArraySlice[T]) HaveFunc(f func(T)bool) (T, bool) {
 	for _, d := range s.A {
 		if f(d) { return d, true }
