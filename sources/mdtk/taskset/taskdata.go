@@ -16,11 +16,13 @@ const (
 	AttrTop    = "t"
 	AttrBottom = "b"
 	AttrPriorityPrefix = "priority:"
+	AttrWeak   = "weak"
 )
 
 const (
 	AttrPriorityMin = -9
 	AttrPriorityMax =  9
+	AttrPriorityWeak = AttrPriorityMin - 1
 )
 
 
@@ -98,6 +100,10 @@ func (td TaskData) HasAttrThatPrefixIs(attrprefix string) (string, bool) {
 
 
 func (td TaskData) GetPriority() int {
+	if td.HasAttr(AttrWeak) {
+		return AttrPriorityWeak
+	}
+
 	d, b := td.HasAttrThatPrefixIs(AttrPriorityPrefix)
 	if !b { return 0 }
 	d, _ = strings.CutPrefix(d, AttrPriorityPrefix)

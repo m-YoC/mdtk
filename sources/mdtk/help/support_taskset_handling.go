@@ -19,11 +19,17 @@ func getEmbedDescTexts(tds taskset.TaskDataSet) taskset.TaskDataSet {
 			tds.Data[i].Description = append(tds.Data[i].Description, desc...)
 		}
 
-		p := task.GetPriority()
-		if p != 0 {
-			s := color.Gray.Sprintf(" (%+2d)", p)
+		if task.HasAttr(taskset.AttrWeak) {
+			s := color.Yellow.Sprintf(" (weak)")
 			tds.Data[i].Description[0] = tds.Data[i].Description[0] + s
+		} else {
+			p := task.GetPriority()
+			if p != 0 {
+				s := color.Gray.Sprintf(" (%+2d)", p)
+				tds.Data[i].Description[0] = tds.Data[i].Description[0] + s
+			}
 		}
+		
 
 		s := task.Lang.LangX().GetScriptNameColor()
 		tds.Data[i].Description[0] = s + tds.Data[i].Description[0]
