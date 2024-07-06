@@ -22,10 +22,13 @@ func (tests TestCases[TA, TE]) Get(i int) TestCase[TA, TE] {
 	return tests[i]
 }
 
-func (tests TestCases[TA, TE]) Run(t *testing.T, f func(int)) {
+func (tests TestCases[TA, TE]) Run(t *testing.T, f func(*testing.T, int)) {
+	t.Helper()
+
 	for i, tt := range tests {
 		t.Run(tt.Name, func(t *testing.T) {
-			f(i)
+			t.Helper()
+			f(t, i)
 		})
 	}
 }
@@ -36,7 +39,7 @@ func Test_Example(t *testing.T) {
 			{Name: "test", TestArg: "hello", Expected: "hello"},
 		}
 
-		tests.Run(t, func(i int) {
+		tests.Run(t, func(t *testing.T, i int) {
 			tt := tests.Get(i)
 			assert.Equal(t, tt.Expected, tt.TestArg)
 		})

@@ -41,7 +41,7 @@ func Test_Command(t *testing.T) {
 		Expected: "weak test (not weak)"},
 	}
 
-	tests.Run(t, func(i int) {
+	tests.Run(t, func(t *testing.T, i int) {
 		tt := tests.Get(i)
 		lib.AssertStringContains(t, tt.Expected, lib.RemoveANSIColor(lib.CmdTest(tt.TestArg.cmd + file)))
 	})
@@ -85,7 +85,7 @@ func Test_Command(t *testing.T) {
 		Expected: "Text of '#args>' is simply a type of task help description."},
 	}
 
-	tests2.Run(t, func(i int) {
+	tests2.Run(t, func(t *testing.T, i int) {
 		tt := tests2.Get(i)
 		lib.AssertStringContains(t, tt.Expected, lib.RemoveANSIColor(lib.CmdTest(tt.TestArg.cmd + file)))
 	})
@@ -97,7 +97,7 @@ func Test_Command(t *testing.T) {
 		Expected: "Already replaced."},
 	}
 
-	tests3.Run(t, func(i int) {
+	tests3.Run(t, func(t *testing.T, i int) {
 		tt := tests3.Get(i)
 		lib.AssertStringContains(t, tt.Expected, lib.RemoveANSIColor(lib.CmdTest(tt.TestArg.cmd + file)))
 	})

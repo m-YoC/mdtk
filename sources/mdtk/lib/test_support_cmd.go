@@ -19,6 +19,8 @@ func CmdTest(cmd string) string {
 }
 
 func AssertStringContains(t *testing.T, substr, str string) {
+	t.Helper()
+
 	res := strings.Contains(str, substr)
 	assert.True(t, res)
 	if !res {

@@ -28,7 +28,7 @@ func Test_TaskDataSet(t *testing.T) {
 			Expected: false},
 		}
 
-		tests.Run(t, func(i int) {
+		tests.Run(t, func(t *testing.T, i int) {
 			tds := createDataSet()
 			tds.FilePath = tests[i].TestArg
 			assert.Equal(t, tests[i].Expected, tds.HasOnlyFilePathsAlreadyRead())
@@ -52,7 +52,7 @@ func Test_TaskDataSet(t *testing.T) {
 			Expected: E{datasize: 6, pathsize: 3}},
 		}
 
-		tests.Run(t, func(i int) {
+		tests.Run(t, func(t *testing.T, i int) {
 			tt := tests.Get(i)
 			tds1 := createDataSet()
 			tds2 := createDataSet()
@@ -110,7 +110,7 @@ func Test_TaskDataSet(t *testing.T) {
 			}},
 		}
 
-		tests.Run(t, func(i int) {
+		tests.Run(t, func(t *testing.T, i int) {
 			tt := tests.Get(i)
 			tds := createDataSet()
 
@@ -129,7 +129,7 @@ func Test_TaskDataSet(t *testing.T) {
 				TestArg: A{tname: "task1", re_tname2: "task1"}},
 			}
 	
-			tests.Run(t, func(i int) {
+			tests.Run(t, func(t *testing.T, i int) {
 				tt := tests.Get(i)
 				tds := createDataSet()
 
@@ -160,7 +160,7 @@ func Test_TaskDataSet(t *testing.T) {
 			TestArg: A{tname: "task1"}, Expected: E{c: "echo test1", l: "go"}},
 		}
 
-		tests.Run(t, func(i int) {
+		tests.Run(t, func(t *testing.T, i int) {
 			tt := tests.Get(i)
 			tds := createDataSet()
 
@@ -178,7 +178,7 @@ func Test_TaskDataSet(t *testing.T) {
 				TestArg: A{tname: "task1", re_tname2: "task1"}},
 			}
 	
-			tests.Run(t, func(i int) {
+			tests.Run(t, func(t *testing.T, i int) {
 				tt := tests.Get(i)
 				tds := createDataSet()
 

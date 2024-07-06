@@ -36,7 +36,7 @@ func Test_TaskData(t *testing.T) {
 			Expected: E{attr: []string{"attr:1", "attr:2", "attr:3"}, desc: ""}},
 		}
 
-		tests.Run(t, func(i int) {
+		tests.Run(t, func(t *testing.T, i int) {
 			tt := tests.Get(i)
 			td := TaskData{Description: []string{tt.TestArg}}
 			attrs, desc := td.getAttributesFromDesc()
@@ -83,7 +83,7 @@ func Test_TaskData(t *testing.T) {
 			Expected: E{attr: []string{"attr1", "attr2", "attr3", "hidden"}, desc: "description"}},
 		}
 
-		tests.Run(t, func(i int) {
+		tests.Run(t, func(t *testing.T, i int) {
 			tt := tests.Get(i)
 			if tt.TestArg.group == "" { tt.TestArg.group = "group" }
 			if tt.TestArg.lang == "" { tt.TestArg.lang = lang.ShellLangs }
@@ -112,7 +112,7 @@ func Test_TaskData(t *testing.T) {
 			TestArg: A{attr: []string{"attr1", "attr2", "attr3"}, want: "yahoooooooo"}, Expected: false},
 		}
 
-		tests.Run(t, func(i int) {
+		tests.Run(t, func(t *testing.T, i int) {
 			tt := tests.Get(i)
 			b := TaskData{Attributes: tt.TestArg.attr}.HasAttr(tt.TestArg.want)
 			assert.Equal(t, tt.Expected, b)
@@ -140,7 +140,7 @@ func Test_TaskData(t *testing.T) {
 			Expected: E{has: false}},
 		}
 
-		tests.Run(t, func(i int) {
+		tests.Run(t, func(t *testing.T, i int) {
 			tt := tests.Get(i)
 			s, b := TaskData{Attributes: tt.TestArg.attr}.HasAttrThatPrefixIs(tt.TestArg.want)
 
@@ -164,7 +164,7 @@ func Test_TaskData(t *testing.T) {
 			{Name: "Has attribute 'weak'and priority, return priority Min", TestArg: []string{"priority:4", "weak"}, Expected: AttrPriorityWeak},
 		}
 
-		tests.Run(t, func(i int) {
+		tests.Run(t, func(t *testing.T, i int) {
 			tt := tests.Get(i)
 			ii := TaskData{Attributes: tt.TestArg}.GetPriority()
 			assert.Equal(t, tt.Expected, ii)
