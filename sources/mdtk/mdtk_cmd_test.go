@@ -105,3 +105,38 @@ func Test_Command(t *testing.T) {
 }
 
 
+func Test_CommandPwSh(t *testing.T) {
+	file := " -f ../SampleTaskfiles/pwsh-sample.task.md "
+
+	type A struct {
+		cmd string
+		args string
+	}
+
+	// embed-sample.task.md
+	tests := lib.TestCases[A, string] {
+		{Name: "test #embed>", TestArg: A{cmd: "mdtk pseb embed-test"}, 
+		Expected: "hello"},
+		{Name: "test #func>", TestArg: A{cmd: "mdtk pseb func-test"}, 
+		Expected: "hello"},
+		{Name: "test #func> with args", TestArg: A{cmd: "mdtk pseb funcarg-test"}, 
+		Expected: "hello / arg: func-arg"},
+		{Name: "test #func> with args2: required type positional parameter is not set", TestArg: A{cmd: "mdtk pseb funcarg2-test"}, 
+		Expected: "OperationStopped:"},
+		{Name: "test #func> with args3: optional type positional parameter is not set", TestArg: A{cmd: "mdtk pseb funcarg3-test"}, 
+		Expected: "hello / arg: default\n"},
+		{Name: "test #config> once (embed)", TestArg: A{cmd: "mdtk pseb once1-test"}, 
+		Expected: "* first\nhello\n* second\nend\n"},
+		{Name: "test #config> once (func)", TestArg: A{cmd: "mdtk pseb once2-test"}, 
+		Expected: "* first\nhello\n* second\nhello\nend\n"},
+		{Name: "test #desc>", TestArg: A{cmd: "mdtk pseb help"}, 
+		Expected: "This is a description of '#desc>'."},
+		{Name: "test #args>", TestArg: A{cmd: "mdtk pseb help"}, 
+		Expected: "Text of '#args>' is simply a type of task help description."},
+	}
+
+	tests.Run(t, func(t *testing.T, i int) {
+		tt := tests.Get(i)
+		lib.AssertStringContains(t, tt.Expected, lib.RemoveANSIColor(lib.CmdTest(tt.TestArg.cmd + file)))
+	})
+}

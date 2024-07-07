@@ -65,6 +65,7 @@ echo '* with positional parameter'
 tt func-arg || true
 echo '* no positional parameter'
 tt || true
+echo 'end'
 ~~~
 
 - with special parameter (optional positional parameter type) 
@@ -76,6 +77,7 @@ echo '* with positional parameter'
 tt func-arg || true
 echo '* no positional parameter'
 tt || true
+echo 'end'
 ~~~
 
 ## `#config> once`
