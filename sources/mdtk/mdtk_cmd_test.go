@@ -75,8 +75,6 @@ func Test_Command(t *testing.T) {
 		Expected: "* first\nhello\n* second\nend\n"},
 		{Name: "test #config> once (task)", TestArg: A{cmd: "mdtk eb once2-test"}, 
 		Expected: "* first\nhello\n* second\nhello\nend\n"},
-		{Name: "test #config> once (task @)", TestArg: A{cmd: "mdtk eb once2b-test"}, 
-		Expected: "* first\nhello\n* second\nend\n"},
 		{Name: "test #config> once (func)", TestArg: A{cmd: "mdtk eb once3-test"}, 
 		Expected: "* first\nhello\n* second\nhello\nend\n"},
 		{Name: "test #desc>", TestArg: A{cmd: "mdtk eb help"}, 

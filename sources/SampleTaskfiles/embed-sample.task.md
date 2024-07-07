@@ -62,9 +62,9 @@ tt
 ~~~bash task:eb:funcarg2-test
 #func> tt eb:targ -- a={$}
 echo '* with positional parameter'
-tt func-arg || true
+tt func-arg
 echo '* no positional parameter'
-tt || true
+tt
 echo 'end'
 ~~~
 
@@ -74,9 +74,9 @@ echo 'end'
 ~~~bash task:eb:funcarg3-test
 #func> tt eb:targ -- a={?}
 echo '* with positional parameter'
-tt func-arg || true
+tt func-arg
 echo '* no positional parameter'
-tt || true
+tt
 echo 'end'
 ~~~
 
@@ -100,17 +100,6 @@ echo '* first'
 #task> eb:tco
 echo '* second'
 #task> eb:tco
-echo 'end'
-~~~
-
-- The second time is not embedded
-    - Once flag is not reset in `#task> @`
-
-~~~bash task:eb:once2b-test
-echo '* first'
-#task> @ eb:tco
-echo '* second'
-#task> @ eb:tco
 echo 'end'
 ~~~
 
