@@ -36,12 +36,12 @@ func (c Code) GetRunnableShellCode(tf TaskDataSetInterface, gtname grtask.GroupT
 			return "", err
 		}
 
-		res, err = res.ApplySubTasks(tf, nestsize)
+		res, err = res.ApplySubTasksShell(tf, nestsize)
 		if err != nil {
 			return "", err
 		}
 		
-		return res.ApplyFuncs(tf, ParenTheses, ":", nestsize)
+		return res.ApplyFuncsShell(tf, nestsize)
 	}
 
 	if use_new_task_stack {

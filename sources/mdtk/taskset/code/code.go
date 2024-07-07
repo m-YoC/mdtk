@@ -31,6 +31,8 @@ type TaskDataSetInterface interface {
 	GetTask(grtask.GroupTask, args.Args, bool, bool, int) (Code, error)
 }
 
+var ParenTheses = []string{"(", ")"}
+var CurlyBrackets = []string{"{", "}"}
 
 type Code string
 

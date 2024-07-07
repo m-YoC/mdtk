@@ -22,7 +22,7 @@ func taskCmdsConstraint(cmds []string, args args.Args, errstr string, err error)
 	return grtask.GroupTask(cmds[0]), args, nil
 }
 
-func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, error) {
+func (code Code) ApplySubTasks(tf TaskDataSetInterface, args_enclose_with_quotes bool, head string, brackets []string, nothing_cmd string, nestsize int) (Code, error) {
 	tasks := code.GetEmbedComment("task")
 
 	if len(tasks) == 0 {
@@ -38,20 +38,27 @@ func (code Code) ApplySubTasks(tf TaskDataSetInterface, nestsize int) (Code, err
 			return "", fmt.Errorf("%s-> %s\n", err, task[0])
 		}
 		use_new_task_stack := true
-		head := ""
 
 		base.DebugLogGreen(nestsize-1, fmt.Sprintf("#task(%d)>\n", i+1))
-		subcode, err := tf.GetTask(gtname, args, false, use_new_task_stack, nestsize-1)
+		subcode, err := tf.GetTask(gtname, args, args_enclose_with_quotes, use_new_task_stack, nestsize-1)
 		if err != nil {
 			return "", err
 		}
 		subcode = subcode.RemoveEmbedDescComment().RemoveEmbedArgsComment()
 		rsubcode := indent + strings.Replace(string(subcode), "\n", "\n" + indent, -1)
-		execsubcode := head + "(\n"// + string(gtname) + "\n"
-		execsubcode += indent + ":" + " '" + string(gtname) + "'\n"
-		execsubcode += rsubcode + "\n)"
+		execsubcode := head + brackets[0] + "\n" // + "  # " + string(gtname) + "\n"
+		execsubcode += indent + nothing_cmd + " '" + string(gtname) + "'\n"
+		execsubcode += rsubcode + "\n" + brackets[1]
 		res = strings.Replace(res, task[0], execsubcode, 1)
 	}
 
 	return Code(res), nil
+}
+
+func (code Code) ApplySubTasksShell(tf TaskDataSetInterface, nestsize int) (Code, error) {
+	return code.ApplySubTasks(tf, false, "", ParenTheses, ":", nestsize)
+}
+
+func (code Code) ApplySubTasksPwSh(tf TaskDataSetInterface, nestsize int) (Code, error) {
+	return code.ApplySubTasks(tf, true, "& ", CurlyBrackets, "? .", nestsize)
 }

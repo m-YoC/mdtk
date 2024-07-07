@@ -130,7 +130,6 @@
         - shの場合は`:`
         - pwshの場合は`? .`
     - xxx
-    - [ ] taskの@モードを除去する(config onceとの兼ね合いでバグが出そうなため)
     - [x] bugfix: taskset/read packageのReadFileでホームディレクトリ`~`を変換してなかったのを修正
     - [x] `weak`属性を追加する
         - GetPriority()関数で`priority:Min-1`を出す
@@ -139,5 +138,15 @@
         - Optionalなモード
     - [x] エラーに関する出力が標準出力の方に出されてしまっていたので、標準エラー出力に出るように修正する
 - v0.7.0以降
-
+    - [ ] macでの動作確認
+    - [ ] win及びmacでの動作検証テスト
+        - SampleTaskfilesのタスクをまとめて実行するタスクを用意する(bash/pwsh版双方)
+    - [ ] simple-helpモードの搭載
+        - 現時点でdefault無しで何もタスクを指定しないorタスク名をhelpとすることでタスクヘルプを見ることができる
+        - 
+    - [] 標準エラー出力も消す強いQuietモード
+        - 出力を捨てれば良いので実装不要
+    - [x] taskの@モードを除去する(config onceとの兼ね合いでバグが出そうなため)
+    - [x] powershellでも`#task>`を実装する
+        - スクリプトブロックを使用する
 

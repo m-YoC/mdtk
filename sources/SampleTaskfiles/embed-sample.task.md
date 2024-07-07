@@ -14,8 +14,15 @@ echo hello
 
 ~~~bash task:eb:targ -- [hidden] embedded comment test termination (with args)
 #args> a:(string)
+echo "hello / arg: $a"
+a='replaced'
+~~~
+
+~~~bash task:eb:targ_old -- [hidden] embedded comment test termination (with args)
+#args> a:(string)
 : ${a:='default'}
 echo "hello / arg: $a"
+a='replaced'
 ~~~
 
 ## `#embed>`
@@ -40,6 +47,12 @@ echo "hello / arg: $a"
 #task> eb:targ -- a=task-arg
 ~~~
 
+~~~bash task:eb:taskarg2-test
+a=task-arg
+#task> eb:targ
+echo $a
+~~~
+
 ## `#func>`
 
 - Embedding as a Function
@@ -56,28 +69,45 @@ tt
 tt
 ~~~
 
+~~~bash task:eb:funcarg2-test
+a=func-arg
+#func> tt eb:targ
+tt
+echo $a
+~~~
+
 - with special parameter (required positional parameter type) 
     - Set `a=$x`
 
-~~~bash task:eb:funcarg2-test
+~~~bash task:eb:funcarg3-test
 #func> tt eb:targ -- a={$}
+r=0
 echo '* with positional parameter'
 tt func-arg
+r=$(( r | $? ))
 echo '* no positional parameter'
 tt
+r=$(( r | $? ))
 echo 'end'
+r=$(( r | $? ))
+exit $r
 ~~~
 
 - with special parameter (optional positional parameter type) 
     - Set `a=${x-''}`
 
-~~~bash task:eb:funcarg3-test
+~~~bash task:eb:funcarg4-test
 #func> tt eb:targ -- a={?}
+r=0
 echo '* with positional parameter'
 tt func-arg
+r=$(( r | $? ))
 echo '* no positional parameter'
 tt
+r=$(( r | $? ))
 echo 'end'
+r=$(( r | $? ))
+exit $r
 ~~~
 
 ## `#config> once`

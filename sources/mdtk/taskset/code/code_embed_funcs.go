@@ -8,8 +8,6 @@ import (
 	"mdtk/args"
 )
 
-var ParenTheses = []string{"(", ")"}
-var CurlyBrackets = []string{"{", "}"}
 
 func funcCmdsConstraint(cmds []string, args args.Args, errstr string, err error) (string, grtask.GroupTask, args.Args, error) {
 	if err != nil {
@@ -21,7 +19,7 @@ func funcCmdsConstraint(cmds []string, args args.Args, errstr string, err error)
 	return cmds[0], grtask.GroupTask(cmds[1]), args, nil
 }
 
-func (code Code) ApplyFuncs(tf TaskDataSetInterface, brackets []string, nothing_cmd string, nestsize int) (Code, error) {
+func (code Code) ApplyFuncs(tf TaskDataSetInterface, args_enclose_with_quotes bool, brackets []string, nothing_cmd string, nestsize int) (Code, error) {
 	tasks := code.GetEmbedComment("func")
 
 	if len(tasks) == 0 {
@@ -40,7 +38,7 @@ func (code Code) ApplyFuncs(tf TaskDataSetInterface, brackets []string, nothing_
 		head := "function " + fname + "() "
 
 		base.DebugLogGreen(nestsize-1, fmt.Sprintf("#func(%d)> %s\n", i+1, fname))
-		subcode, err := tf.GetTask(gtname, args, false, use_new_task_stack, nestsize-1)
+		subcode, err := tf.GetTask(gtname, args, args_enclose_with_quotes, use_new_task_stack, nestsize-1)
 		if err != nil {
 			return "", err
 		}
@@ -53,4 +51,12 @@ func (code Code) ApplyFuncs(tf TaskDataSetInterface, brackets []string, nothing_
 	}
 
 	return Code(res), nil
+}
+
+func (code Code) ApplyFuncsShell(tf TaskDataSetInterface, nestsize int) (Code, error) {
+	return code.ApplyFuncs(tf, false, ParenTheses, ":", nestsize)
+}
+
+func (code Code) ApplyFuncsPwSh(tf TaskDataSetInterface, nestsize int) (Code, error) {
+	return code.ApplyFuncs(tf,  true, CurlyBrackets, "? .", nestsize)
 }

@@ -36,14 +36,14 @@ func (c Code) GetRunnablePwShCode(tf TaskDataSetInterface, gtname grtask.GroupTa
 			return "", err
 		}
 
-		/*
-		res, err = res.ApplySubTasks(tf, nestsize)
+		//*
+		res, err = res.ApplySubTasksPwSh(tf, nestsize)
 		if err != nil {
 			return "", err
-		}*/
+		}//*/
 		
 		// ? is alias of Where-Object
-		return res.ApplyFuncs(tf, CurlyBrackets, "? .", nestsize)
+		return res.ApplyFuncsPwSh(tf, nestsize)
 	}
 
 	if use_new_task_stack {

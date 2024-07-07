@@ -46,7 +46,7 @@ func Test_CodeEmbedTasks(t *testing.T) {
 		t.Run("No extra space", func(t *testing.T) {
 			code := Code("#TestString\n#task> aaaaa\n#task> mdtk\n") 
 	
-			res, _ := code.ApplySubTasks(TestTaskDataSet1{}, 1)
+			res, _ := code.ApplySubTasksShell(TestTaskDataSet1{}, 1)
 			rex := regexp.MustCompile("(?s)\\(.*\n.*#TestString1.*\n\\)\n\\(.*\n.*#TestString2.*\n\\)")
 			assert.Regexp(t, rex, string(res))
 		})
@@ -54,7 +54,7 @@ func Test_CodeEmbedTasks(t *testing.T) {
 		t.Run("Has extra space", func(t *testing.T) {
 			code := Code("#TestString\n#task>   	aaaaa   \n#task>   mdtk   	\n") 
 	
-			res, _ := code.ApplySubTasks(TestTaskDataSet1{}, 1)
+			res, _ := code.ApplySubTasksShell(TestTaskDataSet1{}, 1)
 			rex := regexp.MustCompile("(?s)\\(.*\n.*#TestString1.*\n\\)\n\\(.*\n.*#TestString2.*\n\\)")
 			assert.Regexp(t, rex, string(res))
 		})
