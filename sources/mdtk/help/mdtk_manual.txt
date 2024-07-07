@@ -73,8 +73,6 @@ You can also use '//' instead of '#'.
   #embed>  <group>:<task>                  : The selected task is directly embedded.
   #task>   <group>:<task> -- args          : The selected task is embedded as a subshell.
                                               Reset config-once flag temporarily.
-  #task> @ <group>:<task> -- args          : The selected task is embedded as a subshell.
-                                              Do not reset config-once flag, unlike 'no @'.
   #func> <funcname> <group>:<task> -- args : The selected task is embedded as a subshell type function.
                                               Reset config-once flag temporarily.
                                               If you want the function to have arguments, 
